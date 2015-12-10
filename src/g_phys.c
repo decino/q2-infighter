@@ -321,7 +321,10 @@ SV_AddGravity
 */
 void SV_AddGravity (edict_t *ent)
 {
-	ent->velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
+	if (level.frozen)
+		ent->velocity[2] = 0;
+	else
+		ent->velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
 }
 
 /*

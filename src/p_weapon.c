@@ -29,8 +29,8 @@ static byte		is_silenced;
 
 void weapon_grenade_fire (edict_t *ent, qboolean held);
 
-
-static void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
+// decino: Need this outside weapon functions, so remove static and make a prototype instead
+void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result)
 {
 	vec3_t	_distance;
 
@@ -41,7 +41,6 @@ static void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, v
 		_distance[1] = 0;
 	G_ProjectSource (point, _distance, forward, right, result);
 }
-
 
 /*
 ===============

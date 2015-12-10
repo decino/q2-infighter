@@ -338,6 +338,7 @@ typedef struct
 	int			body_que;			// dead bodies
 
 	int			power_cubes;		// ugly necessity for coop
+	qboolean	frozen;
 } level_locals_t;
 
 
@@ -786,6 +787,7 @@ void DeathmatchScoreboardMessage (edict_t *client, edict_t *killer);
 // g_pweapon.c
 //
 void PlayerNoise(edict_t *who, vec3_t where, int type);
+void P_ProjectSource (gclient_t *client, vec3_t point, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 
 //
 // m_move.c
@@ -1109,5 +1111,9 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+
+	// decino: Infighter mod data
+	edict_t		*monster_preview;
+	qboolean	has_preview;
 };
 

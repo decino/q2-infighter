@@ -393,11 +393,12 @@ void G_RunFrame (void)
 			}
 		}
 
-		if (i > 0 && i <= maxclients->value)
+		// decino: Not needed
+		/*if (i > 0 && i <= maxclients->value)
 		{
 			ClientBeginServerFrame (ent);
 			continue;
-		}
+		}*/
 
 		G_RunEntity (ent);
 	}

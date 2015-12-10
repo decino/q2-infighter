@@ -338,9 +338,16 @@ void Cmd_Notarget_f (edict_t *ent)
 {
 	char	*msg;
 
+	if (level.frozen)
+		level.frozen = false;
+	else
+		level.frozen = true;
+
+	gi.dprintf("frozen: %d\n", level.frozen); 
+
 	if (deathmatch->value && !sv_cheats->value)
 	{
-		gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
+		//gi.cprintf (ent, PRINT_HIGH, "You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
 
@@ -647,12 +654,13 @@ Cmd_Kill_f
 */
 void Cmd_Kill_f (edict_t *ent)
 {
-	if((level.time - ent->client->respawn_time) < 5)
+	// decino: Players shouldn't be able to kill themselves
+	/*if((level.time - ent->client->respawn_time) < 5)
 		return;
 	ent->flags &= ~FL_GODMODE;
 	ent->health = 0;
 	meansOfDeath = MOD_SUICIDE;
-	player_die (ent, ent, ent, 100000, vec3_origin);
+	player_die (ent, ent, ent, 100000, vec3_origin);*/
 }
 
 /*

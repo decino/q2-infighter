@@ -1173,8 +1173,8 @@ void PutClientInServer (edict_t *ent)
 	ent->air_finished = level.time + 12;
 	ent->clipmask = MASK_PLAYERSOLID;
 	ent->model = "players/male/tris.md2";
-	ent->pain = player_pain;
-	ent->die = player_die;
+	//ent->pain = player_pain;
+	//ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
@@ -1229,20 +1229,19 @@ void PutClientInServer (edict_t *ent)
 	VectorCopy (ent->s.angles, client->ps.viewangles);
 	VectorCopy (ent->s.angles, client->v_angle);
 
-	// spawn a spectator
-	if (client->pers.spectator) {
-		client->chase_target = NULL;
+	// decino: Always spawn a spectator
+	//if (client->pers.spectator) {
+	client->chase_target = NULL;
+	client->resp.spectator = true;
 
-		client->resp.spectator = true;
-
-		ent->movetype = MOVETYPE_NOCLIP;
-		ent->solid = SOLID_NOT;
-		ent->svflags |= SVF_NOCLIENT;
-		ent->client->ps.gunindex = 0;
-		gi.linkentity (ent);
-		return;
-	} else
-		client->resp.spectator = false;
+	ent->movetype = MOVETYPE_NOCLIP;
+	ent->solid = SOLID_NOT;
+	ent->svflags |= SVF_NOCLIENT;
+	ent->client->ps.gunindex = 0;
+	gi.linkentity (ent);
+	return;
+	/*} else
+		client->resp.spectator = false;*/
 
 	if (!KillBox (ent))
 	{	// could't spawn in?
@@ -1559,6 +1558,68 @@ void PrintPmove (pmove_t *pm)
 	Com_Printf ("sv %3i:%i %i\n", pm->cmd.impulse, c1, c2);
 }
 
+void MonsterPreviewThink(edict_t *self)
+{
+	trace_t tr;
+	vec3_t forward, right, offset;
+	vec3_t start, end;
+
+	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
+	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+	VectorMA(start, 8192, forward, end);
+
+	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+	VectorCopy(tr.endpos, self->s.origin);
+	VectorCopy(tr.endpos, self->s.old_origin);
+	vectoangles(forward, self->s.angles);
+
+	// decino: Only rotate horizontally
+	self->s.angles[0] = 0;
+	self->s.angles[2] = 0;
+
+	self->svflags &= ~SVF_NOCLIENT;
+	gi.linkentity(self);
+}
+
+void CreateMonsterPreview(edict_t *self)
+{
+	// decino: Remove previous preview before rendering a new one
+	if (self->monster_preview)
+		G_FreeEdict(self->monster_preview);
+
+	self->monster_preview = G_Spawn();
+	VectorSet(self->monster_preview->mins, -20, -20, -28);
+	VectorSet(self->monster_preview->maxs, 20, 20, 36);
+
+	self->monster_preview->owner = self;
+	self->monster_preview->movetype = MOVETYPE_NOCLIP;
+	self->monster_preview->solid = SOLID_NOT;
+	self->monster_preview->s.modelindex = gi.modelindex("models/monsters/brain/tris.md2");
+	self->monster_preview->s.effects = EF_SPHERETRANS;
+	self->monster_preview->think = MonsterPreviewThink;
+	self->monster_preview->nextthink = level.time + 0.1;
+	self->monster_preview->think(self->monster_preview);
+}
+
+void SpawnMonster(edict_t *ent)
+{
+	edict_t	*monster;
+
+	monster = G_Spawn();
+	SP_monster_brain(monster);
+	VectorCopy(ent->s.origin, monster->s.origin);
+
+	monster->s.angles[1] = ent->s.angles[1];
+	monster->s.frame = 0;
+	monster->monsterinfo.nextframe = 0;
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WIDOWSPLASH);
+	gi.WritePosition(ent->s.origin);
+	gi.multicast(ent->s.origin, MULTICAST_PHS);
+}
+
 /*
 ==============
 ClientThink
@@ -1706,7 +1767,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	// fire weapon from final position if needed
 	if (client->latched_buttons & BUTTON_ATTACK)
 	{
-		if (client->resp.spectator) {
+		/*if (client->resp.spectator) {
 
 			client->latched_buttons = 0;
 
@@ -1719,7 +1780,9 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		} else if (!client->weapon_thunk) {
 			client->weapon_thunk = true;
 			Think_Weapon (ent);
-		}
+		}*/
+		client->latched_buttons = 0;
+		SpawnMonster(ent->monster_preview);
 	}
 
 	if (client->resp.spectator) {
@@ -1741,6 +1804,9 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (other->inuse && other->client->chase_target == ent)
 			UpdateChaseCam(other);
 	}
+
+	// decino: Renders a translucent version of the selected monsters
+	CreateMonsterPreview(ent);
 }
 
 
@@ -1768,7 +1834,7 @@ void ClientBeginServerFrame (edict_t *ent)
 		spectator_respawn(ent);
 		return;
 	}
-
+	
 	// run weapon animations if it hasn't been done by a ucmd_t
 	if (!client->weapon_thunk && !client->resp.spectator)
 		Think_Weapon (ent);

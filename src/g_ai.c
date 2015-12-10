@@ -66,7 +66,8 @@ void AI_SetSightClient (void)
 		ent = &g_edicts[check];
 		if (ent->inuse
 			&& ent->health > 0
-			&& !(ent->flags & FL_NOTARGET) )
+			&& !(ent->flags & FL_NOTARGET
+			&& !ent->client) ) // decino: Don't target players
 		{
 			level.sight_client = ent;
 			return;		// got one
@@ -347,15 +348,16 @@ void HuntTarget (edict_t *self)
 void FoundTarget (edict_t *self)
 {
 	// let other monsters see this monster for a while
-	if (self->enemy->client)
+	/*if (self->enemy->client)
 	{
 		level.sight_entity = self;
 		level.sight_entity_framenum = level.framenum;
 		level.sight_entity->light_level = 128;
 	}
 
-	self->show_hostile = level.time + 1;		// wake up other monsters
+	self->show_hostile = level.time + 1;		// wake up other monsters*/
 
+	level.sight_client = self->enemy;
 	VectorCopy(self->enemy->s.origin, self->monsterinfo.last_sighting);
 	self->monsterinfo.trail_time = level.time;
 
@@ -386,6 +388,35 @@ void FoundTarget (edict_t *self)
 	self->monsterinfo.run (self);
 }
 
+edict_t *FindMonsterTarget(edict_t *self)
+{
+	edict_t	*ent = NULL;
+	edict_t	*best = NULL;
+
+	// TODO: Check for distance
+	while ((ent = findradius(ent, self->s.origin, 1024)) != NULL)
+	{
+		if (ent->client)
+			continue;
+		if (ent == self)
+			continue;
+		if (!ent->svflags & SVF_MONSTER)
+			continue;
+		if (ent->health < 1)
+			continue;
+		if (!visible(self, ent))
+			continue;
+		if (!best)
+		{
+			best = ent;
+			continue;
+		}
+		if (ent->max_health < best->max_health)
+			continue;
+		best = ent;
+	}
+	return best;
+}
 
 /*
 ===========
@@ -407,7 +438,8 @@ slower noticing monsters.
 qboolean FindTarget (edict_t *self)
 {
 	edict_t		*client;
-	qboolean	heardit;
+	edict_t		*monster;
+	/*qboolean	heardit;
 	int			r;
 
 	if (self->monsterinfo.aiflags & AI_GOOD_GUY)
@@ -426,17 +458,19 @@ qboolean FindTarget (edict_t *self)
 	if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
 		return false;
 
-// if the first spawnflag bit is set, the monster will only wake up on
-// really seeing the player, not another monster getting angry or hearing
-// something
+	// if the first spawnflag bit is set, the monster will only wake up on
+	// really seeing the player, not another monster getting angry or hearing
+	// something
 
-// revised behavior so they will wake up if they "see" a player make a noise
-// but not weapon impact/explosion noises
+	// revised behavior so they will wake up if they "see" a player make a noise
+	// but not weapon impact/explosion noises
 
 	heardit = false;
+
 	if ((level.sight_entity_framenum >= (level.framenum - 1)) && !(self->spawnflags & 1) )
 	{
 		client = level.sight_entity;
+
 		if (client->enemy == self->enemy)
 		{
 			return false;
@@ -455,9 +489,17 @@ qboolean FindTarget (edict_t *self)
 	else
 	{
 		client = level.sight_client;
+
 		if (!client)
 			return false;	// no clients to get mad at
 	}
+
+	client = level.sight_client;
+
+	if (client->client)
+		return true;
+
+	gi.dprintf("%s", client->classname);
 
 	// if the entity went away, forget it
 	if (!client->inuse)
@@ -468,10 +510,12 @@ qboolean FindTarget (edict_t *self)
 
 	if (client->client)
 	{
-		if (client->flags & FL_NOTARGET)
+		// decino: Just don't target clients in general
+		// if (client->flags & FL_NOTARGET)
 			return false;
 	}
-	else if (client->svflags & SVF_MONSTER)
+	gi.dprintf("%d", 1);
+	/*else if (client->svflags & SVF_MONSTER) // decino: Check monster teams here
 	{
 		if (!client->enemy)
 			return false;
@@ -485,6 +529,8 @@ qboolean FindTarget (edict_t *self)
 	}
 	else
 		return false;
+
+	gi.dprintf("%d", 1);
 
 	if (!heardit)
 	{
@@ -573,11 +619,20 @@ qboolean FindTarget (edict_t *self)
 
 //
 // got one
-//
-	FoundTarget (self);
+//*/
 
-	if (!(self->monsterinfo.aiflags & AI_SOUND_TARGET) && (self->monsterinfo.sight))
+	monster = FindMonsterTarget(self);
+
+	if (monster)
+	{
+		self->enemy = monster;
 		self->monsterinfo.sight (self, self->enemy);
+		FoundTarget(self);
+		return true;
+	}
+
+	/*if (!(self->monsterinfo.aiflags & AI_SOUND_TARGET) && (self->monsterinfo.sight))
+		self->monsterinfo.sight (self, self->enemy);*/
 
 	return true;
 }
