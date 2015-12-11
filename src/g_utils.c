@@ -566,3 +566,88 @@ qboolean KillBox (edict_t *ent)
 
 	return true;		// all clear
 }
+
+// decino: Infighter utils
+void PreviewLaserThink (edict_t *self)
+{
+	if (!self->owner || !self->owner->inuse)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+	VectorCopy(self->pos2, self->s.origin);
+	VectorCopy(self->pos1, self->s.old_origin);
+
+	self->nextthink = level.time + FRAMETIME;
+	self->owner = NULL;
+}
+
+void DrawPreviewLaser(edict_t *ent, vec3_t v1, vec3_t v2, int laser_color, int laser_size)
+{
+	edict_t *laser;
+
+	laser = G_Spawn();
+	laser->movetype	= MOVETYPE_NONE;
+	laser->solid = SOLID_NOT;
+	laser->s.renderfx = RF_BEAM|RF_TRANSLUCENT;
+	laser->s.modelindex = 1;
+	laser->classname = "monster_bbox_laser";
+	laser->s.frame = laser_size;
+    laser->owner = ent;
+	laser->s.skinnum = laser_color;
+
+    laser->think = PreviewLaserThink;
+	VectorCopy(v2, laser->s.origin);
+	VectorCopy(v1, laser->s.old_origin);
+	VectorCopy(v2, laser->pos2);
+	VectorCopy(v1, laser->pos1);
+	gi.linkentity(laser);
+	laser->nextthink = level.time + FRAMETIME;
+}
+
+void DrawPreviewLaserBBox(edict_t *ent, int laser_color, int laser_size)
+{
+	vec3_t origin, p1, p2;
+
+	VectorCopy(ent->s.origin, origin);
+
+	VectorSet(p1,origin[0]+ent->mins[0],origin[1]+ent->mins[1],origin[2]+ent->mins[2]);
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->mins[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->maxs[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->mins[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p1,origin[0]+ent->maxs[0],origin[1]+ent->maxs[1],origin[2]+ent->mins[2]);
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->maxs[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->mins[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->maxs[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p1,origin[0]+ent->maxs[0],origin[1]+ent->mins[1],origin[2]+ent->maxs[2]);
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->mins[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->maxs[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->mins[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p1,origin[0]+ent->mins[0],origin[1]+ent->maxs[1],origin[2]+ent->maxs[2]);
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->maxs[1],origin[2]+ent->mins[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->mins[0],origin[1]+ent->mins[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+
+	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->maxs[1],origin[2]+ent->maxs[2]);
+	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
+}

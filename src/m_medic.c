@@ -717,11 +717,18 @@ qboolean medic_checkattack (edict_t *self)
 */
 void SP_monster_medic (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/medic/tris.md2");
+	VectorSet (self->mins, -24, -24, -24);
+	VectorSet (self->maxs, 24, 24, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_idle1 = gi.soundindex ("medic/idle.wav");
 	sound_pain1 = gi.soundindex ("medic/medpain1.wav");
@@ -738,9 +745,6 @@ void SP_monster_medic (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/medic/tris.md2");
-	VectorSet (self->mins, -24, -24, -24);
-	VectorSet (self->maxs, 24, 24, 32);
 
 	self->health = 300;
 	self->gib_health = -130;

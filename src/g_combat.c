@@ -123,6 +123,7 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 	}
 
 	targ->die (targ, inflictor, attacker, damage, point);
+	attacker->threshold = 0;
 }
 
 
@@ -300,18 +301,36 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 	if (attacker == targ || attacker == targ->enemy)
 		return;
 
+	// decino: Don't retaliate against team mates
+	// TODO: Check for friendly fire option?
+	if (attacker->monster_team == targ->monster_team)
+		return;
+
+	// decino: We're actively fighting, so reset the undamaged time
+	targ->undamaged_time = 0;
+	attacker->undamaged_time = 0;
+
+	// decino: Ignore the other attacker while threshold is active
+	if (targ->threshold > level.time)
+		return;
+	if (targ->enemy != attacker)
+		targ->threshold = level.time + 10; // decino: Don't retaliate to others but our current enemy for 10 seconds
+	targ->enemy = attacker;
+
+	FoundTarget(targ);
+
 	// if we are a good guy monster and our attacker is a player
 	// or another good guy, do not get mad at them
-	if (targ->monsterinfo.aiflags & AI_GOOD_GUY)
+	/*if (targ->monsterinfo.aiflags & AI_GOOD_GUY)
 	{
 		if (attacker->client || (attacker->monsterinfo.aiflags & AI_GOOD_GUY))
 			return;
-	}
+	}*/
 
 	// we now know that we are not both good guys
 
 	// if attacker is a client, get mad at them because he's good and we're not
-	if (attacker->client)
+	/*if (attacker->client)
 	{
 		targ->monsterinfo.aiflags &= ~AI_SOUND_TARGET;
 
@@ -330,11 +349,11 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
 			FoundTarget (targ);
 		return;
-	}
+	}*/
 
 	// it's the same base (walk/swim/fly) type and a different classname and it's not a tank
 	// (they spray too much), get mad at them
-	if (((targ->flags & (FL_FLY|FL_SWIM)) == (attacker->flags & (FL_FLY|FL_SWIM))) &&
+	/*if (((targ->flags & (FL_FLY|FL_SWIM)) == (attacker->flags & (FL_FLY|FL_SWIM))) &&
 		 (strcmp (targ->classname, attacker->classname) != 0) &&
 		 (strcmp(attacker->classname, "monster_tank") != 0) &&
 		 (strcmp(attacker->classname, "monster_supertank") != 0) &&
@@ -348,7 +367,7 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 			FoundTarget (targ);
 	}
 	// if they *meant* to shoot us, then shoot back
-	else if (attacker->enemy == targ)
+	if (attacker->enemy == targ)
 	{
 		if (targ->enemy && targ->enemy->client)
 			targ->oldenemy = targ->enemy;
@@ -364,13 +383,20 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 		targ->enemy = attacker->enemy;
 		if (!(targ->monsterinfo.aiflags & AI_DUCKED))
 			FoundTarget (targ);
-	}
+	}*/
 }
 
 qboolean CheckTeamDamage (edict_t *targ, edict_t *attacker)
 {
 		//FIXME make the next line real and uncomment this block
 		// if ((ability to damage a teammate == OFF) && (targ's team == attacker's team))
+	return false;
+}
+
+qboolean IsExplosiveBarrel(edict_t *targ, edict_t *attacker)
+{
+	if ((strcmp(targ->classname, "misc_explobox") == 0) && (strcmp(attacker->classname, "misc_explobox") == 0))
+		return true;
 	return false;
 }
 
@@ -387,6 +413,11 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		return;
 	if (targ->client || attacker->client) // decino: Players should never deal/receive damage
 		return;
+
+	// decino: Don't allow friendly fire (TODO: unless set?)
+	if (!IsExplosiveBarrel(targ, attacker))
+		if (targ->monster_team == attacker->monster_team)
+			return;
 
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)

@@ -352,7 +352,7 @@ void Cmd_Help_f (edict_t *ent)
 		return;
 	}
 
-	ent->client->showinventory = false;
+	/*ent->client->showinventory = false;
 	ent->client->showscores = false;
 
 	if (ent->client->showhelp && (ent->client->pers.game_helpchanged == game.helpchanged))
@@ -363,7 +363,7 @@ void Cmd_Help_f (edict_t *ent)
 
 	ent->client->showhelp = true;
 	ent->client->pers.helpchanged = 0;
-	HelpComputer (ent);
+	HelpComputer (ent);*/
 }
 
 
@@ -383,14 +383,14 @@ void G_SetStats (edict_t *ent)
 	//
 	// health
 	//
-	ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health;
+	//ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
+	//ent->client->ps.stats[STAT_HEALTH] = ent->health;
 
 	//
 	// ammo
 	//
-	if (!ent->client->ammo_index /* || !ent->client->pers.inventory[ent->client->ammo_index] */)
-	{
+	//if (!ent->client->ammo_index /* || !ent->client->pers.inventory[ent->client->ammo_index] */)
+	/*{
 		ent->client->ps.stats[STAT_AMMO_ICON] = 0;
 		ent->client->ps.stats[STAT_AMMO] = 0;
 	}
@@ -399,12 +399,12 @@ void G_SetStats (edict_t *ent)
 		item = &itemlist[ent->client->ammo_index];
 		ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex (item->icon);
 		ent->client->ps.stats[STAT_AMMO] = ent->client->pers.inventory[ent->client->ammo_index];
-	}
+	}*/
 	
 	//
 	// armor
 	//
-	power_armor_type = PowerArmorType (ent);
+	/*power_armor_type = PowerArmorType (ent);
 	if (power_armor_type)
 	{
 		cells = ent->client->pers.inventory[ITEM_INDEX(FindItem ("cells"))];
@@ -517,7 +517,7 @@ void G_SetStats (edict_t *ent)
 		&& ent->client->pers.weapon)
 		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex (ent->client->pers.weapon->icon);
 	else
-		ent->client->ps.stats[STAT_HELPICON] = 0;
+		ent->client->ps.stats[STAT_HELPICON] = 0;*/
 
 	ent->client->ps.stats[STAT_SPECTATOR] = 0;
 }
@@ -529,7 +529,7 @@ G_CheckChaseStats
 */
 void G_CheckChaseStats (edict_t *ent)
 {
-	int i;
+	/*int i;
 	gclient_t *cl;
 
 	for (i = 1; i <= maxclients->value; i++) {
@@ -538,7 +538,7 @@ void G_CheckChaseStats (edict_t *ent)
 			continue;
 		memcpy(cl->ps.stats, ent->client->ps.stats, sizeof(cl->ps.stats));
 		G_SetSpectatorStats(g_edicts + i);
-	}
+	}*/
 }
 
 /*
@@ -553,11 +553,9 @@ void G_SetSpectatorStats (edict_t *ent)
 	if (!cl->chase_target)
 		G_SetStats (ent);
 
-	cl->ps.stats[STAT_SPECTATOR] = 1;
-
 	// layouts are independant in spectator
 	cl->ps.stats[STAT_LAYOUTS] = 0;
-	if (cl->pers.health <= 0 || level.intermissiontime || cl->showscores)
+	/*if (cl->pers.health <= 0 || level.intermissiontime || cl->showscores)
 		cl->ps.stats[STAT_LAYOUTS] |= 1;
 	if (cl->showinventory && cl->pers.health > 0)
 		cl->ps.stats[STAT_LAYOUTS] |= 2;
@@ -566,6 +564,6 @@ void G_SetSpectatorStats (edict_t *ent)
 		cl->ps.stats[STAT_CHASE] = CS_PLAYERSKINS + 
 			(cl->chase_target - g_edicts) - 1;
 	else
-		cl->ps.stats[STAT_CHASE] = 0;
+		cl->ps.stats[STAT_CHASE] = 0;*/
 }
 

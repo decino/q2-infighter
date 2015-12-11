@@ -812,6 +812,9 @@ void bfg_think (edict_t *self)
 	int		dmg;
 	trace_t	tr;
 
+	if (level.frozen)
+		return;
+
 	if (deathmatch->value)
 		dmg = 5;
 	else

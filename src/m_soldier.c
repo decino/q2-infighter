@@ -1201,9 +1201,13 @@ void SP_monster_soldier_x (edict_t *self)
 {
 
 	self->s.modelindex = gi.modelindex ("models/monsters/soldier/tris.md2");
-	self->monsterinfo.scale = MODEL_SCALE;
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
+
+	self->monsterinfo.scale = MODEL_SCALE;
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
@@ -1237,21 +1241,24 @@ void SP_monster_soldier_x (edict_t *self)
 */
 void SP_monster_soldier_light (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
 	SP_monster_soldier_x (self);
+	self->s.skinnum = 0;
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain_light = gi.soundindex ("soldier/solpain2.wav");
 	sound_death_light =	gi.soundindex ("soldier/soldeth2.wav");
 	gi.modelindex ("models/objects/laser/tris.md2");
 	gi.soundindex ("misc/lasfly.wav");
 	gi.soundindex ("soldier/solatck2.wav");
-
-	self->s.skinnum = 0;
+	
 	self->health = 20;
 	self->gib_health = -30;
 }
@@ -1260,19 +1267,22 @@ void SP_monster_soldier_light (edict_t *self)
 */
 void SP_monster_soldier (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
 	SP_monster_soldier_x (self);
+	self->s.skinnum = 2;
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain = gi.soundindex ("soldier/solpain1.wav");
 	sound_death = gi.soundindex ("soldier/soldeth1.wav");
 	gi.soundindex ("soldier/solatck1.wav");
 
-	self->s.skinnum = 2;
 	self->health = 30;
 	self->gib_health = -30;
 }
@@ -1281,19 +1291,22 @@ void SP_monster_soldier (edict_t *self)
 */
 void SP_monster_soldier_ss (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
 	SP_monster_soldier_x (self);
+	self->s.skinnum = 4;
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain_ss = gi.soundindex ("soldier/solpain3.wav");
 	sound_death_ss = gi.soundindex ("soldier/soldeth3.wav");
 	gi.soundindex ("soldier/solatck3.wav");
 
-	self->s.skinnum = 4;
 	self->health = 40;
 	self->gib_health = -30;
 }

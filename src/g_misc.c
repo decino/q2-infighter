@@ -132,6 +132,17 @@ void gib_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 	G_FreeEdict (self);
 }
 
+void gib_remove(edict_t *self)
+{
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_BLOOD);
+	gi.WritePosition(self->s.origin);
+	gi.WriteDir(vec3_origin);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	G_FreeEdict(self);
+}
+
 void ThrowGib (edict_t *self, char *gibname, int damage, int type)
 {
 	edict_t *gib;
@@ -174,8 +185,8 @@ void ThrowGib (edict_t *self, char *gibname, int damage, int type)
 	gib->avelocity[1] = random()*600;
 	gib->avelocity[2] = random()*600;
 
-	gib->think = G_FreeEdict;
-	gib->nextthink = level.time + 10 + random()*10;
+	gib->think = gib_remove;
+	gib->nextthink = level.time + 0.25 + random() * 1;
 
 	gi.linkentity (gib);
 }
@@ -219,8 +230,8 @@ void ThrowHead (edict_t *self, char *gibname, int damage, int type)
 
 	self->avelocity[YAW] = crandom()*600;
 
-	self->think = G_FreeEdict;
-	self->nextthink = level.time + 10 + random()*10;
+	self->think = gib_remove;
+	self->nextthink = level.time + 0.25 + random() * 1;
 
 	gi.linkentity (self);
 }
@@ -896,7 +907,7 @@ void barrel_explode (edict_t *self)
 	VectorMA (self->absmin, 0.5, self->size, self->s.origin);
 
 	// a few big chunks
-	spd = 1.5 * (float)self->dmg / 200.0;
+	/*spd = 1.5 * (float)self->dmg / 200.0;
 	org[0] = self->s.origin[0] + crandom() * self->size[0];
 	org[1] = self->s.origin[1] + crandom() * self->size[1];
 	org[2] = self->s.origin[2] + crandom() * self->size[2];
@@ -954,7 +965,7 @@ void barrel_explode (edict_t *self)
 	org[0] = self->s.origin[0] + crandom() * self->size[0];
 	org[1] = self->s.origin[1] + crandom() * self->size[1];
 	org[2] = self->s.origin[2] + crandom() * self->size[2];
-	ThrowDebris (self, "models/objects/debris2/tris.md2", spd, org);
+	ThrowDebris (self, "models/objects/debris2/tris.md2", spd, org);*/
 
 	VectorCopy (save, self->s.origin);
 	if (self->groundentity)
@@ -968,28 +979,31 @@ void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 	self->takedamage = DAMAGE_NO;
 	self->nextthink = level.time + 2 * FRAMETIME;
 	self->think = barrel_explode;
-	self->activator = attacker;
+	self->activator = self;
 }
 
 void SP_misc_explobox (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{	// auto-remove for deathmatch
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
-	gi.modelindex ("models/objects/debris1/tris.md2");
-	gi.modelindex ("models/objects/debris2/tris.md2");
-	gi.modelindex ("models/objects/debris3/tris.md2");
-
-	self->solid = SOLID_BBOX;
-	self->movetype = MOVETYPE_STEP;
-
-	self->model = "models/objects/barrels/tris.md2";
-	self->s.modelindex = gi.modelindex (self->model);
+	self->s.modelindex = gi.modelindex("models/objects/barrels/tris.md2");
 	VectorSet (self->mins, -16, -16, 0);
 	VectorSet (self->maxs, 16, 16, 40);
+
+	if (self->solid == SOLID_NOT)
+		return;
+
+	/*gi.modelindex ("models/objects/debris1/tris.md2");
+	gi.modelindex ("models/objects/debris2/tris.md2");
+	gi.modelindex ("models/objects/debris3/tris.md2");*/
+
+	self->classname = "misc_explobox";
+	self->solid = SOLID_BBOX;
+	self->movetype = MOVETYPE_STEP;
 
 	if (!self->mass)
 		self->mass = 400;
@@ -1000,12 +1014,13 @@ void SP_misc_explobox (edict_t *self)
 
 	self->die = barrel_delay;
 	self->takedamage = DAMAGE_YES;
-	self->monsterinfo.aiflags = AI_NOSTEP;
+	//self->monsterinfo.aiflags = AI_NOSTEP;
 
-	self->touch = barrel_touch;
+	//self->touch = barrel_touch;
 
 	self->think = M_droptofloor;
-	self->nextthink = level.time + 2 * FRAMETIME;
+	self->nextthink = level.time * FRAMETIME;
+	self->monsterinfo.scale = 1.000000;
 
 	gi.linkentity (self);
 }

@@ -695,11 +695,18 @@ void MakronPrecache (void);
 */
 void SP_monster_jorg (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/boss3/jorg/tris.md2");
+	VectorSet (self->mins, -80, -80, 0);
+	VectorSet (self->maxs, 80, 80, 140);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("boss3/bs3pain1.wav");
 	sound_pain2 = gi.soundindex ("boss3/bs3pain2.wav");
@@ -720,10 +727,8 @@ void SP_monster_jorg (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
-	self->s.modelindex2 = gi.modelindex ("models/monsters/boss3/jorg/tris.md2");
-	VectorSet (self->mins, -80, -80, 0);
-	VectorSet (self->maxs, 80, 80, 140);
+	//self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
+	//self->s.modelindex2 = gi.modelindex ("models/monsters/boss3/jorg/tris.md2");
 
 	self->health = 3000;
 	self->gib_health = -2000;

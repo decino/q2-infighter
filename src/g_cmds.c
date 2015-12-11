@@ -65,7 +65,12 @@ qboolean OnSameTeam (edict_t *ent1, edict_t *ent2)
 
 void SelectNextItem (edict_t *ent, int itflags)
 {
-	gclient_t	*cl;
+	ent->selected_monster++;
+
+	if (ent->selected_monster >= MAX_SELECTED_MONSTERS)
+		ent->selected_monster = 0;
+
+	/*gclient_t	*cl;
 	int			i, index;
 	gitem_t		*it;
 
@@ -92,12 +97,17 @@ void SelectNextItem (edict_t *ent, int itflags)
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->pers.selected_item = -1;*/
 }
 
 void SelectPrevItem (edict_t *ent, int itflags)
 {
-	gclient_t	*cl;
+	ent->selected_monster--;
+
+	if (ent->selected_monster < 0)
+		ent->selected_monster = MAX_SELECTED_MONSTERS - 1;
+
+	/*gclient_t	*cl;
 	int			i, index;
 	gitem_t		*it;
 
@@ -124,7 +134,7 @@ void SelectPrevItem (edict_t *ent, int itflags)
 		return;
 	}
 
-	cl->pers.selected_item = -1;
+	cl->pers.selected_item = -1;*/
 }
 
 void ValidateSelectedItem (edict_t *ent)
@@ -907,6 +917,14 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+void Cmd_MonsterTeam_f(edict_t *ent)
+{
+	ent->monster_team++;
+
+	if (ent->monster_team >= MAX_MONSTER_TEAMS)
+		ent->monster_team = 0;
+}
+
 
 /*
 =================
@@ -995,6 +1013,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
+	else if (Q_stricmp(cmd, "team") == 0)
+		Cmd_MonsterTeam_f(ent);
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

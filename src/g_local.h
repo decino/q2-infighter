@@ -77,9 +77,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	TAG_LEVEL	766		// clear when loading a new level
 
 
-#define MELEE_DISTANCE	80
+#define MELEE_DISTANCE			80
 
-#define BODY_QUEUE_SIZE		8
+#define BODY_QUEUE_SIZE			8
+
+#define MAX_SELECTED_MONSTERS	25
+#define MAX_MONSTER_TEAMS		4
+#define	MAX_ALLOWED_GIBS		16
 
 typedef enum
 {
@@ -1115,5 +1119,13 @@ struct edict_s
 	// decino: Infighter mod data
 	edict_t		*monster_preview;
 	qboolean	has_preview;
+	qboolean	is_new;
+
+	int			selected_monster;
+
+	int			give_up_time;	// decino: Time it takes before giving up on an enemy (can't see him anymore)
+	int			undamaged_time;	// decino: Time elapsed while not taking damage
+	int			threshold;		// decino: While threshold is positive the monster won't retaliate against attacks
+	int			monster_team;
 };
 

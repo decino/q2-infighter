@@ -610,11 +610,18 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 */
 void SP_monster_mutant (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/mutant/tris.md2");
+	VectorSet (self->mins, -32, -32, -24);
+	VectorSet (self->maxs, 32, 32, 48);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_swing = gi.soundindex ("mutant/mutatck1.wav");
 	sound_hit = gi.soundindex ("mutant/mutatck2.wav");
@@ -632,9 +639,6 @@ void SP_monster_mutant (edict_t *self)
 	
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/mutant/tris.md2");
-	VectorSet (self->mins, -32, -32, -24);
-	VectorSet (self->maxs, 32, 32, 48);
 
 	self->health = 300;
 	self->gib_health = -120;

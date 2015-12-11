@@ -572,11 +572,11 @@ void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 */
 void SP_monster_flyer (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
 	// fix a map bug in jail5.bsp
 	if (!Q_stricmp(level.mapname, "jail5") && (self->s.origin[2] == -104))
@@ -584,6 +584,13 @@ void SP_monster_flyer (edict_t *self)
 		self->targetname = self->target;
 		self->target = NULL;
 	}
+
+	self->s.modelindex = gi.modelindex ("models/monsters/flyer/tris.md2");
+	VectorSet (self->mins, -16, -16, -24);
+	VectorSet (self->maxs, 16, 16, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_sight = gi.soundindex ("flyer/flysght1.wav");
 	sound_idle = gi.soundindex ("flyer/flysrch1.wav");
@@ -595,9 +602,6 @@ void SP_monster_flyer (edict_t *self)
 
 	gi.soundindex ("flyer/flyatck3.wav");
 
-	self->s.modelindex = gi.modelindex ("models/monsters/flyer/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 32);
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 

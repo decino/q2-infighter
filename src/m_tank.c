@@ -791,15 +791,19 @@ void tank_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 */
 void SP_monster_tank (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
 	self->s.modelindex = gi.modelindex ("models/monsters/tank/tris.md2");
 	VectorSet (self->mins, -32, -32, -16);
 	VectorSet (self->maxs, 32, 32, 72);
+
+	if (self->solid == SOLID_NOT)
+		return;
+
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 

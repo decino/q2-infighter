@@ -505,11 +505,18 @@ End Death Stuff
 */
 void SP_monster_parasite (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/parasite/tris.md2");
+	VectorSet (self->mins, -16, -16, -24);
+	VectorSet (self->maxs, 16, 16, 24);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("parasite/parpain1.wav");	
 	sound_pain2 = gi.soundindex ("parasite/parpain2.wav");	
@@ -523,9 +530,6 @@ void SP_monster_parasite (edict_t *self)
 	sound_scratch = gi.soundindex("parasite/paridle2.wav");
 	sound_search = gi.soundindex("parasite/parsrch1.wav");
 
-	self->s.modelindex = gi.modelindex ("models/monsters/parasite/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 24);
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 

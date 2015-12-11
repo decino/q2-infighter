@@ -572,11 +572,18 @@ void hover_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 */
 void SP_monster_hover (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex("models/monsters/hover/tris.md2");
+	VectorSet (self->mins, -24, -24, -24);
+	VectorSet (self->maxs, 24, 24, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("hover/hovpain1.wav");	
 	sound_pain2 = gi.soundindex ("hover/hovpain2.wav");	
@@ -592,9 +599,6 @@ void SP_monster_hover (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/hover/tris.md2");
-	VectorSet (self->mins, -24, -24, -24);
-	VectorSet (self->maxs, 24, 24, 32);
 
 	self->health = 240;
 	self->gib_health = -100;

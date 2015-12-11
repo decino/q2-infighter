@@ -129,9 +129,6 @@ void ai_stand (edict_t *self, float dist)
 			FindTarget (self);
 		return;
 	}
-
-	if (FindTarget (self))
-		return;
 	
 	if (level.time > self->monsterinfo.pausetime)
 	{
@@ -144,6 +141,23 @@ void ai_stand (edict_t *self, float dist)
 		if (self->monsterinfo.idle_time)
 		{
 			self->monsterinfo.idle (self);
+			self->monsterinfo.idle_time = level.time + 15 + random() * 15;
+		}
+		else
+		{
+			self->monsterinfo.idle_time = level.time + random() * 15;
+		}
+	}
+	FindTarget(self);
+}
+
+void ai_search(edict_t *self)
+{
+	if ((self->monsterinfo.search) && (level.time > self->monsterinfo.idle_time))
+	{
+		if (self->monsterinfo.idle_time)
+		{
+			self->monsterinfo.search (self);
 			self->monsterinfo.idle_time = level.time + 15 + random() * 15;
 		}
 		else
@@ -169,18 +183,7 @@ void ai_walk (edict_t *self, float dist)
 	if (FindTarget (self))
 		return;
 
-	if ((self->monsterinfo.search) && (level.time > self->monsterinfo.idle_time))
-	{
-		if (self->monsterinfo.idle_time)
-		{
-			self->monsterinfo.search (self);
-			self->monsterinfo.idle_time = level.time + 15 + random() * 15;
-		}
-		else
-		{
-			self->monsterinfo.idle_time = level.time + random() * 15;
-		}
-	}
+	ai_search(self);
 }
 
 
@@ -357,6 +360,10 @@ void FoundTarget (edict_t *self)
 
 	self->show_hostile = level.time + 1;		// wake up other monsters*/
 
+	self->threshold = level.time + 10; 
+	self->give_up_time = 0;
+	self->undamaged_time = 0;
+
 	level.sight_client = self->enemy;
 	VectorCopy(self->enemy->s.origin, self->monsterinfo.last_sighting);
 	self->monsterinfo.trail_time = level.time;
@@ -388,17 +395,27 @@ void FoundTarget (edict_t *self)
 	self->monsterinfo.run (self);
 }
 
+int CheckEnemyDistance(edict_t *self, edict_t *enemy)
+{
+	vec3_t v;
+
+	VectorSubtract(self->s.origin, enemy->s.origin, v);
+	return VectorLength(v);
+}
+
 edict_t *FindMonsterTarget(edict_t *self)
 {
 	edict_t	*ent = NULL;
 	edict_t	*best = NULL;
 
 	// TODO: Check for distance
-	while ((ent = findradius(ent, self->s.origin, 1024)) != NULL)
+	while ((ent = findradius(ent, self->s.origin, 8192)) != NULL)
 	{
 		if (ent->client)
 			continue;
 		if (ent == self)
+			continue;
+		if (ent->monster_team == self->monster_team)
 			continue;
 		if (!ent->svflags & SVF_MONSTER)
 			continue;
@@ -411,7 +428,7 @@ edict_t *FindMonsterTarget(edict_t *self)
 			best = ent;
 			continue;
 		}
-		if (ent->max_health < best->max_health)
+		if (CheckEnemyDistance(self, ent) > CheckEnemyDistance(self, best))
 			continue;
 		best = ent;
 	}
@@ -621,12 +638,17 @@ qboolean FindTarget (edict_t *self)
 // got one
 //*/
 
+	if (level.frozen)
+		return false;
+
 	monster = FindMonsterTarget(self);
 
 	if (monster)
 	{
 		self->enemy = monster;
-		self->monsterinfo.sight (self, self->enemy);
+
+		if (self->monsterinfo.sight && (self->enemy != self->oldenemy))
+			self->monsterinfo.sight(self, monster);
 		FoundTarget(self);
 		return true;
 	}
@@ -676,8 +698,8 @@ qboolean M_CheckAttack (edict_t *self)
 		tr = gi.trace (spot1, NULL, NULL, spot2, self, CONTENTS_SOLID|CONTENTS_MONSTER|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_WINDOW);
 
 		// do we have a clear shot?
-		if (tr.ent != self->enemy)
-			return false;
+		//if (tr.ent != self->enemy)
+		//	return false;
 	}
 	
 	// melee attack
@@ -885,15 +907,21 @@ qboolean ai_checkattack (edict_t *self, float dist)
 		}
 	}
 
+	/*if (hesDeadJim || !enemy_vis)
+	{
+		FindMonsterTarget(self);
+		return false;
+	}*/
+
 	if (hesDeadJim)
 	{
 		self->enemy = NULL;
 	// FIXME: look all around for other targets
 		if (self->oldenemy && self->oldenemy->health > 0)
 		{
-			self->enemy = self->oldenemy;
-			self->oldenemy = NULL;
-			HuntTarget (self);
+			//self->enemy = self->oldenemy;
+			//self->oldenemy = NULL;
+			//HuntTarget (self);
 		}
 		else
 		{
@@ -916,6 +944,12 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	}
 
 	self->show_hostile = level.time + 1;		// wake up other monsters
+
+	if (!self->enemy)
+	{
+		FindMonsterTarget(self);
+		return false;
+	}
 
 // check knowledge of enemy
 	enemy_vis = visible(self, self->enemy);
@@ -978,6 +1012,25 @@ void ai_run (edict_t *self, float dist)
 	vec3_t		v_forward, v_right;
 	float		left, center, right;
 	vec3_t		left_target, right_target;
+
+	if (self->enemy && !visible(self, self->enemy))
+		self->give_up_time++;
+	else
+		self->give_up_time = 0;
+	self->undamaged_time++;
+
+	// decino: We're searching frantically, so make a sound
+	if (self->undamaged_time > 25)
+		ai_search(self);
+
+	// decino: We can't find our enemy anymore, so give up
+	if (self->give_up_time > 200 || self->undamaged_time > 75)
+	{
+		self->oldenemy = self->enemy;
+		self->enemy = NULL;
+		self->give_up_time = 0;
+		self->undamaged_time = 0;
+	}
 
 	// if we're going to a combat point, just proceed
 	if (self->monsterinfo.aiflags & AI_COMBAT_POINT)

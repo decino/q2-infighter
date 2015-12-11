@@ -122,14 +122,14 @@ static void M_FliesOn (edict_t *self)
 
 void M_FlyCheck (edict_t *self)
 {
-	if (self->waterlevel)
+	/*if (self->waterlevel)
 		return;
 
 	if (random() > 0.5)
 		return;
 
 	self->think = M_FliesOn;
-	self->nextthink = level.time + 5 + 10 * random();
+	self->nextthink = level.time + 5 + 10 * random();*/
 }
 
 void AttackFinished (edict_t *self, float time)
@@ -365,10 +365,6 @@ void M_MoveFrame (edict_t *self)
 
 	move = self->monsterinfo.currentmove;
 	self->nextthink = level.time + FRAMETIME;
-
-	// decino: Freeze movement
-	if (level.frozen)
-		return;
 
 	if ((self->monsterinfo.nextframe) && (self->monsterinfo.nextframe >= move->firstframe) && (self->monsterinfo.nextframe <= move->lastframe))
 	{
@@ -681,7 +677,10 @@ void walkmonster_start_go (edict_t *self)
 
 		if (self->groundentity)
 			if (!M_walkmove (self, 0, 0))
+			{
 				gi.dprintf ("%s in solid at %s\n", self->classname, vtos(self->s.origin));
+				G_FreeEdict(self);
+			}
 	}
 	
 	if (!self->yaw_speed)
@@ -704,7 +703,10 @@ void walkmonster_start (edict_t *self)
 void flymonster_start_go (edict_t *self)
 {
 	if (!M_walkmove (self, 0, 0))
+	{
 		gi.dprintf ("%s in solid at %s\n", self->classname, vtos(self->s.origin));
+		G_FreeEdict(self);
+	}
 
 	if (!self->yaw_speed)
 		self->yaw_speed = 10;
@@ -739,7 +741,7 @@ void swimmonster_start_go (edict_t *self)
 
 void swimmonster_start (edict_t *self)
 {
-	self->flags |= FL_SWIM;
+	self->flags |= FL_SWIM; // decino: Make the fish fly instead
 	self->think = swimmonster_start_go;
 	monster_start (self);
 }

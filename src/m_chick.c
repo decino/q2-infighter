@@ -625,11 +625,18 @@ void chick_sight(edict_t *self, edict_t *other)
 */
 void SP_monster_chick (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/bitch/tris.md2");
+	VectorSet (self->mins, -16, -16, 0);
+	VectorSet (self->maxs, 16, 16, 56);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_missile_prelaunch	= gi.soundindex ("chick/chkatck1.wav");	
 	sound_missile_launch	= gi.soundindex ("chick/chkatck2.wav");	
@@ -649,9 +656,6 @@ void SP_monster_chick (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/bitch/tris.md2");
-	VectorSet (self->mins, -16, -16, 0);
-	VectorSet (self->maxs, 16, 16, 56);
 
 	self->health = 175;
 	self->gib_health = -70;

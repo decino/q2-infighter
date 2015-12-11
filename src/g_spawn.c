@@ -707,10 +707,10 @@ char *dm_statusbar =
 "yb	-24 "
 
 // health
-"xv	0 "
+/*"xv	0 "
 "hnum "
 "xv	50 "
-"pic 0 "
+"pic 0 "*/
 
 // ammo
 "if 2 "
@@ -767,14 +767,16 @@ char *dm_statusbar =
 
 // spectator
 "if 17 "
-  "xv 0 "
+  "xv 80 "
   "yb -58 "
-  "string2 \"SPECTATOR MODE\" "
+  "string2 \"Monster Selected:\" "
+  "yb -50 "
+  "string \"Shit\" "
 "endif "
 
 // chase camera
 "if 16 "
-  "xv 0 "
+  "xv 64 "
   "yb -68 "
   "string \"Chasing\" "
   "xv 64 "
@@ -836,10 +838,10 @@ void SP_worldspawn (edict_t *ent)
 	gi.configstring (CS_MAXCLIENTS, va("%i", (int)(maxclients->value) ) );
 
 	// status bar program
-	if (deathmatch->value)
+	//if (deathmatch->value)
+	//	gi.configstring (CS_STATUSBAR, dm_statusbar);
+	//else
 		gi.configstring (CS_STATUSBAR, dm_statusbar);
-	else
-		gi.configstring (CS_STATUSBAR, single_statusbar);
 
 	//---------------
 

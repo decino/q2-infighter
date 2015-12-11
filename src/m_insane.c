@@ -622,11 +622,18 @@ void SP_misc_insane (edict_t *self)
 {
 //	static int skin = 0;	//@@
 
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex("models/monsters/insane/tris.md2");
+	VectorSet (self->mins, -16, -16, -24);
+	VectorSet (self->maxs, 16, 16, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_fist = gi.soundindex ("insane/insane11.wav");
 	sound_shake = gi.soundindex ("insane/insane5.wav");
@@ -642,10 +649,6 @@ void SP_misc_insane (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/insane/tris.md2");
-
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 32);
 
 	self->health = 100;
 	self->gib_health = -50;
@@ -688,6 +691,8 @@ void SP_misc_insane (edict_t *self)
 	else
 	{
 		walkmonster_start (self);
-		self->s.skinnum = rand()%3;
+
+		if (self->movetype != MOVETYPE_NOCLIP)
+			self->s.skinnum = rand()%3;
 	}
 }

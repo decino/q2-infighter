@@ -321,8 +321,8 @@ SV_AddGravity
 */
 void SV_AddGravity (edict_t *ent)
 {
-	if (level.frozen)
-		ent->velocity[2] = 0;
+	if (ent->is_new)
+		ent->velocity[2] += 0.01;
 	else
 		ent->velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
 }
@@ -680,6 +680,9 @@ void SV_Physics_Toss (edict_t *ent)
 	qboolean	isinwater;
 	vec3_t		old_origin;
 
+	if (level.frozen)
+		return;
+
 // regular thinking
 	SV_RunThink (ent);
 
@@ -937,6 +940,9 @@ void G_RunEntity (edict_t *ent)
 	if (ent->prethink)
 		ent->prethink (ent);
 
+	if (level.frozen && !ent->is_new && strcmp(ent->classname, "monster_bbox_laser") == 1)
+		return;
+
 	switch ( (int)ent->movetype)
 	{
 	case MOVETYPE_PUSH:
@@ -959,6 +965,7 @@ void G_RunEntity (edict_t *ent)
 		SV_Physics_Toss (ent);
 		break;
 	default:
-		gi.error ("SV_Physics: bad movetype %i", (int)ent->movetype);			
+		gi.error ("SV_Physics: bad movetype %i", (int)ent->movetype);	
 	}
+	ent->is_new = false;
 }

@@ -610,11 +610,18 @@ void floater_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 */
 void SP_monster_floater (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/float/tris.md2");
+	VectorSet (self->mins, -24, -24, -24);
+	VectorSet (self->maxs, 24, 24, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_attack2 = gi.soundindex ("floater/fltatck2.wav");
 	sound_attack3 = gi.soundindex ("floater/fltatck3.wav");
@@ -630,9 +637,6 @@ void SP_monster_floater (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/float/tris.md2");
-	VectorSet (self->mins, -24, -24, -24);
-	VectorSet (self->maxs, 24, 24, 32);
 
 	self->health = 200;
 	self->gib_health = -80;

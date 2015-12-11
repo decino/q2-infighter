@@ -626,6 +626,13 @@ void SP_monster_brain (edict_t *self)
 		return;
 	}*/
 
+	self->s.modelindex = gi.modelindex ("models/monsters/brain/tris.md2");
+	VectorSet (self->mins, -16, -16, -24);
+	VectorSet (self->maxs, 16, 16, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
+
 	sound_chest_open = gi.soundindex ("brain/brnatck1.wav");
 	sound_tentacles_extend = gi.soundindex ("brain/brnatck2.wav");
 	sound_tentacles_retract = gi.soundindex ("brain/brnatck3.wav");
@@ -643,9 +650,6 @@ void SP_monster_brain (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/brain/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 32);
 
 	self->health = 300;
 	self->gib_health = -150;

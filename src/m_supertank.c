@@ -671,11 +671,18 @@ void supertank_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int da
 */
 void SP_monster_supertank (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/boss1/tris.md2");
+	VectorSet (self->mins, -64, -64, 0);
+	VectorSet (self->maxs, 64, 64, 112);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("bosstank/btkpain1.wav");
 	sound_pain2 = gi.soundindex ("bosstank/btkpain2.wav");
@@ -689,9 +696,6 @@ void SP_monster_supertank (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/boss1/tris.md2");
-	VectorSet (self->mins, -64, -64, 0);
-	VectorSet (self->maxs, 64, 64, 112);
 
 	self->health = 1500;
 	self->gib_health = -500;

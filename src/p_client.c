@@ -1558,6 +1558,17 @@ void PrintPmove (pmove_t *pm)
 	Com_Printf ("sv %3i:%i %i\n", pm->cmd.impulse, c1, c2);
 }
 
+qboolean IsValidSpawn(edict_t *ent)
+{
+	trace_t tr;
+
+	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SHOT);
+
+	if (tr.fraction < 1)
+		return false;
+	return true;
+}
+
 void MonsterPreviewThink(edict_t *self)
 {
 	trace_t tr;
@@ -1567,9 +1578,10 @@ void MonsterPreviewThink(edict_t *self)
 	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
 	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
-	VectorMA(start, 8192, forward, end);
+	VectorMA(start, 256, forward, end);
 
 	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+
 	VectorCopy(tr.endpos, self->s.origin);
 	VectorCopy(tr.endpos, self->s.old_origin);
 	vectoangles(forward, self->s.angles);
@@ -1578,28 +1590,89 @@ void MonsterPreviewThink(edict_t *self)
 	self->s.angles[0] = 0;
 	self->s.angles[2] = 0;
 
-	self->svflags &= ~SVF_NOCLIENT;
 	gi.linkentity(self);
+}
+
+void SelectMonster(edict_t *self, int selected_monster)
+{
+	switch (selected_monster)
+	{
+		case 1:  SP_monster_berserk(self); break;
+		case 2:  SP_monster_boss2(self); break;
+		case 3:  SP_monster_brain(self); break;
+		case 4:  SP_monster_chick(self); break;
+		case 5:  SP_monster_flipper(self); break;
+		case 6:  SP_monster_floater(self); break;
+		case 7:  SP_monster_flyer(self); break;
+		case 8:  SP_monster_gladiator(self); break;
+		case 9:  SP_monster_gunner(self); break;
+		case 10: SP_monster_hover(self); break;
+		case 11: SP_monster_infantry(self); break;
+		case 12: SP_misc_insane(self); break;
+		case 13: SP_monster_jorg(self); break;
+		case 14: SP_monster_makron(self); break;
+		case 15: SP_monster_medic(self); break;
+		case 16: SP_monster_mutant(self); break;
+		case 17: SP_misc_explobox(self); break;
+		case 18: SP_monster_parasite(self); break;
+		case 19: SP_monster_soldier(self); break;
+		case 20: SP_monster_soldier_light(self); break;
+		case 21: SP_monster_soldier_ss(self); break;
+		case 22: SP_monster_supertank(self); break;
+		case 23: SP_monster_tank(self); break;
+		case 24: self->classname = "monster_tank_commander"; self->s.skinnum = 2; SP_monster_tank(self); break;
+
+		default: SP_monster_brain(self); break;
+	}
+}
+
+int GetTeamColour(int team)
+{
+	switch (team)
+	{
+		case 0: return 0xf2f2f0f0; // red
+		case 1: return 0xdcdddedf; // yellow
+		case 2: return 0xd0d1d2d3; // green
+		case 3: return 0xf3f3f1f1; // blue
+		default: return 0xf2f2f0f0;
+	}
 }
 
 void CreateMonsterPreview(edict_t *self)
 {
+	int i;
+
 	// decino: Remove previous preview before rendering a new one
 	if (self->monster_preview)
 		G_FreeEdict(self->monster_preview);
+	if (self->selected_monster == 0)
+		return;
 
 	self->monster_preview = G_Spawn();
-	VectorSet(self->monster_preview->mins, -20, -20, -28);
-	VectorSet(self->monster_preview->maxs, 20, 20, 36);
+	SelectMonster(self->monster_preview, self->selected_monster);
 
+	for (i = 0; i < 3; i++)
+	{
+		self->monster_preview->mins[i] -= 1;
+		self->monster_preview->maxs[i] += 1;
+	}
+	self->monster_preview->monster_team = self->monster_team;
 	self->monster_preview->owner = self;
 	self->monster_preview->movetype = MOVETYPE_NOCLIP;
 	self->monster_preview->solid = SOLID_NOT;
-	self->monster_preview->s.modelindex = gi.modelindex("models/monsters/brain/tris.md2");
+	self->monster_preview->s.frame = 0;
+	self->monster_preview->s.sound = NULL;
 	self->monster_preview->s.effects = EF_SPHERETRANS;
 	self->monster_preview->think = MonsterPreviewThink;
 	self->monster_preview->nextthink = level.time + 0.1;
 	self->monster_preview->think(self->monster_preview);
+
+	if (!IsValidSpawn(self->monster_preview))
+	{
+		self->monster_preview->s.effects ^= EF_PENT;
+		return;
+	}
+	DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
 }
 
 void SpawnMonster(edict_t *ent)
@@ -1607,12 +1680,20 @@ void SpawnMonster(edict_t *ent)
 	edict_t	*monster;
 
 	monster = G_Spawn();
-	SP_monster_brain(monster);
+	monster->solid = SOLID_BBOX;
+	SelectMonster(monster, ent->owner->selected_monster);
 	VectorCopy(ent->s.origin, monster->s.origin);
 
+	if (!IsValidSpawn(monster))
+	{
+		G_FreeEdict(monster);
+		return;
+	}
+	monster->monster_team = ent->monster_team;
 	monster->s.angles[1] = ent->s.angles[1];
 	monster->s.frame = 0;
 	monster->monsterinfo.nextframe = 0;
+	monster->is_new = true;
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_WIDOWSPLASH);
@@ -1782,10 +1863,12 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			Think_Weapon (ent);
 		}*/
 		client->latched_buttons = 0;
-		SpawnMonster(ent->monster_preview);
+
+		if (IsValidSpawn(ent) && ent->selected_monster != 0)
+			SpawnMonster(ent->monster_preview);
 	}
 
-	if (client->resp.spectator) {
+	/*if (client->resp.spectator) {
 		if (ucmd->upmove >= 10) {
 			if (!(client->ps.pmove.pm_flags & PMF_JUMP_HELD)) {
 				client->ps.pmove.pm_flags |= PMF_JUMP_HELD;
@@ -1796,7 +1879,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			}
 		} else
 			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
-	}
+	}*/
 
 	// update chase cam if being followed
 	for (i = 1; i <= maxclients->value; i++) {

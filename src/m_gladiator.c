@@ -203,8 +203,10 @@ void gladiator_attack(edict_t *self)
 	// a small safe zone
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	range = VectorLength(v);
-	if (range <= (MELEE_DISTANCE + 32))
-		return;
+
+	// decino: This messes up the AI I think
+	//if (range <= (MELEE_DISTANCE + 32))
+	//	return;
 
 	// charge up the railgun
 	gi.sound (self, CHAN_WEAPON, sound_gun, 1, ATTN_NORM, 0);
@@ -338,12 +340,18 @@ void gladiator_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int da
 */
 void SP_monster_gladiator (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
 
+	self->s.modelindex = gi.modelindex ("models/monsters/gladiatr/tris.md2");
+	VectorSet (self->mins, -32, -32, -24);
+	VectorSet (self->maxs, 32, 32, 64);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("gladiator/pain.wav");	
 	sound_pain2 = gi.soundindex ("gladiator/gldpain2.wav");	
@@ -358,9 +366,6 @@ void SP_monster_gladiator (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/gladiatr/tris.md2");
-	VectorSet (self->mins, -32, -32, -24);
-	VectorSet (self->maxs, 32, 32, 64);
 
 	self->health = 400;
 	self->gib_health = -175;

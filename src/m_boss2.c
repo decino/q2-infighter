@@ -635,11 +635,18 @@ qboolean Boss2_CheckAttack (edict_t *self)
 */
 void SP_monster_boss2 (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/boss2/tris.md2");
+	VectorSet (self->mins, -56, -56, 0);
+	VectorSet (self->maxs, 56, 56, 80);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	sound_pain1 = gi.soundindex ("bosshovr/bhvpain1.wav");
 	sound_pain2 = gi.soundindex ("bosshovr/bhvpain2.wav");
@@ -651,9 +658,6 @@ void SP_monster_boss2 (edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/boss2/tris.md2");
-	VectorSet (self->mins, -56, -56, 0);
-	VectorSet (self->maxs, 56, 56, 80);
 
 	self->health = 2000;
 	self->gib_health = -200;

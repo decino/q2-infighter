@@ -698,11 +698,12 @@ void makron_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
-	tempent = G_Spawn();
+	// decino: Don't spawn torso
+	/*tempent = G_Spawn();
 	VectorCopy (self->s.origin, tempent->s.origin);
 	VectorCopy (self->s.angles, tempent->s.angles);
 	tempent->s.origin[1] -= 84;
-	makron_torso (tempent);
+	makron_torso (tempent);*/
 
 	self->monsterinfo.currentmove = &makron_move_death2;
 	
@@ -829,22 +830,26 @@ void MakronPrecache (void)
 */
 void SP_monster_makron (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
+	VectorSet (self->mins, -30, -30, 0);
+	VectorSet (self->maxs, 30, 30, 90);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	MakronPrecache ();
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
-	VectorSet (self->mins, -30, -30, 0);
-	VectorSet (self->maxs, 30, 30, 90);
 
 	self->health = 3000;
-	self->gib_health = -2000;
+	self->gib_health = -200; // decino: Make it gibbable
 	self->mass = 500;
 
 	self->pain = makron_pain;

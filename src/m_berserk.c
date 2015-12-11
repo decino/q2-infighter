@@ -412,11 +412,18 @@ void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 */
 void SP_monster_berserk (edict_t *self)
 {
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		G_FreeEdict (self);
 		return;
-	}
+	}*/
+
+	self->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
+	VectorSet (self->mins, -16, -16, -24);
+	VectorSet (self->maxs, 16, 16, 32);
+
+	if (self->solid == SOLID_NOT)
+		return;
 
 	// pre-caches
 	sound_pain  = gi.soundindex ("berserk/berpain2.wav");
@@ -426,9 +433,6 @@ void SP_monster_berserk (edict_t *self)
 	sound_search = gi.soundindex ("berserk/bersrch1.wav");
 	sound_sight = gi.soundindex ("berserk/sight.wav");
 
-	self->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 32);
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
