@@ -27,6 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	GAME_INCLUDE
 #include "game.h"
 
+#include "p_menu.h"
+
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"baseq2"
 
@@ -343,6 +345,8 @@ typedef struct
 
 	int			power_cubes;		// ugly necessity for coop
 	qboolean	frozen;
+	qboolean	ready;
+	qboolean	show_teams;
 } level_locals_t;
 
 
@@ -899,6 +903,9 @@ struct gclient_s
 	qboolean	showhelp;
 	qboolean	showhelpicon;
 
+	qboolean	inmenu;				// in menu
+	pmenuhnd_t	*menu;				// current menu
+
 	int			ammo_index;
 
 	int			buttons;
@@ -965,6 +972,9 @@ struct gclient_s
 
 	edict_t		*chase_target;		// player we are chasing
 	qboolean	update_chase;		// need to update chase info?
+
+	float		menutime;			// time to update menu
+	qboolean	menudirty;
 };
 
 

@@ -1858,6 +1858,7 @@ void SP_misc_teleporter (edict_t *ent)
 	ent->s.effects = EF_TELEPORTER;
 	ent->s.sound = gi.soundindex ("world/amb10.wav");
 	ent->solid = SOLID_BBOX;
+	ent->svflags = SVF_NOCLIENT; // decino: Make these pads invisible
 
 	VectorSet (ent->mins, -32, -32, -24);
 	VectorSet (ent->maxs, 32, 32, -16);
@@ -1883,6 +1884,7 @@ void SP_misc_teleporter_dest (edict_t *ent)
 	gi.setmodel (ent, "models/objects/dmspot/tris.md2");
 	ent->s.skinnum = 0;
 	ent->solid = SOLID_BBOX;
+	ent->svflags = SVF_NOCLIENT; // decino: Make these pads invisible
 //	ent->s.effects |= EF_FLIES;
 	VectorSet (ent->mins, -32, -32, -24);
 	VectorSet (ent->maxs, 32, 32, -16);

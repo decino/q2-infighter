@@ -1278,6 +1278,7 @@ void ClientBeginDeathmatch (edict_t *ent)
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+	gi.centerprintf(ent, "Press TAB for the full list of commands.");
 
 	// make sure all view stuff is valid
 	ClientEndServerFrame (ent);
@@ -1728,7 +1729,6 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			level.exitintermission = true;
 		return;
 	}
-
 	pm_passent = ent;
 
 	if (ent->client->chase_target) {
@@ -1882,14 +1882,22 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	}*/
 
 	// update chase cam if being followed
-	for (i = 1; i <= maxclients->value; i++) {
+	/*for (i = 1; i <= maxclients->value; i++) {
 		other = g_edicts + i;
 		if (other->inuse && other->client->chase_target == ent)
 			UpdateChaseCam(other);
-	}
+	}*/
 
 	// decino: Renders a translucent version of the selected monsters
 	CreateMonsterPreview(ent);
+
+	if (client->menudirty && client->menutime <= level.time)
+	{
+		PMenu_Do_Update(ent);
+		gi.unicast(ent, true);
+		client->menutime = level.time;
+		client->menudirty = false;
+	}
 }
 
 
@@ -1946,9 +1954,9 @@ void ClientBeginServerFrame (edict_t *ent)
 	}
 
 	// add player trail so monsters can follow
-	if (!deathmatch->value)
+	/*if (!deathmatch->value)
 		if (!visible (ent, PlayerTrail_LastSpot() ) )
-			PlayerTrail_Add (ent->s.old_origin);
+			PlayerTrail_Add (ent->s.old_origin);*/
 
 	client->latched_buttons = 0;
 }

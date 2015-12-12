@@ -408,7 +408,6 @@ edict_t *FindMonsterTarget(edict_t *self)
 	edict_t	*ent = NULL;
 	edict_t	*best = NULL;
 
-	// TODO: Check for distance
 	while ((ent = findradius(ent, self->s.origin, 8192)) != NULL)
 	{
 		if (ent->client)
@@ -638,7 +637,7 @@ qboolean FindTarget (edict_t *self)
 // got one
 //*/
 
-	if (level.frozen)
+	if (level.frozen || !level.ready)
 		return false;
 
 	monster = FindMonsterTarget(self);
@@ -1018,6 +1017,9 @@ void ai_run (edict_t *self, float dist)
 	else
 		self->give_up_time = 0;
 	self->undamaged_time++;
+
+	if (!level.ready)
+		self->enemy = NULL;
 
 	// decino: We're searching frantically, so make a sound
 	if (self->undamaged_time > 25)

@@ -416,7 +416,7 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 
 	// decino: Don't allow friendly fire (TODO: unless set?)
 	if (!IsExplosiveBarrel(targ, attacker))
-		if (targ->monster_team == attacker->monster_team)
+		if ((targ->monster_team == attacker->monster_team) && (targ->svflags == SVF_MONSTER && attacker->svflags == SVF_MONSTER))
 			return;
 
 	// friendly fire avoidance

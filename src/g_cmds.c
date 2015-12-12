@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_local.h"
 #include "m_player.h"
 
+void MenuSelectStartFight(edict_t *ent, pmenuhnd_t *p);
 
 char *ClientTeam (edict_t *ent)
 {
@@ -65,10 +66,16 @@ qboolean OnSameTeam (edict_t *ent1, edict_t *ent2)
 
 void SelectNextItem (edict_t *ent, int itflags)
 {
-	ent->selected_monster++;
+	/*ent->selected_monster++;
 
 	if (ent->selected_monster >= MAX_SELECTED_MONSTERS)
-		ent->selected_monster = 0;
+		ent->selected_monster = 0;*/
+
+	if (ent->client->menu) 
+	{
+		PMenu_Next(ent);
+		return;
+	}
 
 	/*gclient_t	*cl;
 	int			i, index;
@@ -102,10 +109,16 @@ void SelectNextItem (edict_t *ent, int itflags)
 
 void SelectPrevItem (edict_t *ent, int itflags)
 {
-	ent->selected_monster--;
+	/*ent->selected_monster--;
 
 	if (ent->selected_monster < 0)
-		ent->selected_monster = MAX_SELECTED_MONSTERS - 1;
+		ent->selected_monster = MAX_SELECTED_MONSTERS - 1;*/
+
+	if (ent->client->menu) 
+	{
+		PMenu_Prev(ent);
+		return;
+	}
 
 	/*gclient_t	*cl;
 	int			i, index;
@@ -474,6 +487,48 @@ void Cmd_Drop_f (edict_t *ent)
 	it->drop (ent, it);
 }
 
+void MenuSelectMonster(edict_t *ent, pmenuhnd_t *p)
+{
+	ent->selected_monster++;
+
+	if (ent->selected_monster >= MAX_SELECTED_MONSTERS)
+		ent->selected_monster = 0;
+}
+
+void MenuSelectTeam(edict_t *ent, pmenuhnd_t *p)
+{
+	ent->monster_team++;
+
+	if (ent->monster_team >= MAX_MONSTER_TEAMS)
+		ent->monster_team = 0;
+}
+
+pmenu_t mainmenu[] = 
+{
+	{ "*\x0d inf_fight",				PMENU_ALIGN_LEFT, NULL },
+	{ "Init/pause monster fights",		PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_freeze",				PMENU_ALIGN_LEFT, NULL },
+	{ "Toggle entity freezing",			PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_nextmon",				PMENU_ALIGN_LEFT, NULL },
+	{ "Select next monster",			PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_prevmon",				PMENU_ALIGN_LEFT, NULL },
+	{ "Select previous monster",		PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_team",					PMENU_ALIGN_LEFT, NULL },
+	{ "Select monster's team",			PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_teamcolours",			PMENU_ALIGN_LEFT, NULL },
+	{ "Toggle mob team colours",		PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_skill",				PMENU_ALIGN_LEFT, NULL },
+	{ "Select difficulty skill",		PMENU_ALIGN_LEFT, NULL },
+	{ "*\x0d inf_remove",				PMENU_ALIGN_LEFT, NULL },
+	{ "Remove all entities",			PMENU_ALIGN_LEFT, NULL },
+};
+
+void MenuSelectStartFight(edict_t *ent, pmenuhnd_t *p)
+{
+	if (!level.ready)
+		ent->selected_monster = 0;
+	level.ready = !level.ready;
+}
 
 /*
 =================
@@ -482,10 +537,17 @@ Cmd_Inven_f
 */
 void Cmd_Inven_f (edict_t *ent)
 {
-	int			i;
-	gclient_t	*cl;
+	/*int			i;
+	gclient_t	*cl;*/
 
-	cl = ent->client;
+	if (ent->client->menu) 
+	{
+		PMenu_Close(ent);
+		return;
+	}
+	PMenu_Open(ent, mainmenu, -1, sizeof(mainmenu) / sizeof(pmenu_t), NULL);
+
+	/*cl = ent->client;
 
 	cl->showscores = false;
 	cl->showhelp = false;
@@ -503,7 +565,7 @@ void Cmd_Inven_f (edict_t *ent)
 	{
 		gi.WriteShort (cl->pers.inventory[i]);
 	}
-	gi.unicast (ent, true);
+	gi.unicast (ent, true);*/
 }
 
 /*
@@ -513,7 +575,12 @@ Cmd_InvUse_f
 */
 void Cmd_InvUse_f (edict_t *ent)
 {
-	gitem_t		*it;
+	if (ent->client->menu) 
+	{
+		PMenu_Select(ent);
+		return;
+	}
+	/*gitem_t		*it;
 
 	ValidateSelectedItem (ent);
 
@@ -529,7 +596,7 @@ void Cmd_InvUse_f (edict_t *ent)
 		gi.cprintf (ent, PRINT_HIGH, "Item is not usable.\n");
 		return;
 	}
-	it->use (ent, it);
+	it->use (ent, it);*/
 }
 
 /*
@@ -917,6 +984,44 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+void Cmd_MonsterFight_f(edict_t *ent)
+{
+	level.ready = !level.ready;
+	ent->selected_monster = 0;
+
+	if (level.ready)
+	{
+		gi.centerprintf(ent, "Let the infighting begin!\n");
+		gi.sound (ent, CHAN_VOICE, gi.soundindex("world/x_light.wav"), 1, ATTN_NONE, 0); 
+	}
+	else
+	{
+		gi.centerprintf(ent, "Time for a break.\n");
+		gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/spawn1.wav"), 1, ATTN_NORM, 0);
+	}
+}
+
+void Cmd_MonsterFreeze_f(edict_t *ent)
+{
+	level.frozen = !level.frozen;
+	ent->selected_monster = 0;
+
+	if (level.frozen)
+		gi.centerprintf(ent, "Entities have been frozen.\n");
+	else
+		gi.centerprintf(ent, "Entities are no longer frozen.\n");
+}
+
+void Cmd_MonsterSelect_f(edict_t *ent, int i)
+{
+	ent->selected_monster += i;
+
+	if (ent->selected_monster >= MAX_SELECTED_MONSTERS)
+		ent->selected_monster = 0;
+	if (ent->selected_monster < 0)
+		ent->selected_monster = 0;
+}
+
 void Cmd_MonsterTeam_f(edict_t *ent)
 {
 	ent->monster_team++;
@@ -925,6 +1030,46 @@ void Cmd_MonsterTeam_f(edict_t *ent)
 		ent->monster_team = 0;
 }
 
+void Cmd_MonsterTeamColour_f(edict_t *ent)
+{
+	int i = (int)maxclients->value + 1;
+	edict_t *monster = &g_edicts[i];
+
+	level.show_teams = !level.show_teams;
+
+	for (; i < MAX_EDICTS; i++, monster++)
+	{
+		if (!monster->inuse)
+			continue;
+
+		if (monster->svflags & SVF_MONSTER)
+		{
+			switch (monster->monster_team)
+			{
+				case 0: monster->s.effects ^= EF_PENT; break;
+				case 1: monster->s.effects ^= EF_QUAD; break; // FIXME!
+				case 2: monster->s.effects ^= EF_QUAD; break; // FIXME!
+				case 3: monster->s.effects ^= EF_QUAD; break;
+			}
+		}
+	}
+}
+
+void Cmd_MonsterClear_f(edict_t *ent)
+{
+	int i = (int)maxclients->value + 1;
+	edict_t *monster = &g_edicts[i];
+
+	for (; i < MAX_EDICTS; i++, monster++)
+	{
+		if (!monster->inuse)
+			continue;
+
+		if (monster->svflags & SVF_MONSTER)
+			G_FreeEdict(monster);
+	}
+	gi.centerprintf(ent, "Entities have been removed.\n");
+}
 
 /*
 =================
@@ -1013,8 +1158,26 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else if (Q_stricmp(cmd, "team") == 0)
+
+	// decino: Infighter commands starts here
+	else if (Q_stricmp(cmd, "inf_fight") == 0)
+		Cmd_MonsterFight_f(ent);
+	else if (Q_stricmp(cmd, "inf_freeze") == 0)
+		Cmd_MonsterFreeze_f(ent);
+	else if (Q_stricmp(cmd, "inf_nextmon") == 0)
+		Cmd_MonsterSelect_f(ent, 1);
+	else if (Q_stricmp(cmd, "inf_prevmon") == 0)
+		Cmd_MonsterSelect_f(ent, -1);
+	else if (Q_stricmp(cmd, "inf_team") == 0)
 		Cmd_MonsterTeam_f(ent);
+	else if (Q_stricmp(cmd, "inf_skill") == 0)
+		Cmd_MonsterTeam_f(ent);
+	else if ((Q_stricmp(cmd, "inf_teamcolour") == 0) || (Q_stricmp(cmd, "inf_teamcolor") == 0)) // decino: For the sake of our American players
+		Cmd_MonsterTeamColour_f(ent);
+	else if (Q_stricmp(cmd, "inf_clear") == 0)
+		Cmd_MonsterClear_f(ent);
+	// decino: Infighter commands ends here
+
 	else	// anything that doesn't match a command will be a chat
 		Cmd_Say_f (ent, false, true);
 }

@@ -288,7 +288,7 @@ void ED_CallSpawn (edict_t *ent)
 	}
 
 	// check item spawn functions
-	for (i=0,item=itemlist ; i<game.num_items ; i++,item++)
+	/*for (i=0,item=itemlist ; i<game.num_items ; i++,item++)
 	{
 		if (!item->classname)
 			continue;
@@ -297,7 +297,7 @@ void ED_CallSpawn (edict_t *ent)
 			SpawnItem (ent, item);
 			return;
 		}
-	}
+	}*/
 
 	// check normal spawn functions
 	for (s=spawns ; s->name ; s++)
@@ -308,7 +308,7 @@ void ED_CallSpawn (edict_t *ent)
 			return;
 		}
 	}
-	gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
+	//gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
 }
 
 /*
@@ -573,19 +573,17 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		// remove things (except the world) from different skill levels or deathmatch
 		if (ent != g_edicts)
 		{
-			if (deathmatch->value)
-			{
-				if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
-				{
-					G_FreeEdict (ent);	
-					inhibit++;
-					continue;
-				}
-			}
-			else
+			//if (deathmatch->value)
+			//{
+				//if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
+				//{
+
+				//}
+			//}
+			/*else
 			{
 				if ( /* ((coop->value) && (ent->spawnflags & SPAWNFLAG_NOT_COOP)) || */
-					((skill->value == 0) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
+				/*	((skill->value == 0) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
 					((skill->value == 1) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
 					(((skill->value == 2) || (skill->value == 3)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD))
 					)
@@ -595,11 +593,9 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 						continue;
 					}
 			}
-
-			ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
+			ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);*/
 		}
-
-		ED_CallSpawn (ent);
+		ED_CallSpawn(ent);
 	}	
 
 	gi.dprintf ("%i entities inhibited\n", inhibit);
@@ -761,9 +757,9 @@ char *dm_statusbar =
 "endif "
 
 //  frags
-"xr	-50 "
+/*"xr	-50 "
 "yt 2 "
-"num 3 14 "
+"num 3 14 "*/
 
 // spectator
 "if 17 "
@@ -847,10 +843,10 @@ void SP_worldspawn (edict_t *ent)
 
 
 	// help icon for statusbar
-	gi.imageindex ("i_help");
+	/*gi.imageindex ("i_help");
 	level.pic_health = gi.imageindex ("i_health");
 	gi.imageindex ("help");
-	gi.imageindex ("field_3");
+	gi.imageindex ("field_3");*/
 
 	if (!st.gravity)
 		gi.cvar_set("sv_gravity", "800");
@@ -859,12 +855,12 @@ void SP_worldspawn (edict_t *ent)
 
 	snd_fry = gi.soundindex ("player/fry.wav");	// standing in lava / slime
 
-	PrecacheItem (FindItem ("Blaster"));
+	/*PrecacheItem (FindItem ("Blaster"));
 
 	gi.soundindex ("player/lava1.wav");
 	gi.soundindex ("player/lava2.wav");
 
-	gi.soundindex ("misc/pc_up.wav");
+	gi.soundindex ("misc/pc_up.wav");*/
 	gi.soundindex ("misc/talk1.wav");
 
 	gi.soundindex ("misc/udeath.wav");
@@ -873,7 +869,7 @@ void SP_worldspawn (edict_t *ent)
 	gi.soundindex ("items/respawn1.wav");
 
 	// sexed sounds
-	gi.soundindex ("*death1.wav");
+	/*gi.soundindex ("*death1.wav");
 	gi.soundindex ("*death2.wav");
 	gi.soundindex ("*death3.wav");
 	gi.soundindex ("*death4.wav");
@@ -889,12 +885,12 @@ void SP_worldspawn (edict_t *ent)
 	gi.soundindex ("*pain75_1.wav");
 	gi.soundindex ("*pain75_2.wav");
 	gi.soundindex ("*pain100_1.wav");
-	gi.soundindex ("*pain100_2.wav");
+	gi.soundindex ("*pain100_2.wav");*/
 
 	// sexed models
 	// THIS ORDER MUST MATCH THE DEFINES IN g_local.h
 	// you can add more, max 15
-	gi.modelindex ("#w_blaster.md2");
+	/*gi.modelindex ("#w_blaster.md2");
 	gi.modelindex ("#w_shotgun.md2");
 	gi.modelindex ("#w_sshotgun.md2");
 	gi.modelindex ("#w_machinegun.md2");
@@ -904,31 +900,31 @@ void SP_worldspawn (edict_t *ent)
 	gi.modelindex ("#w_rlauncher.md2");
 	gi.modelindex ("#w_hyperblaster.md2");
 	gi.modelindex ("#w_railgun.md2");
-	gi.modelindex ("#w_bfg.md2");
+	gi.modelindex ("#w_bfg.md2");*/
 
 	//-------------------
 
-	gi.soundindex ("player/gasp1.wav");		// gasping for air
-	gi.soundindex ("player/gasp2.wav");		// head breaking surface, not gasping
+	//gi.soundindex ("player/gasp1.wav");		// gasping for air
+	//gi.soundindex ("player/gasp2.wav");		// head breaking surface, not gasping
 
-	gi.soundindex ("player/watr_in.wav");	// feet hitting water
-	gi.soundindex ("player/watr_out.wav");	// feet leaving water
+	//gi.soundindex ("player/watr_in.wav");	// feet hitting water
+	//gi.soundindex ("player/watr_out.wav");	// feet leaving water
 
-	gi.soundindex ("player/watr_un.wav");	// head going underwater
+	//gi.soundindex ("player/watr_un.wav");	// head going underwater
 	
-	gi.soundindex ("player/u_breath1.wav");
-	gi.soundindex ("player/u_breath2.wav");
+	//gi.soundindex ("player/u_breath1.wav");
+	//gi.soundindex ("player/u_breath2.wav");
 
-	gi.soundindex ("items/pkup.wav");		// bonus item pickup
+	//gi.soundindex ("items/pkup.wav");		// bonus item pickup
 	gi.soundindex ("world/land.wav");		// landing thud
 	gi.soundindex ("misc/h2ohit1.wav");		// landing splash
 
-	gi.soundindex ("items/damage.wav");
+	/*gi.soundindex ("items/damage.wav");
 	gi.soundindex ("items/protect.wav");
 	gi.soundindex ("items/protect4.wav");
 	gi.soundindex ("weapons/noammo.wav");
 
-	gi.soundindex ("infantry/inflies1.wav");
+	gi.soundindex ("infantry/inflies1.wav");*/
 
 	sm_meat_index = gi.modelindex ("models/objects/gibs/sm_meat/tris.md2");
 	gi.modelindex ("models/objects/gibs/arm/tris.md2");
@@ -985,5 +981,7 @@ void SP_worldspawn (edict_t *ent)
 
 	// decino: Variable for freezing monster AI
 	level.frozen = false;
+	level.ready = false;
+	level.show_teams = false;
 }
 

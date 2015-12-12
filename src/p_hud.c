@@ -550,11 +550,14 @@ void G_SetSpectatorStats (edict_t *ent)
 {
 	gclient_t *cl = ent->client;
 
-	if (!cl->chase_target)
-		G_SetStats (ent);
+	//if (!cl->chase_target)
+	//	G_SetStats (ent);
 
 	// layouts are independant in spectator
 	cl->ps.stats[STAT_LAYOUTS] = 0;
+
+	if (cl->menu)
+		cl->ps.stats[STAT_LAYOUTS] |= 1;
 	/*if (cl->pers.health <= 0 || level.intermissiontime || cl->showscores)
 		cl->ps.stats[STAT_LAYOUTS] |= 1;
 	if (cl->showinventory && cl->pers.health > 0)
