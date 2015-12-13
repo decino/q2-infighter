@@ -58,5 +58,4 @@ I wrote a similar mod to this about 5 years ago, but wasn't even nowhere close t
 
 A few days ago I noticed some YouTube videos of Doom and Quake where monsters fought each other gladiator style. The YouTubers even held tournaments and was pretty entertaining, but I couldn't find any Quake II fights, so I wrote this mod which could easily simulate those.
 
-Looking forward to seeing videos of this mod on YouTube, shoot me a message if you're planning to.
-I'd love to see those videos. :-)
+Feel free to make YouTube videos of this mod. In fact, I encourage it! I feel there's some great potential for creative videos.
