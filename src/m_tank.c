@@ -469,7 +469,7 @@ void tank_reattack_blaster (edict_t *self)
 	if (skill->value >= 2)
 		if (visible (self, self->enemy))
 			if (self->enemy->health > 0)
-				if (random() <= 0.6)
+				if (random() <= 0.6 || skill->value >= 3)
 				{
 					self->monsterinfo.currentmove = &tank_move_reattack_blast;
 					return;
@@ -806,6 +806,7 @@ void SP_monster_tank (edict_t *self)
 		self->health = 1000;
 		self->gib_health = -225;
 		self->monster_name = "Tank Commander";
+		self->s.skinnum = 2;
 	}
 	else
 	{
@@ -846,7 +847,7 @@ void SP_monster_tank (edict_t *self)
 	self->monsterinfo.run = tank_run;
 	self->monsterinfo.dodge = NULL;
 	self->monsterinfo.attack = tank_attack;
-	self->monsterinfo.melee = NULL;
+	self->monsterinfo.melee = NULL; // TODO: Add melee attack for nightmare mode?
 	self->monsterinfo.sight = tank_sight;
 	self->monsterinfo.idle = tank_idle;
 
@@ -857,6 +858,5 @@ void SP_monster_tank (edict_t *self)
 
 	walkmonster_start(self);
 
-	if (strcmp(self->classname, "monster_tank_commander") == 0)
-		self->s.skinnum = 2;
+	self->s.skinnum = (strcmp(self->classname, "monster_tank_commander") == 0) ? 2 : 0;
 }

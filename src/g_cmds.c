@@ -974,7 +974,7 @@ void Cmd_MonsterFight_f(edict_t *ent)
 
 	if (level.ready)
 	{
-		gi.bprintf(PRINT_CHAT, "FIGHT!\n");
+		gi.bprintf(PRINT_CHAT, "\nFIGHT!\n\n");
 		gi.sound (ent, CHAN_VOICE, gi.soundindex("world/x_light.wav"), 1, ATTN_NONE, 0);
 		ent->selected_monster = 0;
 	}
@@ -1186,6 +1186,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_MonsterPreviewClear_f(ent);
 	else if (Q_stricmp(cmd, "inf_skill") == 0)
 		Cmd_SkillLevel_f(ent);
+	else if (Q_stricmp(cmd, "inf_help") == 0)
+		Cmd_Help_f(ent);
 	// decino: Infighter commands ends here
 
 	else	// anything that doesn't match a command will be a chat

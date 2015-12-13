@@ -335,6 +335,21 @@ void HelpComputer (edict_t *ent)
 	gi.unicast (ent, true);
 }
 
+#define MAX_HELP_STRINGS	9
+#define TABLE_BORDER		"+---------------+------------------------------+"
+
+char *help_strings[MAX_HELP_STRINGS] =
+{
+	"| inf_fight     | Start/pause monster fights   |",
+	"| inf_freeze    | Freeze/unfreeze entities     |",
+	"| inf_skill     | Change difficulty setting    |",
+	"| inf_nextmon   | Go to next monster           |",
+	"| inf_prevmon   | Go to previous monster       |",
+	"| inf_team      | Change monster's team        |",
+	"| inf_showteams | Toggle monster team graphics |",
+	"| inf_clear     | Remove all monsters          |",
+	"| inf_ray       | Select your death ray        |",
+};
 
 /*
 ==================
@@ -346,11 +361,19 @@ Display the current help message
 void Cmd_Help_f (edict_t *ent)
 {
 	// this is for backwards compatability
-	if (deathmatch->value)
+	/*if (deathmatch->value)
 	{
 		Cmd_Score_f (ent);
 		return;
-	}
+	}*/
+
+	int i;
+
+	gi.cprintf(ent, PRINT_HIGH, "\n%s\n", TABLE_BORDER);
+
+	for (i = 0; i < MAX_HELP_STRINGS; i++)
+		gi.cprintf(ent, PRINT_HIGH, "%s\n", help_strings[i]);
+	gi.cprintf(ent, PRINT_HIGH, "%s\n\n", TABLE_BORDER);
 
 	/*ent->client->showinventory = false;
 	ent->client->showscores = false;

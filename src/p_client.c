@@ -527,8 +527,8 @@ void player_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 		self->client->ps.pmove.pm_type = PM_DEAD;
 		ClientObituary (self, inflictor, attacker);
 		TossClientWeapon (self);
-		if (deathmatch->value)
-			Cmd_Help_f (self);		// show scores
+		//if (deathmatch->value)
+		//	Cmd_Help_f (self);		// show scores
 
 		// clear inventory
 		// this is kind of ugly, but it's how we want to handle keys in coop
@@ -1147,6 +1147,7 @@ void PutClientInServer (edict_t *ent)
 	{
 		memset (&resp, 0, sizeof(resp));
 	}
+	gi.cprintf(ent, PRINT_CHAT, "\nWelcome to Infighter v%s!\nUse inf_help for a list of all available commands.\n\n", INF_VERSION);
 
 	// clear everything but the persistant data
 	saved = client->pers;
@@ -1278,7 +1279,7 @@ void ClientBeginDeathmatch (edict_t *ent)
 	gi.WriteByte (MZ_LOGIN);
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
-	gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+	gi.bprintf (PRINT_HIGH, "%s entered the game.\n", ent->client->pers.netname);
 	//gi.centerprintf(ent, "Press TAB for the full list of commands.");
 
 	// make sure all view stuff is valid
@@ -1342,7 +1343,7 @@ void ClientBegin (edict_t *ent)
 			gi.WriteByte (MZ_LOGIN);
 			gi.multicast (ent->s.origin, MULTICAST_PVS);
 
-			gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
+			gi.bprintf (PRINT_HIGH, "%s entered the game.\n", ent->client->pers.netname);
 		}
 	}
 
@@ -1488,7 +1489,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 	ClientUserinfoChanged (ent, userinfo);
 
 	if (game.maxclients > 1)
-		gi.dprintf ("%s connected\n", ent->client->pers.netname);
+		gi.dprintf ("%s connected.\n", ent->client->pers.netname);
 
 	ent->client->pers.connected = true;
 	return true;
@@ -1599,32 +1600,35 @@ void SelectMonster(edict_t *self, int selected_monster)
 {
 	switch (selected_monster)
 	{
-		case 1:  self->classname = "monster_berserk"; SP_monster_berserk(self); break;
-		case 2:  self->classname = "monster_boss2"; SP_monster_boss2(self); break;
-		case 3:  self->classname = "monster_brain"; SP_monster_brain(self); break;
-		case 4:  self->classname = "monster_chick"; SP_monster_chick(self); break;
-		case 5:  self->classname = "monster_flipper"; SP_monster_flipper(self); break;
-		case 6:  self->classname = "monster_floater"; SP_monster_floater(self); break;
-		case 7:  self->classname = "monster_flyer"; SP_monster_flyer(self); break;
-		case 8:  self->classname = "monster_gladiator"; SP_monster_gladiator(self); break;
-		case 9:  self->classname = "monster_gunner"; SP_monster_gunner(self); break;
-		case 10: self->classname = "monster_hover"; SP_monster_hover(self); break;
-		case 11: self->classname = "monster_infantry"; SP_monster_infantry(self); break;
-		case 12: self->classname = "misc_insane"; SP_misc_insane(self); break;
-		case 13: self->classname = "monster_jorg"; SP_monster_jorg(self); break;
-		case 14: self->classname = "monster_makron"; SP_monster_makron(self); break;
-		case 15: self->classname = "monster_medic"; SP_monster_medic(self); break;
-		case 16: self->classname = "monster_mutant"; SP_monster_mutant(self); break;
-		case 17: self->classname = "misc_explobox"; SP_misc_explobox(self); break;
-		case 18: self->classname = "monster_parasite"; SP_monster_parasite(self); break;
-		case 19: self->classname = "monster_soldier"; SP_monster_soldier(self); break;
-		case 20: self->classname = "monster_soldier_light"; SP_monster_soldier_light(self); break;
-		case 21: self->classname = "monster_soldier_ss"; SP_monster_soldier_ss(self); break;
-		case 22: self->classname = "monster_supertank"; SP_monster_supertank(self); break;
-		case 23: self->classname = "monster_tank"; SP_monster_tank(self); break;
-		case 24: self->classname = "monster_tank_commander"; self->s.skinnum = 2; SP_monster_tank(self); break;
+		// Regular monsters
+		case 1:  self->classname = "monster_soldier_light";		SP_monster_soldier_light(self);		break; // 20
+		case 2:  self->classname = "monster_soldier";			SP_monster_soldier(self);			break; // 30
+		case 3:  self->classname = "monster_soldier_ss";		SP_monster_soldier_ss(self);		break; // 40
+		case 4:  self->classname = "monster_flipper";			SP_monster_flipper(self);			break; // 50
+		case 5:  self->classname = "monster_flyer";				SP_monster_flyer(self);				break; // 50
+		case 6:  self->classname = "monster_infantry";			SP_monster_infantry(self);			break; // 100
+		case 7:  self->classname = "monster_chick";				SP_monster_chick(self);				break; // 175
+		case 8:  self->classname = "monster_gunner";			SP_monster_gunner(self);			break; // 175
+		case 9:  self->classname = "monster_parasite";			SP_monster_parasite(self);			break; // 175
+		case 10: self->classname = "monster_floater";			SP_monster_floater(self);			break; // 200
+		case 11: self->classname = "monster_berserk";			SP_monster_berserk(self);			break; // 240
+		case 12: self->classname = "monster_hover";				SP_monster_hover(self);				break; // 240
+		case 13: self->classname = "monster_brain";				SP_monster_brain(self);				break; // 300
+		case 14: self->classname = "monster_medic";				SP_monster_medic(self);				break; // 300
+		case 15: self->classname = "monster_mutant";			SP_monster_mutant(self);			break; // 300
+		case 16: self->classname = "monster_gladiator";			SP_monster_gladiator(self);			break; // 400
+		case 17: self->classname = "monster_tank";				SP_monster_tank(self);				break; // 750
+		case 18: self->classname = "monster_tank_commander";	SP_monster_tank(self);				break; // 1000
+		case 19: self->classname = "monster_supertank";			SP_monster_supertank(self);			break; // 1500
+		case 20: self->classname = "monster_boss2";				SP_monster_boss2(self);				break; // 2000
+		case 21: self->classname = "monster_jorg";				SP_monster_jorg(self);				break; // 3000
+		case 22: self->classname = "monster_makron";			SP_monster_makron(self);			break; // 3000
 
-		default: SP_monster_brain(self); break;
+		// Fun monsters
+		case 23: self->classname = "misc_insane";				SP_misc_insane(self);				break;
+		case 24: self->classname = "misc_explobox";				SP_misc_explobox(self);				break;
+
+		default: self->classname = "misc_insane";				SP_misc_insane(self);				break;
 	}
 }
 
