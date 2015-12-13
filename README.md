@@ -4,12 +4,12 @@ A Quake II mod where you control groups of monsters fighting each other.
 -----
 ##### Download
 Latest version (1.0) was released on 13/12/2015.
-> Windows: http://decino.nl/files/infighter/gamex86.dll
+> Windows:http://decino.nl/files/infighter/infighter_v1.0.zip
 
 -----
 ##### How to Play
-Create a folder "infighter" in your Quake II directory, open it, and place the downloaded .dll in there. 
-Start up Quake II and enter "game infighter" into your console. Now simply start the game or type "map q2dm1" and you're done!
+Unzip the downloaded file to your Quake II directory.
+Once done, start up Quake II and enter "game infighter" into your console. Now simply start the game or type "map q2dm1" and you're done!
 
 To spawn monsters, check out the commands below. Advised is to bind these commands to keyboard keys with the "bind" key. 
 For instance, the "inf_nextmon" and "inf_prevmon" commands can be bound to "mwheelup" and "mwheeldown" respectively.
