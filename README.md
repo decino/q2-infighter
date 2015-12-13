@@ -49,9 +49,14 @@ The mod uses the following custom commands:
 ###### inf_ray
 > Quickly switch into your death ray. Useful if you don't want to scroll through all monster selections.
 
+###### inf_help
+> Lists all Infighter commands in the game. 
+
 -----
-##### Miscellaneous
-I wrote a similar mod to this about 5 years ago, but wasn't even nowhere close to how versatile this one is. Each monster had to be spawned by commands, the AI was poor and there were only 2 teams. A few days ago I noticed some YouTube videos of Doom and Quake where monsters fought each other gladiator style. The YouTubers even held tournaments and was pretty entertaining, but I couldn't find any Quake II fights, so I wrote this mod which could easily simulate those.
+##### Miscellaneous Info
+I wrote a similar mod to this about 5 years ago, but wasn't even nowhere close to how versatile this one is. Each monster had to be spawned by commands, the AI was poor and there were only 2 teams. 
+
+A few days ago I noticed some YouTube videos of Doom and Quake where monsters fought each other gladiator style. The YouTubers even held tournaments and was pretty entertaining, but I couldn't find any Quake II fights, so I wrote this mod which could easily simulate those.
 
 Looking forward to seeing videos of this mod on YouTube, shoot me a message if you're planning to.
 I'd love to see those videos. :-)
