@@ -718,11 +718,11 @@ qboolean M_CheckAttack (edict_t *self)
 	if (!self->monsterinfo.attack)
 		return false;
 		
-	if (level.time < self->monsterinfo.attack_finished)
+	if ((level.time < self->monsterinfo.attack_finished) && (skill->value < 3))
 		return false;
 		
-	if (enemy_range == RANGE_FAR)
-		return false;
+	//if (enemy_range == RANGE_FAR)
+	//	return false;
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
@@ -749,6 +749,8 @@ qboolean M_CheckAttack (edict_t *self)
 		chance *= 0.5;
 	else if (skill->value >= 2)
 		chance *= 2;
+	else if (skill->value >= 3)
+		chance = 100; // Nightmare skill makes 'em BRUTAL
 
 	if (random () < chance)
 	{
@@ -854,7 +856,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 		return false;
 
 // this causes monsters to run blindly to the combat point w/o firing
-	if (self->goalentity)
+	/*if (self->goalentity)
 	{
 		if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
 			return false;
@@ -878,7 +880,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 				return false;
 			}
 		}
-	}
+	}*/
 
 	enemy_vis = false;
 
@@ -900,7 +902,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	{
 		if (self->monsterinfo.aiflags & AI_BRUTAL)
 		{
-			if (self->enemy->health <= -80)
+			if (self->enemy->health <= -10) // Was 80
 				hesDeadJim = true;
 		}
 		else
@@ -946,7 +948,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 		}
 	}
 
-	self->show_hostile = level.time + 1;		// wake up other monsters
+	//self->show_hostile = level.time + 1;		// wake up other monsters
 
 	if (!self->enemy)
 	{
@@ -958,7 +960,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	enemy_vis = visible(self, self->enemy);
 	if (enemy_vis)
 	{
-		self->monsterinfo.search_time = level.time + 5;
+		self->monsterinfo.search_time = level.time + 1;
 		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);
 	}
 
@@ -1035,7 +1037,7 @@ void ai_run (edict_t *self, float dist)
 		ai_search(self);
 
 	// decino: We can't find our enemy anymore, so give up
-	if (self->give_up_time > 200 || self->undamaged_time > 75)
+	if (self->give_up_time > 50 || self->undamaged_time > 75)
 	{
 		self->oldenemy = self->enemy;
 		self->enemy = NULL;

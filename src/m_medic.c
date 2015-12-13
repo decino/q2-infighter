@@ -546,7 +546,7 @@ mmove_t medic_move_attackHyperBlaster = {FRAME_attack15, FRAME_attack30, medic_f
 void medic_continue (edict_t *self)
 {
 	if (visible (self, self->enemy) )
-		if (random() <= 0.95)
+		if (random() <= 0.95 || skill->value >= 3)
 			self->monsterinfo.currentmove = &medic_move_attackHyperBlaster;
 }
 

@@ -303,12 +303,12 @@ static qboolean parasite_drain_attack_ok (vec3_t start, vec3_t end)
 	if (VectorLength(dir) > 256)
 		return false;
 
-	// check for min/max pitch
+	/*// check for min/max pitch
 	vectoangles (dir, angles);
 	if (angles[0] < -180)
 		angles[0] += 360;
 	if (fabs(angles[0]) > 30)
-		return false;
+		return false;*/
 
 	return true;
 }
@@ -337,8 +337,8 @@ void parasite_drain_attack (edict_t *self)
 	VectorCopy (self->enemy->s.origin, end);
 
 	tr = gi.trace (start, NULL, NULL, end, self, MASK_SHOT);
-	if (tr.ent != self->enemy)
-		return;
+	//if (tr.ent != self->enemy)
+	//	return;
 
 	if (self->s.frame == FRAME_drain03)
 	{

@@ -588,7 +588,7 @@ void soldier_attack2_refire1 (edict_t *self)
 	if (self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
+	if ( ((skill->value >= 3) /*&& (random() < 0.5))*/ || (range(self, self->enemy) == RANGE_MELEE) ))
 		self->monsterinfo.nextframe = FRAME_attak204;
 	else
 		self->monsterinfo.nextframe = FRAME_attak216;
@@ -602,7 +602,7 @@ void soldier_attack2_refire2 (edict_t *self)
 	if (self->enemy->health <= 0)
 		return;
 
-	if ( ((skill->value == 3) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE) )
+	if ( ((skill->value >= 3) /*&& (random() < 0.5))*/ || (range(self, self->enemy) == RANGE_MELEE) ))
 		self->monsterinfo.nextframe = FRAME_attak204;
 }
 
@@ -746,7 +746,7 @@ void soldier_attack6_refire (edict_t *self)
 	if (range(self, self->enemy) < RANGE_MID)
 		return;
 
-	if (skill->value == 3)
+	if (skill->value >= 3)
 		self->monsterinfo.nextframe = FRAME_runs03;
 }
 

@@ -441,7 +441,7 @@ mmove_t supertank_move_end_attack1 = {FRAME_attak1_7, FRAME_attak1_20, supertank
 void supertank_reattack1(edict_t *self)
 {
 	if (visible(self, self->enemy))
-		if (random() < 0.9)
+		if (random() < 0.9 || skill->value >= 3)
 			self->monsterinfo.currentmove = &supertank_move_attack1;
 		else
 			self->monsterinfo.currentmove = &supertank_move_end_attack1;	

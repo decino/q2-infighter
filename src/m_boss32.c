@@ -719,7 +719,7 @@ qboolean Makron_CheckAttack (edict_t *self)
 	int			enemy_range;
 	float		enemy_yaw;
 
-	if (self->enemy->health > 0)
+	/*if (self->enemy->health > 0)
 	{
 	// see if any entities are in the way of the shot
 		VectorCopy (self->s.origin, spot1);
@@ -732,7 +732,7 @@ qboolean Makron_CheckAttack (edict_t *self)
 		// do we have a clear shot?
 		if (tr.ent != self->enemy)
 			return false;
-	}
+	}*/
 	
 	enemy_infront = infront(self, self->enemy);
 	enemy_range = range(self, self->enemy);
@@ -756,11 +756,11 @@ qboolean Makron_CheckAttack (edict_t *self)
 	if (!self->monsterinfo.attack)
 		return false;
 		
-	if (level.time < self->monsterinfo.attack_finished)
-		return false;
+	//if (level.time < self->monsterinfo.attack_finished)
+	//	return false;
 		
-	if (enemy_range == RANGE_FAR)
-		return false;
+	//if (enemy_range == RANGE_FAR)
+	//	return false;
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
@@ -782,6 +782,8 @@ qboolean Makron_CheckAttack (edict_t *self)
 	{
 		return false;
 	}
+	if (skill->value >= 3)
+		chance = 100; // Brutalise
 
 	if (random () < chance)
 	{

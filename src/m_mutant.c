@@ -423,7 +423,7 @@ qboolean mutant_check_jump (edict_t *self)
 		return false;
 	if (distance > 100)
 	{
-		if (random() < 0.9)
+		if (random() < 0.9 && skill->value < 3)
 			return false;
 	}
 

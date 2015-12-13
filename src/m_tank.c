@@ -639,7 +639,7 @@ void tank_refire_rocket (edict_t *self)
 	if ( skill->value >= 2 )
 		if (self->enemy->health > 0)
 			if (visible(self, self->enemy) )
-				if (random() <= 0.4)
+				if (random() <= 0.4 || skill->value >= 3)
 				{
 					self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
 					return;

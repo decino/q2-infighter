@@ -457,8 +457,8 @@ void boss2_attack_mg (edict_t *self)
 
 void boss2_reattack_mg (edict_t *self)
 {
-	if ( infront(self, self->enemy) )
-		if (random() <= 0.7)
+	if (visible(self, self->enemy) && self->enemy->health > 0)
+		if (random() <= 0.7 || skill->value >= 3)
 			self->monsterinfo.currentmove = &boss2_move_attack_mg;
 		else
 			self->monsterinfo.currentmove = &boss2_move_attack_post_mg;

@@ -568,7 +568,7 @@ void gunner_refire_chain(edict_t *self)
 {
 	if (self->enemy->health > 0)
 		if ( visible (self, self->enemy) )
-			if (random() <= 0.5)
+			if (random() <= 0.5 || skill->value >= 3)
 			{
 				self->monsterinfo.currentmove = &gunner_move_fire_chain;
 				return;

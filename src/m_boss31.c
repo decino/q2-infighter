@@ -393,8 +393,8 @@ mmove_t jorg_move_end_attack1 = {FRAME_attak115, FRAME_attak118, jorg_frames_end
 
 void jorg_reattack1(edict_t *self)
 {
-	if (visible(self, self->enemy))
-		if (random() < 0.9)
+	if (visible(self, self->enemy) && self->enemy->health > 0)
+		if (random() < 0.9 || skill->value >= 3)
 			self->monsterinfo.currentmove = &jorg_move_attack1;
 		else
 		{
@@ -606,7 +606,7 @@ qboolean Jorg_CheckAttack (edict_t *self)
 	int			enemy_range;
 	float		enemy_yaw;
 
-	if (self->enemy->health > 0)
+	/*if (self->enemy->health > 0)
 	{
 	// see if any entities are in the way of the shot
 		VectorCopy (self->s.origin, spot1);
@@ -619,7 +619,7 @@ qboolean Jorg_CheckAttack (edict_t *self)
 		// do we have a clear shot?
 		if (tr.ent != self->enemy)
 			return false;
-	}
+	}*/
 	
 	enemy_infront = infront(self, self->enemy);
 	enemy_range = range(self, self->enemy);
@@ -643,11 +643,11 @@ qboolean Jorg_CheckAttack (edict_t *self)
 	if (!self->monsterinfo.attack)
 		return false;
 		
-	if (level.time < self->monsterinfo.attack_finished)
-		return false;
+	//if (level.time < self->monsterinfo.attack_finished)
+	//	return false;
 		
-	if (enemy_range == RANGE_FAR)
-		return false;
+	//if (enemy_range == RANGE_FAR)
+	//	return false;
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
@@ -669,6 +669,8 @@ qboolean Jorg_CheckAttack (edict_t *self)
 	{
 		return false;
 	}
+	if (skill->value >= 3)
+		chance = 100; // Brutalise on Nightmare difficulty
 
 	if (random () < chance)
 	{

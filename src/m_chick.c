@@ -531,8 +531,8 @@ void chick_rerocket(edict_t *self)
 	if (self->enemy->health > 0)
 	{
 		if (range (self, self->enemy) > RANGE_MELEE)
-			if ( visible (self, self->enemy) )
-				if (random() <= 0.6)
+			if (visible (self, self->enemy))
+				if (random() <= 0.6 || skill->value >= 3)
 				{
 					self->monsterinfo.currentmove = &chick_move_attack1;
 					return;
