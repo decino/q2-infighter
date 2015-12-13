@@ -581,6 +581,8 @@ void SP_monster_hover (edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/hover/tris.md2");
 	VectorSet (self->mins, -24, -24, -24);
 	VectorSet (self->maxs, 24, 24, 32);
+	self->health = 240;
+	self->monster_name = "Icarus";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -600,7 +602,6 @@ void SP_monster_hover (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 240;
 	self->gib_health = -100;
 	self->mass = 150;
 

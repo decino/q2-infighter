@@ -369,6 +369,8 @@ void SP_monster_flipper (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/flipper/tris.md2");
 	VectorSet (self->mins, -16, -16, 0);
 	VectorSet (self->maxs, 16, 16, 32);
+	self->health = 50;
+	self->monster_name = "Barracude Shark";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -385,7 +387,6 @@ void SP_monster_flipper (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 50;
 	self->gib_health = -30;
 	self->mass = 100;
 

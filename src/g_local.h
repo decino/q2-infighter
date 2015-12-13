@@ -86,6 +86,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // decino: Infighter constants
 #define MAX_SELECTED_MONSTERS	24
 #define MAX_MONSTER_TEAMS		4
+#define MAX_DIFFICULTIES		4
 
 typedef enum
 {
@@ -1128,14 +1129,31 @@ struct edict_s
 
 	// decino: Infighter mod data
 	edict_t		*monster_preview;
-	qboolean	has_preview;
-	qboolean	is_new;
+	edict_t		*monster_id;	// decino: Monster we identified with our mouse
 
 	int			selected_monster;
-
 	int			give_up_time;	// decino: Time it takes before giving up on an enemy (can't see him anymore)
 	int			undamaged_time;	// decino: Time elapsed while not taking damage
 	int			threshold;		// decino: While threshold is positive the monster won't retaliate against attacks
 	int			monster_team;
+
+	char		*monster_name;
 };
 
+
+// decino: Infighter array constants
+static char *skill_string[MAX_DIFFICULTIES] =
+{
+	"Easy",
+	"Medium",
+	"Hard",
+	"Nightmare"
+};
+
+static char *team_string[MAX_MONSTER_TEAMS] =
+{
+	"Red",
+	"Yellow",
+	"Green",
+	"Blue"
+};

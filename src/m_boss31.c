@@ -706,6 +706,8 @@ void SP_monster_jorg (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/boss3/jorg/tris.md2");
 	VectorSet (self->mins, -80, -80, 0);
 	VectorSet (self->maxs, 80, 80, 140);
+	self->health = 3000;
+	self->monster_name = "Jorg";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -732,7 +734,6 @@ void SP_monster_jorg (edict_t *self)
 	//self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
 	//self->s.modelindex2 = gi.modelindex ("models/monsters/boss3/jorg/tris.md2");
 
-	self->health = 3000;
 	self->gib_health = -2000;
 	self->mass = 1000;
 

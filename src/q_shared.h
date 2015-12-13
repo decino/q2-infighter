@@ -1009,6 +1009,11 @@ typedef enum
 #define STAT_CHASE				16
 #define STAT_SPECTATOR			17
 
+#define STAT_READY				18		// Is the game paused?
+#define STAT_FROZEN				19		// Shows if the game's frozen
+#define STAT_SKILL				20		// What's the current difficulty?
+#define STAT_ID					21		// Identify monster's health/name/team
+
 #define	MAX_STATS				32
 
 

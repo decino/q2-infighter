@@ -801,6 +801,19 @@ void SP_monster_tank (edict_t *self)
 	VectorSet (self->mins, -32, -32, -16);
 	VectorSet (self->maxs, 32, 32, 72);
 
+	if (strcmp(self->classname, "monster_tank_commander") == 0)
+	{
+		self->health = 1000;
+		self->gib_health = -225;
+		self->monster_name = "Tank Commander";
+	}
+	else
+	{
+		self->health = 750;
+		self->gib_health = -200;
+		self->monster_name = "Tank";
+	}
+
 	if (self->solid == SOLID_NOT)
 		return;
 
@@ -823,17 +836,6 @@ void SP_monster_tank (edict_t *self)
 	gi.soundindex ("tank/tnkatk2d.wav");
 	gi.soundindex ("tank/tnkatk2e.wav");
 	gi.soundindex ("tank/tnkatck3.wav");
-
-	if (strcmp(self->classname, "monster_tank_commander") == 0)
-	{
-		self->health = 1000;
-		self->gib_health = -225;
-	}
-	else
-	{
-		self->health = 750;
-		self->gib_health = -200;
-	}
 
 	self->mass = 500;
 

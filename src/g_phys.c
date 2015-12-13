@@ -321,10 +321,7 @@ SV_AddGravity
 */
 void SV_AddGravity (edict_t *ent)
 {
-	if (ent->is_new)
-		ent->velocity[2] += 0.01;
-	else
-		ent->velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
+	ent->velocity[2] -= ent->gravity * sv_gravity->value * FRAMETIME;
 }
 
 /*
@@ -967,5 +964,4 @@ void G_RunEntity (edict_t *ent)
 	default:
 		gi.error ("SV_Physics: bad movetype %i", (int)ent->movetype);	
 	}
-	ent->is_new = false;
 }

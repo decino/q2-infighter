@@ -644,6 +644,8 @@ void SP_monster_boss2 (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/boss2/tris.md2");
 	VectorSet (self->mins, -56, -56, 0);
 	VectorSet (self->maxs, 56, 56, 80);
+	self->health = 2000;
+	self->monster_name = "Hornet";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -659,7 +661,6 @@ void SP_monster_boss2 (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 2000;
 	self->gib_health = -200;
 	self->mass = 1000;
 

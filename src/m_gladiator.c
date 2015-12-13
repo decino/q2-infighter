@@ -349,6 +349,8 @@ void SP_monster_gladiator (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/gladiatr/tris.md2");
 	VectorSet (self->mins, -32, -32, -24);
 	VectorSet (self->maxs, 32, 32, 64);
+	self->health = 400;
+	self->monster_name = "Gladiator";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -367,7 +369,6 @@ void SP_monster_gladiator (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 400;
 	self->gib_health = -175;
 	self->mass = 400;
 

@@ -785,9 +785,7 @@ char *dm_statusbar =
 "if 17 "
   "xv 80 "
   "yb -58 "
-  "string2 \"Monster Selected:\" "
-  "yb -50 "
-  "string \"Shit\" "
+  "string2 \"SPECTATOR MODE\" "
 "endif "
 
 // chase camera
@@ -797,6 +795,34 @@ char *dm_statusbar =
   "string \"Chasing\" "
   "xv 64 "
   "stat_string 16 "
+"endif "
+
+// level.ready
+"if 18 "
+  "xv -350 "
+  "yb -64 "
+  "string2 \"Monsters: Paused\" "
+"endif "
+
+// level.frozen
+"if 19 "
+  "xv -350 "
+  "yb -48 "
+  "string2 \"Monsters: Frozen\" "
+"endif "
+
+// difficulty level
+/*"if 20 "
+  "xv -350 "
+  "yb -64 "
+  "stat_string 20 "
+"endif "*/
+
+// monster id
+"if 21 "
+  "xv -350 "
+  "yb -96 "
+  "stat_string 21 "
 "endif "
 ;
 

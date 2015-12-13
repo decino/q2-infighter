@@ -1249,6 +1249,8 @@ void SP_monster_soldier_light (edict_t *self)
 
 	SP_monster_soldier_x (self);
 	self->s.skinnum = 0;
+	self->health = 20;
+	self->monster_name = "Light Guard";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -1259,7 +1261,6 @@ void SP_monster_soldier_light (edict_t *self)
 	gi.soundindex ("misc/lasfly.wav");
 	gi.soundindex ("soldier/solatck2.wav");
 	
-	self->health = 20;
 	self->gib_health = -30;
 }
 
@@ -1275,6 +1276,8 @@ void SP_monster_soldier (edict_t *self)
 
 	SP_monster_soldier_x (self);
 	self->s.skinnum = 2;
+	self->health = 30;
+	self->monster_name = "Shotgun Guard";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -1283,7 +1286,6 @@ void SP_monster_soldier (edict_t *self)
 	sound_death = gi.soundindex ("soldier/soldeth1.wav");
 	gi.soundindex ("soldier/solatck1.wav");
 
-	self->health = 30;
 	self->gib_health = -30;
 }
 
@@ -1299,6 +1301,8 @@ void SP_monster_soldier_ss (edict_t *self)
 
 	SP_monster_soldier_x (self);
 	self->s.skinnum = 4;
+	self->health = 40;
+	self->monster_name = "Machine Gun Guard";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -1307,6 +1311,5 @@ void SP_monster_soldier_ss (edict_t *self)
 	sound_death_ss = gi.soundindex ("soldier/soldeth3.wav");
 	gi.soundindex ("soldier/solatck3.wav");
 
-	self->health = 40;
 	self->gib_health = -30;
 }

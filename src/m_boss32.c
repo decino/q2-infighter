@@ -841,6 +841,8 @@ void SP_monster_makron (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/boss3/rider/tris.md2");
 	VectorSet (self->mins, -30, -30, 0);
 	VectorSet (self->maxs, 30, 30, 90);
+	self->health = 3000;
+	self->monster_name = "Makron";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -850,7 +852,6 @@ void SP_monster_makron (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 3000;
 	self->gib_health = -200; // decino: Make it gibbable
 	self->mass = 500;
 

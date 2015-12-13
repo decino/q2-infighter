@@ -1002,6 +1002,8 @@ void SP_misc_explobox (edict_t *self)
 	self->s.modelindex = gi.modelindex("models/objects/barrels/tris.md2");
 	VectorSet (self->mins, -16, -16, 0);
 	VectorSet (self->maxs, 16, 16, 40);
+	self->health = 10;
+	self->monster_name = "Explosive Barrel";
 
 	if (self->solid == SOLID_NOT)
 		return;

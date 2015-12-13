@@ -589,6 +589,8 @@ void SP_monster_gunner (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/gunner/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 32);
+	self->health = 175;
+	self->monster_name = "Gunner";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -607,7 +609,6 @@ void SP_monster_gunner (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 175;
 	self->gib_health = -70;
 	self->mass = 200;
 

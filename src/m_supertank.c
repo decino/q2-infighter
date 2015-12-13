@@ -680,6 +680,8 @@ void SP_monster_supertank (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/boss1/tris.md2");
 	VectorSet (self->mins, -64, -64, 0);
 	VectorSet (self->maxs, 64, 64, 112);
+	self->health = 1500;
+	self->monster_name = "Super Tank";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -697,7 +699,6 @@ void SP_monster_supertank (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 1500;
 	self->gib_health = -500;
 	self->mass = 800;
 

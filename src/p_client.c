@@ -1236,7 +1236,8 @@ void PutClientInServer (edict_t *ent)
 
 	ent->movetype = MOVETYPE_NOCLIP;
 	ent->solid = SOLID_NOT;
-	ent->svflags |= SVF_NOCLIENT;
+	//ent->svflags |= SVF_NOCLIENT;
+	ent->takedamage = DAMAGE_NO;
 	ent->client->ps.gunindex = 0;
 	gi.linkentity (ent);
 	return;
@@ -1278,7 +1279,7 @@ void ClientBeginDeathmatch (edict_t *ent)
 	gi.multicast (ent->s.origin, MULTICAST_PVS);
 
 	gi.bprintf (PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
-	gi.centerprintf(ent, "Press TAB for the full list of commands.");
+	//gi.centerprintf(ent, "Press TAB for the full list of commands.");
 
 	// make sure all view stuff is valid
 	ClientEndServerFrame (ent);
@@ -1694,7 +1695,6 @@ void SpawnMonster(edict_t *ent)
 	monster->s.angles[1] = ent->s.angles[1];
 	monster->s.frame = 0;
 	monster->monsterinfo.nextframe = 0;
-	monster->is_new = true;
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_WIDOWSPLASH);
@@ -1748,6 +1748,64 @@ void FireDeathBeam(edict_t *ent)
 	gi.WriteShort(ent - g_edicts);
 	gi.WriteByte(MZ_HYPERBLASTER);
 	gi.multicast(ent->s.origin, MULTICAST_PVS);
+}
+
+void TraceMonster(edict_t *ent)
+{
+	vec3_t		start;
+	vec3_t		forward, right;
+	vec3_t		offset;
+	vec3_t		from;
+	vec3_t		end;
+	trace_t		tr;
+
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 0, 0,  ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+
+	VectorMA(start, 8192, forward, end);
+	VectorCopy(start, from);
+
+	tr = gi.trace(from, NULL, NULL, end, ent, MASK_SHOT);
+
+	if ((tr.ent != ent) && (tr.ent->svflags & SVF_MONSTER) && tr.ent->health > 0)
+		ent->monster_id = tr.ent;
+	else
+		ent->monster_id = NULL;
+}
+
+void UpdateMonsterID(edict_t *ent)
+{
+	edict_t *monster = NULL;
+	int index = (CS_GENERAL + (ent - g_edicts) - 1);
+	char message[MAX_QPATH];
+
+	if (ent->selected_monster != 0)
+		monster = ent->monster_preview;
+	else if (ent->monster_id)
+		monster = ent->monster_id;
+	if (monster)
+	{
+		ent->client->ps.stats[STAT_ID] = index;
+		infsnprintf(message, MAX_QPATH * 2, "[%s] %s: %d HP (%s)", team_string[monster->monster_team], monster->monster_name, monster->health, skill_string[(int)skill->value]);
+	}
+	else
+		ent->client->ps.stats[STAT_ID] = 0;
+
+	gi.configstring(index, message);
+	gi.WriteChar(13);
+	gi.WriteShort(index);
+	gi.WriteString(message);
+	gi.multicast(ent->s.origin, MULTICAST_PVS_R);
+}
+
+void UpdatePlayerHUD(edict_t *ent)
+{
+	ent->client->ps.stats[STAT_READY] = (!level.ready) ? 1 : 0;
+	ent->client->ps.stats[STAT_FROZEN] = (level.frozen) ? 1 : 0;
+
+	TraceMonster(ent);
+	UpdateMonsterID(ent);
 }
 
 /*
@@ -1949,6 +2007,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		client->menutime = level.time;
 		client->menudirty = false;
 	}
+	UpdatePlayerHUD(ent);
 }
 
 

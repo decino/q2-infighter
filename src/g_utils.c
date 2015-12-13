@@ -651,3 +651,26 @@ void DrawPreviewLaserBBox(edict_t *ent, int laser_color, int laser_size)
 	VectorSet(p2,origin[0]+ent->maxs[0],origin[1]+ent->maxs[1],origin[2]+ent->maxs[2]);
 	DrawPreviewLaser(ent, p1, p2, laser_color, laser_size);
 }
+
+int infsnprintf(char *out, size_t size, const char *in, ...)
+{
+	int length;
+	va_list args;
+
+	va_start(args, in);
+	length = infvsnprintf(out, size, in, args);
+	va_end(args);
+
+	return length;
+}
+
+int infvsnprintf(char *out, size_t size, const char *in, va_list args)
+{
+	int length = vsnprintf(out, size, in, args);
+
+	//ensure we append the null terminator for MS compilers
+	if (size > 0 && length >= size)
+		out[size - 1] = '\0';
+
+	return length;
+}

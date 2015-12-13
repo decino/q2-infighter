@@ -514,6 +514,8 @@ void SP_monster_parasite (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/parasite/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 24);
+	self->health = 175;
+	self->monster_name = "Parasite";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -533,7 +535,6 @@ void SP_monster_parasite (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 175;
 	self->gib_health = -50;
 	self->mass = 250;
 

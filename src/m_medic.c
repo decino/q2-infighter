@@ -775,6 +775,8 @@ void SP_monster_medic (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/medic/tris.md2");
 	VectorSet (self->mins, -24, -24, -24);
 	VectorSet (self->maxs, 24, 24, 32);
+	self->health = 300;
+	self->monster_name = "Medic";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -795,7 +797,6 @@ void SP_monster_medic (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 300;
 	self->gib_health = -130;
 	self->mass = 400;
 

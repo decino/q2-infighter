@@ -619,6 +619,8 @@ void SP_monster_floater (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/float/tris.md2");
 	VectorSet (self->mins, -24, -24, -24);
 	VectorSet (self->maxs, 24, 24, 32);
+	self->health = 200;
+	self->monster_name = "Technician";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -638,7 +640,6 @@ void SP_monster_floater (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 200;
 	self->gib_health = -80;
 	self->mass = 300;
 

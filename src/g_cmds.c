@@ -974,13 +974,13 @@ void Cmd_MonsterFight_f(edict_t *ent)
 
 	if (level.ready)
 	{
-		gi.centerprintf(ent, "FIGHT!\n");
+		gi.bprintf(PRINT_CHAT, "FIGHT!\n");
 		gi.sound (ent, CHAN_VOICE, gi.soundindex("world/x_light.wav"), 1, ATTN_NONE, 0);
 		ent->selected_monster = 0;
 	}
 	else
 	{
-		gi.centerprintf(ent, "Time for a break.\n");
+		gi.bprintf(PRINT_CHAT, "Pause mode: ON\n");
 		gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/spawn1.wav"), 1, ATTN_NORM, 0);
 	}
 }
@@ -1008,12 +1008,14 @@ void Cmd_MonsterFreeze_f(edict_t *ent)
 
 	if (level.frozen)
 	{
-		gi.centerprintf(ent, "Freeze mode: ON\n");
+		gi.bprintf(PRINT_CHAT, "Freeze mode: ON\n");
 		ent->selected_monster = 0;
-		G_FreeEdict(ent->monster_preview);
+
+		if (ent->monster_preview)
+			G_FreeEdict(ent->monster_preview);
 	}
 	else
-		gi.centerprintf(ent, "Freeze mode: OFF\n");
+		gi.bprintf(PRINT_CHAT, "Freeze mode: OFF\n");
 	RefreshMonsterTeams();
 }
 
@@ -1043,9 +1045,9 @@ void Cmd_MonsterTeamColour_f(edict_t *ent)
 	RefreshMonsterTeams();
 
 	if (level.show_teams)
-		gi.centerprintf(ent, "Team colours: ON\n");
+		gi.cprintf(ent, PRINT_HIGH, "Team colours: ON\n");
 	else
-		gi.centerprintf(ent, "Team colours: OFF!\n");
+		gi.cprintf(ent, PRINT_HIGH, "Team colours: OFF!\n");
 }
 
 void Cmd_MonsterClear_f(edict_t *ent)
@@ -1060,7 +1062,7 @@ void Cmd_MonsterClear_f(edict_t *ent)
 		if (monster->svflags & SVF_MONSTER)
 			G_FreeEdict(monster);
 	}
-	gi.centerprintf(ent, "Entities have been removed.\n");
+	gi.bprintf(PRINT_CHAT, "Entities have been removed.\n");
 }
 
 void Cmd_MonsterPreviewClear_f(edict_t *ent)
@@ -1068,21 +1070,13 @@ void Cmd_MonsterPreviewClear_f(edict_t *ent)
 	ent->selected_monster = 0;
 }
 
-char *skill_string[4] =
-{
-	"Easy",
-	"Medium",
-	"Hard",
-	"Nightmare"
-};
-
 void Cmd_SkillLevel_f(edict_t *ent)
 {
 	skill->value += 1.0f;
 
 	if (skill->value > 3)
 		skill->value = 0;
-	gi.centerprintf(ent, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
+	gi.bprintf(PRINT_CHAT, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
 }
 
 /*

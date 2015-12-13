@@ -177,13 +177,14 @@ The monster is walking it's beat
 */
 void ai_walk (edict_t *self, float dist)
 {
-	M_MoveToGoal (self, dist);
+	/*M_MoveToGoal (self, dist);
 
 	// check for noticing a player
 	if (FindTarget (self))
 		return;
 
-	ai_search(self);
+	ai_search(self);*/
+	ai_run(self, dist);
 }
 
 

@@ -588,6 +588,8 @@ void SP_monster_flyer (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/flyer/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 32);
+	self->health = 50;
+	self->monster_name = "Flyer";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -606,8 +608,6 @@ void SP_monster_flyer (edict_t *self)
 	self->solid = SOLID_BBOX;
 
 	self->s.sound = gi.soundindex ("flyer/flyidle1.wav");
-
-	self->health = 50;
 	self->mass = 50;
 
 	self->pain = flyer_pain;

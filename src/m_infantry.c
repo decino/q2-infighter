@@ -564,6 +564,8 @@ void SP_monster_infantry (edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/infantry/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 32);
+	self->health = 100;
+	self->monster_name = "Infantry";
 
 	if (self->solid == SOLID_NOT)
 		return;
@@ -586,7 +588,6 @@ void SP_monster_infantry (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 100;
 	self->gib_health = -40;
 	self->mass = 200;
 

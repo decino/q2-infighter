@@ -629,6 +629,8 @@ void SP_monster_brain (edict_t *self)
 	self->s.modelindex = gi.modelindex ("models/monsters/brain/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 32);
+	self->health = 300;
+	self->monster_name = "Brain";
 
 	if (self->solid == SOLID_NOT)
 		return;
