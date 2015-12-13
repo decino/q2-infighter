@@ -1068,6 +1068,23 @@ void Cmd_MonsterPreviewClear_f(edict_t *ent)
 	ent->selected_monster = 0;
 }
 
+char *skill_string[4] =
+{
+	"Easy",
+	"Medium",
+	"Hard",
+	"Nightmare"
+};
+
+void Cmd_SkillLevel_f(edict_t *ent)
+{
+	skill->value += 1.0f;
+
+	if (skill->value > 3)
+		skill->value = 0;
+	gi.centerprintf(ent, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
+}
+
 /*
 =================
 ClientCommand
@@ -1167,14 +1184,14 @@ void ClientCommand (edict_t *ent)
 		Cmd_MonsterSelect_f(ent, -1);
 	else if (Q_stricmp(cmd, "inf_team") == 0)
 		Cmd_MonsterTeam_f(ent);
-	else if (Q_stricmp(cmd, "inf_skill") == 0)
-		Cmd_MonsterTeam_f(ent);
 	else if (Q_stricmp(cmd, "inf_showteams") == 0)
 		Cmd_MonsterTeamColour_f(ent);
 	else if (Q_stricmp(cmd, "inf_clear") == 0)
 		Cmd_MonsterClear_f(ent);
 	else if (Q_stricmp(cmd, "inf_ray") == 0)
 		Cmd_MonsterPreviewClear_f(ent);
+	else if (Q_stricmp(cmd, "inf_skill") == 0)
+		Cmd_SkillLevel_f(ent);
 	// decino: Infighter commands ends here
 
 	else	// anything that doesn't match a command will be a chat
