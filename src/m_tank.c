@@ -218,7 +218,7 @@ mmove_t	tank_move_stop_run = {FRAME_walk21, FRAME_walk25, tank_frames_stop_run, 
 
 void tank_run (edict_t *self)
 {
-	if (self->enemy && self->enemy->client)
+	if (self->enemy /*&& self->enemy->client*/) // I always liked its little victory smash
 		self->monsterinfo.aiflags |= AI_BRUTAL;
 	else
 		self->monsterinfo.aiflags &= ~AI_BRUTAL;

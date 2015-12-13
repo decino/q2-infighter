@@ -587,7 +587,7 @@ void brain_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 {
 	int		n;
 
-	self->s.effects = 0;
+	//self->s.effects = 0;
 	self->monsterinfo.power_armor_type = POWER_ARMOR_NONE;
 
 // check for gib

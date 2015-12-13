@@ -93,7 +93,6 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 {
 	if (targ->health < -999)
 		targ->health = -999;
-
 	targ->enemy = attacker;
 
 	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
@@ -297,7 +296,6 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 {
 	if (!(attacker->client) && !(attacker->svflags & SVF_MONSTER))
 		return;
-
 	if (attacker == targ || attacker == targ->enemy)
 		return;
 
@@ -411,7 +409,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 
 	if (!targ->takedamage)
 		return;
-	if (targ->client || attacker->client) // decino: Players should never deal/receive damage
+	if (targ->client) // decino: Players should never receive damage
+		return;
+	if ((level.frozen || !level.ready) && !attacker->client) // decino: Don't damage if paused/frozen, but make sure the death ray still works
 		return;
 
 	// decino: Don't allow friendly fire (TODO: unless set?)
@@ -536,7 +536,7 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		}
 	}
 
-	if (targ->svflags & SVF_MONSTER)
+	if (targ->svflags & SVF_MONSTER && strcmp(targ->classname, "misc_explobox") == 1)
 	{
 		M_ReactToDamage (targ, attacker);
 		if (!(targ->monsterinfo.aiflags & AI_DUCKED) && (take))

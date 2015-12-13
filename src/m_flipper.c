@@ -403,5 +403,6 @@ void SP_monster_flipper (edict_t *self)
 	self->monsterinfo.currentmove = &flipper_move_stand;	
 	self->monsterinfo.scale = MODEL_SCALE;
 
-	swimmonster_start (self);
+	//swimmonster_start (self);
+	flymonster_start(self);
 }

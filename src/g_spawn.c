@@ -136,6 +136,7 @@ void SP_monster_mutant (edict_t *self);
 void SP_monster_supertank (edict_t *self);
 void SP_monster_boss2 (edict_t *self);
 void SP_monster_jorg (edict_t *self);
+void SP_monster_makron (edict_t *self);
 void SP_monster_boss3_stand (edict_t *self);
 
 void SP_monster_commander_body (edict_t *self);
@@ -145,7 +146,8 @@ void SP_turret_base (edict_t *self);
 void SP_turret_driver (edict_t *self);
 
 
-spawn_t	spawns[] = {
+spawn_t	spawns[] = 
+{
 	{"item_health", SP_item_health},
 	{"item_health_small", SP_item_health_small},
 	{"item_health_large", SP_item_health_large},
@@ -258,6 +260,7 @@ spawn_t	spawns[] = {
 	{"monster_boss2", SP_monster_boss2},
 	{"monster_boss3_stand", SP_monster_boss3_stand},
 	{"monster_jorg", SP_monster_jorg},
+	{"monster_makron", SP_monster_makron}, // decino: For medic resurrections
 
 	{"monster_commander_body", SP_monster_commander_body},
 
@@ -288,7 +291,7 @@ void ED_CallSpawn (edict_t *ent)
 	}
 
 	// check item spawn functions
-	/*for (i=0,item=itemlist ; i<game.num_items ; i++,item++)
+	for (i=0,item=itemlist ; i<game.num_items ; i++,item++)
 	{
 		if (!item->classname)
 			continue;
@@ -297,7 +300,7 @@ void ED_CallSpawn (edict_t *ent)
 			SpawnItem (ent, item);
 			return;
 		}
-	}*/
+	}
 
 	// check normal spawn functions
 	for (s=spawns ; s->name ; s++)
@@ -308,7 +311,7 @@ void ED_CallSpawn (edict_t *ent)
 			return;
 		}
 	}
-	//gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
+	gi.dprintf ("%s doesn't have a spawn function\n", ent->classname);
 }
 
 /*
@@ -509,6 +512,12 @@ void G_FindTeams (void)
 	gi.dprintf ("%i teams with %i entities\n", c, c2);
 }
 
+// decino: String starts with
+qboolean strsw(const char *pre, const char *str)
+{
+    return strncmp(pre, str, strlen(pre)) == 0;
+}
+
 /*
 ==============
 SpawnEntities
@@ -573,6 +582,17 @@ void SpawnEntities (char *mapname, char *entities, char *spawnpoint)
 		// remove things (except the world) from different skill levels or deathmatch
 		if (ent != g_edicts)
 		{
+			// decino: Kinda ugly, but remove all monsters, items, etc. This is a MUST to have enough edics available for all the fancy monster spawning afaik
+			if (strsw("monster_", ent->classname) || strsw("misc_", ent->classname) || strsw("item_", ent->classname) || /*strsw("target_", ent->classname) ||*/ 
+				strsw("light", ent->classname) || strsw("weapon_", ent->classname) || strsw("ammo_", ent->classname) || strsw("path_", ent->classname))
+			{
+				G_FreeEdict(ent);
+				inhibit++;
+				continue;
+			}
+			//gi.dprintf("Spawning %s\n", ent->classname);
+			ent->spawnflags &= ~(SPAWNFLAG_NOT_EASY|SPAWNFLAG_NOT_MEDIUM|SPAWNFLAG_NOT_HARD|SPAWNFLAG_NOT_COOP|SPAWNFLAG_NOT_DEATHMATCH);
+
 			//if (deathmatch->value)
 			//{
 				//if ( ent->spawnflags & SPAWNFLAG_NOT_DEATHMATCH )
@@ -982,6 +1002,6 @@ void SP_worldspawn (edict_t *ent)
 	// decino: Variable for freezing monster AI
 	level.frozen = false;
 	level.ready = false;
-	level.show_teams = false;
+	level.show_teams = true;
 }
 

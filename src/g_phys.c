@@ -940,7 +940,7 @@ void G_RunEntity (edict_t *ent)
 	if (ent->prethink)
 		ent->prethink (ent);
 
-	if (level.frozen && !ent->is_new && strcmp(ent->classname, "monster_bbox_laser") == 1)
+	if (level.frozen && /*!ent->is_new &&*/ strcmp(ent->classname, "monster_bbox_laser") == 1)
 		return;
 
 	switch ( (int)ent->movetype)

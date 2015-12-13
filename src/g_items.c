@@ -1060,6 +1060,10 @@ be on an entity that hasn't spawned yet.
 */
 void SpawnItem (edict_t *ent, gitem_t *item)
 {
+	// decino: Never spawn
+	G_FreeEdict(ent);
+	return;
+
 	PrecacheItem (item);
 
 	if (ent->spawnflags)

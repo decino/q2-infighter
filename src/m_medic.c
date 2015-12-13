@@ -42,26 +42,38 @@ static int	sound_hook_hit;
 static int	sound_hook_heal;
 static int	sound_hook_retract;
 
+int CheckCorpseDistance(edict_t *self, edict_t *corpse)
+{
+	vec3_t v;
+
+	VectorSubtract(self->s.origin, corpse->s.origin, v);
+	return VectorLength(v);
+}
 
 edict_t *medic_FindDeadMonster (edict_t *self)
 {
 	edict_t	*ent = NULL;
 	edict_t	*best = NULL;
 
-	while ((ent = findradius(ent, self->s.origin, 1024)) != NULL)
+	if (!level.ready)
+		return best;
+
+	while ((ent = findradius(ent, self->s.origin, 8192)) != NULL)
 	{
 		if (ent == self)
 			continue;
 		if (!(ent->svflags & SVF_MONSTER))
 			continue;
-		if (ent->monsterinfo.aiflags & AI_GOOD_GUY)
-			continue;
-		if (ent->owner)
+		//if (ent->monsterinfo.aiflags & AI_GOOD_GUY)
+		//	continue;
+		//if (ent->owner)
+		//	continue;
+		if (ent->monster_team != self->monster_team) // decino: Don't resurrect enemies!
 			continue;
 		if (ent->health > 0)
 			continue;
-		if (ent->nextthink)
-			continue;
+		//if (ent->nextthink)
+		//	continue;
 		if (!visible(self, ent))
 			continue;
 		if (!best)
@@ -69,28 +81,33 @@ edict_t *medic_FindDeadMonster (edict_t *self)
 			best = ent;
 			continue;
 		}
-		if (ent->max_health <= best->max_health)
+		if (CheckCorpseDistance(self, ent) > CheckCorpseDistance(self, best))
 			continue;
 		best = ent;
 	}
-
 	return best;
 }
 
-void medic_idle (edict_t *self)
+void medic_check_for_corpses(edict_t *self)
 {
 	edict_t	*ent;
-
-	gi.sound (self, CHAN_VOICE, sound_idle1, 1, ATTN_IDLE, 0);
 
 	ent = medic_FindDeadMonster(self);
 	if (ent)
 	{
+		if (self->enemy && (self->enemy->monster_team != ent->monster_team))
+			return;
 		self->enemy = ent;
 		self->enemy->owner = self;
 		self->monsterinfo.aiflags |= AI_MEDIC;
 		FoundTarget (self);
 	}
+}
+
+void medic_idle (edict_t *self)
+{
+	gi.sound (self, CHAN_VOICE, sound_idle1, 1, ATTN_IDLE, 0);
+	medic_check_for_corpses(self);
 }
 
 void medic_search (edict_t *self)
@@ -127,85 +144,85 @@ mframe_t medic_frames_stand [] =
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	ai_stand, 0, medic_check_for_corpses,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
 	ai_stand, 0, NULL,
@@ -258,6 +275,8 @@ mmove_t medic_move_run = {FRAME_run1, FRAME_run6, medic_frames_run, NULL};
 
 void medic_run (edict_t *self)
 {
+	if (!level.ready)
+		self->monsterinfo.aiflags |= AI_MEDIC;
 	if (!(self->monsterinfo.aiflags & AI_MEDIC))
 	{
 		edict_t	*ent;
@@ -573,6 +592,25 @@ static vec3_t	medic_cable_offsets[] =
 	32.7, -19.7, 10.4
 };
 
+qboolean medic_can_heal(edict_t *self)
+{
+	vec3_t	offset, start, end, f, r;
+	trace_t	tr;
+	vec3_t	dir, angles;
+	float	distance;
+
+	if (!self->enemy->inuse)
+		return;
+	AngleVectors(self->s.angles, f, r, NULL);
+	VectorCopy(self->s.origin, offset);
+	G_ProjectSource(self->s.origin, offset, f, r, start);
+
+	VectorSubtract (start, self->enemy->s.origin, dir);
+	distance = VectorLength(dir);
+
+	return (distance <= 256);
+}
+
 void medic_cable_attack (edict_t *self)
 {
 	vec3_t	offset, start, end, f, r;
@@ -590,19 +628,26 @@ void medic_cable_attack (edict_t *self)
 	// check for max distance
 	VectorSubtract (start, self->enemy->s.origin, dir);
 	distance = VectorLength(dir);
+
 	if (distance > 256)
+	{
+		self->monsterinfo.currentmove = &medic_move_run;
 		return;
+	}
 
 	// check for min/max pitch
 	vectoangles (dir, angles);
 	if (angles[0] < -180)
 		angles[0] += 360;
-	if (fabs(angles[0]) > 45)
-		return;
+	//if (fabs(angles[0]) > 45)
+	//	return;
 
 	tr = gi.trace (start, NULL, NULL, self->enemy->s.origin, self, MASK_SHOT);
-	if (tr.fraction != 1.0 && tr.ent != self->enemy)
-		return;
+
+	//if (tr.ent != self->enemy)
+	//	return;
+	//if (tr.fraction != 1.0 && tr.ent != self->enemy) // decino: Just ignore obstacles
+	//	return;
 
 	if (self->s.frame == FRAME_attack43)
 	{
@@ -626,11 +671,11 @@ void medic_cable_attack (edict_t *self)
 			self->enemy->think (self->enemy);
 		}
 		self->enemy->monsterinfo.aiflags |= AI_RESURRECTING;
-		if (self->oldenemy && self->oldenemy->client)
+		/*if (self->oldenemy && self->oldenemy->client)
 		{
 			self->enemy->enemy = self->oldenemy;
 			FoundTarget (self->enemy);
-		}
+		}*/
 	}
 	else
 	{
@@ -650,13 +695,17 @@ void medic_cable_attack (edict_t *self)
 	gi.WriteShort (self - g_edicts);
 	gi.WritePosition (start);
 	gi.WritePosition (end);
-	gi.multicast (self->s.origin, MULTICAST_PVS);
+	gi.multicast (self->s.origin, MULTICAST_PVS);		
 }
 
 void medic_hook_retract (edict_t *self)
 {
 	gi.sound (self, CHAN_WEAPON, sound_hook_retract, 1, ATTN_NORM, 0);
 	self->enemy->monsterinfo.aiflags &= ~AI_RESURRECTING;
+	self->enemy = NULL; // decino: Forget enemy after healing so we can quickly heal another ally
+	self->oldenemy = NULL;
+
+	FindTarget(self);
 }
 
 mframe_t medic_frames_attackCable [] =
@@ -696,14 +745,14 @@ mmove_t medic_move_attackCable = {FRAME_attack33, FRAME_attack60, medic_frames_a
 void medic_attack(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_MEDIC)
-		self->monsterinfo.currentmove = &medic_move_attackCable;
+			self->monsterinfo.currentmove = &medic_move_attackCable;
 	else
 		self->monsterinfo.currentmove = &medic_move_attackBlaster;
 }
 
 qboolean medic_checkattack (edict_t *self)
 {
-	if (self->monsterinfo.aiflags & AI_MEDIC)
+	if (self->monsterinfo.aiflags & AI_MEDIC && medic_can_heal(self))
 	{
 		medic_attack(self);
 		return true;

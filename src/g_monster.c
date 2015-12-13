@@ -331,15 +331,23 @@ void M_droptofloor (edict_t *ent)
 
 void M_SetEffects (edict_t *ent)
 {
-	ent->s.effects &= ~(EF_COLOR_SHELL|EF_POWERSCREEN);
-	ent->s.renderfx &= ~(RF_SHELL_RED|RF_SHELL_GREEN|RF_SHELL_BLUE);
+	ent->s.effects &= ~(EF_COLOR_SHELL | EF_POWERSCREEN | EF_HALF_DAMAGE);
+	ent->s.renderfx &= ~(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE);
+	ent->s.effects |= EF_COLOR_SHELL;
 
-	if (ent->monsterinfo.aiflags & AI_RESURRECTING)
+	if (level.show_teams)
 	{
-		ent->s.effects |= EF_COLOR_SHELL;
-		ent->s.renderfx |= RF_SHELL_RED;
+		switch (ent->monster_team)
+		{
+			case 0: ent->s.renderfx |= RF_SHELL_RED; break;
+			case 1: ent->s.renderfx |= (RF_SHELL_RED | RF_SHELL_GREEN); break;
+			case 2: ent->s.renderfx |= RF_SHELL_GREEN; break;
+			case 3: ent->s.renderfx |= RF_SHELL_BLUE; break;
+			default: ent->s.renderfx |= (RF_SHELL_RED | RF_SHELL_BLUE); break; // Unknown team
+		}
 	}
-
+	if (ent->monsterinfo.aiflags & AI_RESURRECTING)
+		ent->s.effects |= EF_HALF_DAMAGE;
 	if (ent->health <= 0)
 		return;
 
@@ -351,8 +359,7 @@ void M_SetEffects (edict_t *ent)
 		}
 		else if (ent->monsterinfo.power_armor_type == POWER_ARMOR_SHIELD)
 		{
-			ent->s.effects |= EF_COLOR_SHELL;
-			ent->s.renderfx |= RF_SHELL_GREEN;
+			ent->s.effects |= EF_DOUBLE;
 		}
 	}
 }
@@ -677,10 +684,7 @@ void walkmonster_start_go (edict_t *self)
 
 		if (self->groundentity)
 			if (!M_walkmove (self, 0, 0))
-			{
 				gi.dprintf ("%s in solid at %s\n", self->classname, vtos(self->s.origin));
-				G_FreeEdict(self);
-			}
 	}
 	
 	if (!self->yaw_speed)
@@ -703,10 +707,7 @@ void walkmonster_start (edict_t *self)
 void flymonster_start_go (edict_t *self)
 {
 	if (!M_walkmove (self, 0, 0))
-	{
 		gi.dprintf ("%s in solid at %s\n", self->classname, vtos(self->s.origin));
-		G_FreeEdict(self);
-	}
 
 	if (!self->yaw_speed)
 		self->yaw_speed = 10;

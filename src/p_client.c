@@ -1598,29 +1598,29 @@ void SelectMonster(edict_t *self, int selected_monster)
 {
 	switch (selected_monster)
 	{
-		case 1:  SP_monster_berserk(self); break;
-		case 2:  SP_monster_boss2(self); break;
-		case 3:  SP_monster_brain(self); break;
-		case 4:  SP_monster_chick(self); break;
-		case 5:  SP_monster_flipper(self); break;
-		case 6:  SP_monster_floater(self); break;
-		case 7:  SP_monster_flyer(self); break;
-		case 8:  SP_monster_gladiator(self); break;
-		case 9:  SP_monster_gunner(self); break;
-		case 10: SP_monster_hover(self); break;
-		case 11: SP_monster_infantry(self); break;
-		case 12: SP_misc_insane(self); break;
-		case 13: SP_monster_jorg(self); break;
-		case 14: SP_monster_makron(self); break;
-		case 15: SP_monster_medic(self); break;
-		case 16: SP_monster_mutant(self); break;
-		case 17: SP_misc_explobox(self); break;
-		case 18: SP_monster_parasite(self); break;
-		case 19: SP_monster_soldier(self); break;
-		case 20: SP_monster_soldier_light(self); break;
-		case 21: SP_monster_soldier_ss(self); break;
-		case 22: SP_monster_supertank(self); break;
-		case 23: SP_monster_tank(self); break;
+		case 1:  self->classname = "monster_berserk"; SP_monster_berserk(self); break;
+		case 2:  self->classname = "monster_boss2"; SP_monster_boss2(self); break;
+		case 3:  self->classname = "monster_brain"; SP_monster_brain(self); break;
+		case 4:  self->classname = "monster_chick"; SP_monster_chick(self); break;
+		case 5:  self->classname = "monster_flipper"; SP_monster_flipper(self); break;
+		case 6:  self->classname = "monster_floater"; SP_monster_floater(self); break;
+		case 7:  self->classname = "monster_flyer"; SP_monster_flyer(self); break;
+		case 8:  self->classname = "monster_gladiator"; SP_monster_gladiator(self); break;
+		case 9:  self->classname = "monster_gunner"; SP_monster_gunner(self); break;
+		case 10: self->classname = "monster_hover"; SP_monster_hover(self); break;
+		case 11: self->classname = "monster_infantry"; SP_monster_infantry(self); break;
+		case 12: self->classname = "misc_insane"; SP_misc_insane(self); break;
+		case 13: self->classname = "monster_jorg"; SP_monster_jorg(self); break;
+		case 14: self->classname = "monster_makron"; SP_monster_makron(self); break;
+		case 15: self->classname = "monster_medic"; SP_monster_medic(self); break;
+		case 16: self->classname = "monster_mutant"; SP_monster_mutant(self); break;
+		case 17: self->classname = "misc_explobox"; SP_misc_explobox(self); break;
+		case 18: self->classname = "monster_parasite"; SP_monster_parasite(self); break;
+		case 19: self->classname = "monster_soldier"; SP_monster_soldier(self); break;
+		case 20: self->classname = "monster_soldier_light"; SP_monster_soldier_light(self); break;
+		case 21: self->classname = "monster_soldier_ss"; SP_monster_soldier_ss(self); break;
+		case 22: self->classname = "monster_supertank"; SP_monster_supertank(self); break;
+		case 23: self->classname = "monster_tank"; SP_monster_tank(self); break;
 		case 24: self->classname = "monster_tank_commander"; self->s.skinnum = 2; SP_monster_tank(self); break;
 
 		default: SP_monster_brain(self); break;
@@ -1670,7 +1670,7 @@ void CreateMonsterPreview(edict_t *self)
 
 	if (!IsValidSpawn(self->monster_preview))
 	{
-		self->monster_preview->s.effects ^= EF_PENT;
+		self->monster_preview->s.effects |= EF_HALF_DAMAGE;
 		return;
 	}
 	DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
@@ -1700,6 +1700,54 @@ void SpawnMonster(edict_t *ent)
 	gi.WriteByte(TE_WIDOWSPLASH);
 	gi.WritePosition(ent->s.origin);
 	gi.multicast(ent->s.origin, MULTICAST_PHS);
+}
+
+void fire_death(edict_t *ent, vec3_t start, vec3_t forward)
+{
+	vec3_t		from;
+	vec3_t		end;
+	trace_t tr;
+
+	VectorMA(start, 8192, forward, end);
+	VectorCopy(start, from);
+
+	tr = gi.trace(from, NULL, NULL, end, ent, MASK_SHOT);
+	
+	if ((tr.ent != ent) && (tr.ent->takedamage))
+	{
+		if (tr.ent->deadflag == DEAD_DEAD)
+			T_Damage (tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, 10000, 0, 0, MOD_RAILGUN); // decino: Gib corpses
+		else
+		{
+			tr.ent->health = 0;
+			T_Damage (tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, 1, 0, 0, MOD_RAILGUN);
+		}
+	}
+	VectorCopy (tr.endpos, from);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_BUBBLETRAIL);
+	gi.WritePosition(start);
+	gi.WritePosition(tr.endpos);
+	gi.multicast (tr.endpos, MULTICAST_PHS);
+}
+
+void FireDeathBeam(edict_t *ent)
+{
+	vec3_t		start;
+	vec3_t		forward, right;
+	vec3_t		offset;
+
+	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 0, 0,  ent->viewheight - 8);
+	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+
+	fire_death(ent, start, forward);
+
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_HYPERBLASTER);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
 }
 
 /*
@@ -1864,8 +1912,10 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		}*/
 		client->latched_buttons = 0;
 
-		if (IsValidSpawn(ent) && ent->selected_monster != 0)
+		if (IsValidSpawn(ent) && ent->selected_monster != 0 && !level.frozen)
 			SpawnMonster(ent->monster_preview);
+		if (ent->selected_monster == 0)
+			FireDeathBeam(ent);
 	}
 
 	/*if (client->resp.spectator) {
@@ -1889,7 +1939,8 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	}*/
 
 	// decino: Renders a translucent version of the selected monsters
-	CreateMonsterPreview(ent);
+	if (!level.frozen)
+		CreateMonsterPreview(ent);
 
 	if (client->menudirty && client->menutime <= level.time)
 	{

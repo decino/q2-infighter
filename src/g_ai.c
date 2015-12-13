@@ -639,7 +639,6 @@ qboolean FindTarget (edict_t *self)
 
 	if (level.frozen || !level.ready)
 		return false;
-
 	monster = FindMonsterTarget(self);
 
 	if (monster)
@@ -651,6 +650,7 @@ qboolean FindTarget (edict_t *self)
 		FoundTarget(self);
 		return true;
 	}
+	self->oldenemy = NULL;
 
 	/*if (!(self->monsterinfo.aiflags & AI_SOUND_TARGET) && (self->monsterinfo.sight))
 		self->monsterinfo.sight (self, self->enemy);*/
@@ -849,6 +849,10 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	vec3_t		temp;
 	qboolean	hesDeadJim;
 
+	// decino: Insanes have no attacks... yet
+	if (strcmp(self->classname, "misc_insane") == 0)
+		return false;
+
 // this causes monsters to run blindly to the combat point w/o firing
 	if (self->goalentity)
 	{
@@ -1018,8 +1022,13 @@ void ai_run (edict_t *self, float dist)
 		self->give_up_time = 0;
 	self->undamaged_time++;
 
-	if (!level.ready)
+	// decino: Forget enemies when pausing
+	if (!level.ready || (self->enemy && self->enemy->health <= 0 && !(self->monsterinfo.aiflags & AI_MEDIC)))
+	{
 		self->enemy = NULL;
+		self->monsterinfo.stand(self);
+		return;
+	}
 
 	// decino: We're searching frantically, so make a sound
 	if (self->undamaged_time > 25)
@@ -1066,7 +1075,7 @@ void ai_run (edict_t *self, float dist)
 		return;
 	}
 
-	if (enemy_vis)
+	/*if (enemy_vis)
 	{
 //		if (self.aiflags & AI_LOST_SIGHT)
 //			dprint("regained sight\n");
@@ -1082,7 +1091,7 @@ void ai_run (edict_t *self, float dist)
 	{	// FIXME: insane guys get mad with this, which causes crashes!
 		if (FindTarget (self))
 			return;
-	}
+	}*/
 
 	if ((self->monsterinfo.search_time) && (level.time > (self->monsterinfo.search_time + 20)))
 	{
@@ -1098,7 +1107,7 @@ void ai_run (edict_t *self, float dist)
 
 	new = false;
 
-	if (!(self->monsterinfo.aiflags & AI_LOST_SIGHT))
+	/*if (!(self->monsterinfo.aiflags & AI_LOST_SIGHT))
 	{
 		// just lost sight of the player, decide where to go first
 //		dprint("lost sight of player, last seen at "); dprint(vtos(self.last_sighting)); dprint("\n");
@@ -1143,7 +1152,7 @@ void ai_run (edict_t *self, float dist)
 //			debug_drawline(self.origin, self.last_sighting, 52);
 			new = true;
 		}
-	}
+	}*/
 
 	VectorSubtract (self->s.origin, self->monsterinfo.last_sighting, v);
 	d1 = VectorLength(v);

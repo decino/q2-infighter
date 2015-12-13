@@ -355,8 +355,12 @@ void G_RunFrame (void)
 	int		i;
 	edict_t	*ent;
 
-	level.framenum++;
-	level.time = level.framenum*FRAMETIME;
+	// decïno: Required to preserve timing for grenades, gib decay, etc
+	if (!level.frozen)
+	{
+		level.framenum++;
+		level.time = level.framenum*FRAMETIME;
+	}
 
 	// choose a client for monsters to target this frame
 	AI_SetSightClient ();

@@ -205,7 +205,7 @@ void ThrowHead (edict_t *self, char *gibname, int damage, int type)
 	gi.setmodel (self, gibname);
 	self->solid = SOLID_NOT;
 	self->s.effects |= EF_GIB;
-	self->s.effects &= ~EF_FLIES;
+	self->s.renderfx &= ~(RF_SHELL_RED|RF_SHELL_GREEN|RF_SHELL_BLUE);// decino: Remove team colour
 	self->s.sound = 0;
 	self->flags |= FL_NO_KNOCKBACK;
 	self->svflags &= ~SVF_MONSTER;
@@ -982,6 +982,15 @@ void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 	self->activator = self;
 }
 
+void barrel_think(edict_t *self)
+{
+	M_SetEffects(self);
+	//M_droptofloor(self);
+
+	self->think = barrel_think;
+	self->nextthink = level.time + FRAMETIME;
+}
+
 void SP_misc_explobox (edict_t *self)
 {
 	/*if (deathmatch->value)
@@ -1004,6 +1013,7 @@ void SP_misc_explobox (edict_t *self)
 	self->classname = "misc_explobox";
 	self->solid = SOLID_BBOX;
 	self->movetype = MOVETYPE_STEP;
+	self->svflags |= SVF_MONSTER;
 
 	if (!self->mass)
 		self->mass = 400;
@@ -1018,7 +1028,7 @@ void SP_misc_explobox (edict_t *self)
 
 	//self->touch = barrel_touch;
 
-	self->think = M_droptofloor;
+	self->think = barrel_think;
 	self->nextthink = level.time * FRAMETIME;
 	self->monsterinfo.scale = 1.000000;
 
