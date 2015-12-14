@@ -355,6 +355,9 @@ void TankBlaster (edict_t *self)
 
 void TankStrike (edict_t *self)
 {
+	static	vec3_t	aim = {MELEE_DISTANCE, 0, -24};
+	fire_hit (self, aim, (100 + (rand() % 100)), 500);	
+
 	gi.sound (self, CHAN_WEAPON, sound_strike, 1, ATTN_NORM, 0);
 }	
 
@@ -486,7 +489,7 @@ void tank_poststrike (edict_t *self)
 
 mframe_t tank_frames_attack_strike [] =
 {
-	ai_move, 3,   NULL,
+	/*ai_move, 3,   NULL,
 	ai_move, 2,   NULL,
 	ai_move, 2,   NULL,
 	ai_move, 1,   NULL,
@@ -503,7 +506,7 @@ mframe_t tank_frames_attack_strike [] =
 	ai_move, 0,   NULL,
 	ai_move, 0,   NULL,
 	ai_move, -2,  NULL,
-	ai_move, -2,  NULL,
+	ai_move, -2,  NULL,*/
 	ai_move, 0,   tank_windup,
 	ai_move, 0,   NULL,
 	ai_move, 0,   NULL,
@@ -525,7 +528,7 @@ mframe_t tank_frames_attack_strike [] =
 	ai_move, -3,  NULL,
 	ai_move, -2,  tank_footstep
 };
-mmove_t tank_move_attack_strike = {FRAME_attak201, FRAME_attak238, tank_frames_attack_strike, tank_poststrike};
+mmove_t tank_move_attack_strike = {FRAME_attak219, FRAME_attak238, tank_frames_attack_strike, tank_poststrike};
 
 mframe_t tank_frames_attack_pre_rocket [] =
 {
@@ -652,18 +655,26 @@ void tank_doattack_rocket (edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
 }
 
+void tank_melee(edict_t *self)
+{
+	if (skill->value >= 3)
+		self->monsterinfo.currentmove = &tank_move_attack_strike;
+	else
+		self->monsterinfo.currentmove = &tank_move_attack_chain;
+}
+
 void tank_attack(edict_t *self)
 {
 	vec3_t	vec;
 	float	range;
 	float	r;
 
-	if (self->enemy->health < 0)
+	/*if (self->enemy->health < 0)
 	{
 		self->monsterinfo.currentmove = &tank_move_attack_strike;
 		self->monsterinfo.aiflags &= ~AI_BRUTAL;
 		return;
-	}
+	}*/
 
 	VectorSubtract (self->enemy->s.origin, self->s.origin, vec);
 	range = VectorLength (vec);
@@ -847,7 +858,7 @@ void SP_monster_tank (edict_t *self)
 	self->monsterinfo.run = tank_run;
 	self->monsterinfo.dodge = NULL;
 	self->monsterinfo.attack = tank_attack;
-	self->monsterinfo.melee = NULL; // TODO: Add melee attack for nightmare mode?
+	self->monsterinfo.melee = tank_melee; // TODO: Add melee attack for nightmare mode?
 	self->monsterinfo.sight = tank_sight;
 	self->monsterinfo.idle = tank_idle;
 

@@ -1047,7 +1047,7 @@ void Cmd_MonsterTeamColour_f(edict_t *ent)
 	if (level.show_teams)
 		gi.cprintf(ent, PRINT_HIGH, "Team colours: ON\n");
 	else
-		gi.cprintf(ent, PRINT_HIGH, "Team colours: OFF!\n");
+		gi.cprintf(ent, PRINT_HIGH, "Team colours: OFF\n");
 }
 
 void Cmd_MonsterClear_f(edict_t *ent)

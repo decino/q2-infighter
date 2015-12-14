@@ -43,6 +43,7 @@ static int	sound_search;
 static int	sound_melee1;
 static int	sound_melee2;
 static int	sound_melee3;
+static int  sound_fury;
 
 
 void brain_sight (edict_t *self, edict_t *other)
@@ -58,7 +59,9 @@ void brain_search (edict_t *self)
 
 void brain_run (edict_t *self);
 void brain_dead (edict_t *self);
-
+void brain_chest_open(edict_t *self);
+void brain_tentacle_attack(edict_t *self);
+void brain_hit_left(edict_t *self);
 
 //
 // STAND
@@ -174,62 +177,108 @@ mframe_t brain_frames_walk1 [] =
 };
 mmove_t brain_move_walk1 = {FRAME_walk101, FRAME_walk111, brain_frames_walk1, NULL};
 
-// walk2 is FUBAR, do not use
-#if 0
+//
+// RUN
+//
+
+mframe_t brain_frames_run [] =
+{
+	ai_run,	9,	NULL,
+	ai_run,	2,	NULL,
+	ai_run,	3,	NULL,
+	ai_run,	3,	NULL,
+	ai_run,	1,	NULL,
+	ai_run,	0,	NULL,
+	ai_run,	0,	NULL,
+	ai_run,	10,	NULL,
+	ai_run,	-4,	NULL,
+	ai_run,	-1,	NULL,
+	ai_run,	2,	NULL
+};
+mmove_t brain_move_run = {FRAME_walk101, FRAME_walk111, brain_frames_run, NULL};
+
+int CheckDistance(edict_t *self, edict_t *enemy)
+{
+	vec3_t v;
+
+	VectorSubtract(self->s.origin, enemy->s.origin, v);
+	return VectorLength(v);
+}
+
 void brain_walk2_cycle (edict_t *self)
 {
-	if (random() > 0.1)
+	if (self->enemy && self->enemy->health > 0 && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 3))
 		self->monsterinfo.nextframe = FRAME_walk220;
+	else
+		self->monsterinfo.currentmove = &brain_move_run;
+}
+
+void brain_tentacle_fury(edict_t *self, edict_t *other)
+{
+	vec3_t	aim;
+	VectorSet (aim, MELEE_DISTANCE, self->maxs[0], 8);
+
+	fire_hit (self, aim, (2 + (rand() % 8)), -40);
+}
+
+void brain_fury_sound(edict_t *self)
+{
+	gi.sound (self, CHAN_VOICE, sound_fury, 1, ATTN_NORM, 0);
+}
+
+void brain_tentacle_cycle_check(edict_t *self)
+{
+	if (!(self->enemy && self->enemy->health > 0 && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 3)))
+		self->monsterinfo.currentmove = &brain_move_run;
 }
 
 mframe_t brain_frames_walk2 [] =
 {
-	ai_walk,	3,	NULL,
-	ai_walk,	-2,	NULL,
-	ai_walk,	-4,	NULL,
-	ai_walk,	-3,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	1,	NULL,
-	ai_walk,	12,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	-3,	NULL,
-	ai_walk,	0,	NULL,
+	ai_charge,	3,	brain_chest_open,
+	ai_charge,	-2,	NULL,
+	ai_charge,	-4,	brain_tentacle_attack,
+	ai_charge,	-3,	NULL,
+	ai_charge,	0,	NULL,
+	ai_charge,	1,	brain_fury_sound,
+	ai_charge,	12,	NULL,
+	ai_charge,	0,	NULL,
+	ai_charge,	-3,	NULL,
+	ai_charge,	0,	brain_tentacle_fury,
 
-	ai_walk,	-2,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	1,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	10,	NULL,		// Cycle Start
+	ai_charge,	-2,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	1,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
+	ai_charge,	10,	brain_tentacle_cycle_check,		// Cycle Start
 
-	ai_walk,	-1,	NULL,
-	ai_walk,	7,	NULL,
-	ai_walk,	0,	NULL,
-	ai_walk,	3,	NULL,
-	ai_walk,	-3,	NULL,
-	ai_walk,	2,	NULL,
-	ai_walk,	4,	NULL,
-	ai_walk,	-3,	NULL,
-	ai_walk,	2,	NULL,
-	ai_walk,	0,	NULL,
+	ai_charge,	-1,	brain_fury_sound,
+	ai_charge,	7,	NULL,
+	ai_charge,	0,	NULL,
+	ai_charge,	3,	NULL,
+	ai_charge,	-3,	brain_tentacle_fury,
+	ai_charge,	2,	brain_tentacle_fury,
+	ai_charge,	4,	brain_tentacle_fury,
+	ai_charge,	-3,	brain_tentacle_fury,
+	ai_charge,	2,	brain_tentacle_fury,
+	ai_charge,	0,	brain_tentacle_fury,
 
-	ai_walk,	4,	brain_walk2_cycle,
-	ai_walk,	-1,	NULL,
-	ai_walk,	-1,	NULL,
-	ai_walk,	-8,	NULL,		
-	ai_walk,	0,	NULL,
-	ai_walk,	1,	NULL,
-	ai_walk,	5,	NULL,
-	ai_walk,	2,	NULL,
-	ai_walk,	-1,	NULL,
-	ai_walk,	-5,	NULL
+	ai_charge,	4,	brain_walk2_cycle,
+	ai_charge,	-1,	NULL,
+	ai_charge,	-1,	NULL,
+	ai_charge,	-8,	NULL,		
+	ai_charge,	0,	NULL,
+	ai_charge,	1,	NULL,
+	ai_charge,	5,	NULL,
+	ai_charge,	2,	NULL,
+	ai_charge,	-1,	NULL,
+	ai_charge,	-5,	brain_hit_left
 };
 mmove_t brain_move_walk2 = {FRAME_walk201, FRAME_walk240, brain_frames_walk2, NULL};
-#endif
 
 void brain_walk (edict_t *self)
 {
@@ -471,6 +520,7 @@ void brain_tentacle_attack (edict_t *self)
 void brain_chest_closed (edict_t *self)
 {
 	self->monsterinfo.power_armor_type = POWER_ARMOR_SCREEN;
+
 	if (self->spawnflags & 65536)
 	{
 		self->spawnflags &= ~65536;
@@ -502,36 +552,22 @@ mmove_t brain_move_attack2 = {FRAME_attak201, FRAME_attak217, brain_frames_attac
 
 void brain_melee(edict_t *self)
 {
-	if (random() <= 0.5)
+	float r = random();
+
+	// decino: Do extra attack on Nightmare mode
+	if (r <= 0.5 && skill->value >= 3)
+		self->monsterinfo.currentmove = &brain_move_walk2;
+	else if (r <= 0.5)
 		self->monsterinfo.currentmove = &brain_move_attack1;
 	else
 		self->monsterinfo.currentmove = &brain_move_attack2;
 }
 
 
-//
-// RUN
-//
-
-mframe_t brain_frames_run [] =
-{
-	ai_run,	9,	NULL,
-	ai_run,	2,	NULL,
-	ai_run,	3,	NULL,
-	ai_run,	3,	NULL,
-	ai_run,	1,	NULL,
-	ai_run,	0,	NULL,
-	ai_run,	0,	NULL,
-	ai_run,	10,	NULL,
-	ai_run,	-4,	NULL,
-	ai_run,	-1,	NULL,
-	ai_run,	2,	NULL
-};
-mmove_t brain_move_run = {FRAME_walk101, FRAME_walk111, brain_frames_run, NULL};
-
 void brain_run (edict_t *self)
 {
 	self->monsterinfo.power_armor_type = POWER_ARMOR_SCREEN;
+
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 		self->monsterinfo.currentmove = &brain_move_stand;
 	else
@@ -649,6 +685,9 @@ void SP_monster_brain (edict_t *self)
 	sound_melee1 = gi.soundindex ("brain/melee1.wav");
 	sound_melee2 = gi.soundindex ("brain/melee2.wav");
 	sound_melee3 = gi.soundindex ("brain/melee3.wav");
+
+	// decino: For the extra Nightmare attack
+	sound_fury = gi.soundindex("brain/brnidle2.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

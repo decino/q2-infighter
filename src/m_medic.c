@@ -592,6 +592,7 @@ static vec3_t	medic_cable_offsets[] =
 	32.7, -19.7, 10.4
 };
 
+// TODO: Check that we're not resurrecting the corpse we're standing on, we'll get stuck
 qboolean medic_can_heal(edict_t *self)
 {
 	vec3_t	offset, start, end, f, r;
