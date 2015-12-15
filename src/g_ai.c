@@ -258,7 +258,7 @@ void ai_charge (edict_t *self, float dist)
 
 	IncrementGiveUpValues(self);
 
-	if (self == self->enemy)
+	if (!self->enemy || self == self->enemy)
 	{
 		self->monsterinfo.stand(self);
 		return;
@@ -280,6 +280,7 @@ void ai_charge (edict_t *self, float dist)
 			return;
 		}
 	}
+
 	VectorSubtract (self->enemy->s.origin, self->s.origin, v);
 	self->ideal_yaw = vectoyaw(v);
 	M_ChangeYaw (self);

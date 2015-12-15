@@ -118,10 +118,6 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
 		return false;
 
-	// do our special form of knockback here
-	if (!self->enemy)
-		return false;
-
 	VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
 	VectorSubtract (v, point, v);
 	VectorNormalize (v);

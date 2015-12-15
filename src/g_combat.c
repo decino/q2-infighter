@@ -100,8 +100,6 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 		attacker->threshold = 0;
 		attacker->undamaged_time = 0;
 		attacker->give_up_time = 0;
-
-		ai_run(attacker, 0.0);
 	}
 
 	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
