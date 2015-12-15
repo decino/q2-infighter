@@ -276,7 +276,7 @@ mframe_t brain_frames_walk2 [] =
 	ai_charge,	5,	NULL,
 	ai_charge,	2,	NULL,
 	ai_charge,	-1,	NULL,
-	ai_charge,	-5,	brain_hit_left
+	ai_charge,	-5,	NULL
 };
 mmove_t brain_move_walk2 = {FRAME_walk201, FRAME_walk240, brain_frames_walk2, NULL};
 

@@ -59,7 +59,7 @@ void GunnerGrenade (edict_t *self);
 void GunnerFire (edict_t *self);
 void gunner_fire_chain(edict_t *self);
 void gunner_refire_chain(edict_t *self);
-
+void gunner_run_refire(edict_t *self);
 
 void gunner_stand (edict_t *self);
 
@@ -168,7 +168,7 @@ mmove_t	gunner_move_stand = {FRAME_stand01, FRAME_stand30, gunner_frames_stand, 
 
 void gunner_stand (edict_t *self)
 {
-		self->monsterinfo.currentmove = &gunner_move_stand;
+	self->monsterinfo.currentmove = &gunner_move_stand;
 }
 
 
@@ -209,25 +209,42 @@ mframe_t gunner_frames_run [] =
 
 mmove_t gunner_move_run = {FRAME_run01, FRAME_run08, gunner_frames_run, NULL};
 
+mframe_t gunner_frames_runandshoot [] =
+{
+	ai_charge, 32, GunnerGrenade,
+	ai_charge, 15, NULL,
+	ai_charge, 10, NULL,
+	ai_run,    18, NULL,
+	ai_run,    8,  NULL,
+	ai_run,    20, gunner_run_refire
+};
+
+mmove_t gunner_move_runandshoot = {FRAME_runs01, FRAME_runs06, gunner_frames_runandshoot, NULL};
+
 void gunner_run (edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 		self->monsterinfo.currentmove = &gunner_move_stand;
 	else
-		self->monsterinfo.currentmove = &gunner_move_run;
+	{
+		if (skill->value >= 3)
+			self->monsterinfo.currentmove = &gunner_move_runandshoot;
+		else
+			self->monsterinfo.currentmove = &gunner_move_run;
+	}
 }
 
-mframe_t gunner_frames_runandshoot [] =
+void gunner_run_refire(edict_t *self)
 {
-	ai_run, 32, NULL,
-	ai_run, 15, NULL,
-	ai_run, 10, NULL,
-	ai_run, 18, NULL,
-	ai_run, 8,  NULL,
-	ai_run, 20, NULL
-};
-
-mmove_t gunner_move_runandshoot = {FRAME_runs01, FRAME_runs06, gunner_frames_runandshoot, NULL};
+	if (self->enemy->health > 0)
+		if (visible (self, self->enemy))
+			if (random() >= 0.2)
+			{
+				self->monsterinfo.currentmove = &gunner_move_runandshoot;
+				return;
+			}
+	self->monsterinfo.currentmove = &gunner_move_run;
+}
 
 void gunner_runandshoot (edict_t *self)
 {
@@ -552,7 +569,12 @@ void gunner_attack(edict_t *self)
 	}
 	else
 	{
-		if (random() <= 0.5)
+		float r = random();
+
+		// decino: New attack for Nightmare mode
+		if (r <= 0.5 && skill->value >= 3)
+			self->monsterinfo.currentmove = &gunner_move_runandshoot;
+		else if (r <= 0.5)
 			self->monsterinfo.currentmove = &gunner_move_attack_grenade;
 		else
 			self->monsterinfo.currentmove = &gunner_move_attack_chain;

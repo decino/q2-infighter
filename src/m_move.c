@@ -38,9 +38,10 @@ qboolean M_CheckBottom (edict_t *ent)
 {
 	vec3_t	mins, maxs, start, stop;
 	trace_t	trace;
+	vec3_t	kvel;
 	int		x, y;
 	float	mid, bottom;
-	
+
 	VectorAdd (ent->s.origin, ent->mins, mins);
 	VectorAdd (ent->s.origin, ent->maxs, maxs);
 
@@ -118,13 +119,52 @@ qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink)
 	float		stepsize;
 	vec3_t		test;
 	int			contents;
+	int			vert_distance;
 
 // try the move	
 	VectorCopy (ent->s.origin, oldorg);
 	VectorAdd (ent->s.origin, move, neworg);
+	
+	if (ent->enemy)
+		vert_distance = (ent->s.origin[2] - ent->enemy->s.origin[2]);
+	else
+		vert_distance = 0;
+
+	// decino: Jump over edges, we can't reach our enemy
+	if (ent->enemy && (ent->enemy != ent) && (ent->undamaged_time > 120) && vert_distance >= 0)
+	{
+		vec3_t start, dir, end;
+		float distance;
+
+		VectorCopy(ent->s.origin, start);
+		VectorCopy(ent->enemy->s.origin, end);
+		end[2] = start[2];
+
+		VectorSubtract(end, start, dir);
+		ent->s.origin[2] += 1;
+		distance = VectorLength(dir);
+
+		// decino: Sometimes there's a gap we must jump
+		if ((ent->s.origin[2] != ent->enemy->s.origin[2]) || (ent->s.origin[2] == ent->enemy->s.origin[2] && distance > 80.0))
+		{
+			if (distance < 256.0)
+			{
+				VectorScale(dir, 1.0, ent->velocity);
+				ent->velocity[2] = 300;
+				ent->undamaged_time = 0;
+			}
+			else
+			{
+				VectorScale(dir, 0.25, ent->velocity);
+				ent->velocity[2] = 250;
+				ent->undamaged_time = 0;
+			}
+			ent->groundentity = NULL;
+		}
+	}
 
 // flying monsters don't step up
-	if ( ent->flags & (FL_SWIM | FL_FLY) )
+	if ( ent->flags & (FL_SWIM | FL_FLY))
 	{
 	// try one move with vertical motion, then one without
 		for (i=0 ; i<2 ; i++)
@@ -307,6 +347,10 @@ void M_ChangeYaw (edict_t *ent)
 	float	current;
 	float	move;
 	float	speed;
+
+	// decino: Don't turn towards yourself/worldspawn
+	if (!ent->enemy || ent->enemy == ent)
+		return;
 	
 	current = anglemod(ent->s.angles[YAW]);
 	ideal = ent->ideal_yaw;
@@ -514,6 +558,7 @@ M_MoveToGoal
 */
 void M_MoveToGoal (edict_t *ent, float dist)
 {
+	vec3_t		kvel;
 	edict_t		*goal;
 	
 	goal = ent->goalentity;
@@ -545,7 +590,6 @@ qboolean M_walkmove (edict_t *ent, float yaw, float dist)
 	
 	if (!ent->groundentity && !(ent->flags & (FL_FLY|FL_SWIM)))
 		return false;
-
 	yaw = yaw*M_PI*2 / 360;
 	
 	move[0] = cos(yaw)*dist;

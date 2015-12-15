@@ -95,6 +95,15 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 		targ->health = -999;
 	targ->enemy = attacker;
 
+	if (attacker->svflags & SVF_MONSTER && attacker->monsterinfo.run && attacker->health > 0)
+	{
+		attacker->threshold = 0;
+		attacker->undamaged_time = 0;
+		attacker->give_up_time = 0;
+
+		ai_run(attacker, 0.0);
+	}
+
 	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
 	{
 //		targ->svflags |= SVF_DEADMONSTER;	// now treat as a different content type
@@ -109,7 +118,7 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 		}
 	}
 
-	if (targ->movetype == MOVETYPE_PUSH || targ->movetype == MOVETYPE_STOP || targ->movetype == MOVETYPE_NONE)
+	/*if (targ->movetype == MOVETYPE_PUSH || targ->movetype == MOVETYPE_STOP || targ->movetype == MOVETYPE_NONE)
 	{	// doors, triggers, etc
 		targ->die (targ, inflictor, attacker, damage, point);
 		return;
@@ -119,10 +128,8 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 	{
 		targ->touch = NULL;
 		monster_death_use (targ);
-	}
-
+	}*/
 	targ->die (targ, inflictor, attacker, damage, point);
-	attacker->threshold = 0;
 }
 
 
@@ -296,6 +303,10 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 {
 	if (!(attacker->client) && !(attacker->svflags & SVF_MONSTER))
 		return;
+
+	// decino: We're actively fighting, so reset the undamaged time
+	attacker->undamaged_time = 0;
+
 	if (attacker == targ || attacker == targ->enemy)
 		return;
 
@@ -303,10 +314,6 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 	// TODO: Check for friendly fire option?
 	if (attacker->monster_team == targ->monster_team)
 		return;
-
-	// decino: We're actively fighting, so reset the undamaged time
-	targ->undamaged_time = 0;
-	attacker->undamaged_time = 0;
 
 	// decino: Ignore the other attacker while threshold is active
 	if (targ->threshold > level.time)

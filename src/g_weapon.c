@@ -72,8 +72,13 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	//see if enemy is in range
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
 	range = VectorLength(dir);
+
 	if (range > aim[0])
+	{
+		self->undamaged_time += 20; // decino: Speeds up stuck melee monsters
+		self->give_up_time += 20;
 		return false;
+	}
 
 	if (aim[1] > self->mins[0] && aim[1] < self->maxs[0])
 	{
@@ -114,6 +119,9 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 		return false;
 
 	// do our special form of knockback here
+	if (!self->enemy)
+		return false;
+
 	VectorMA (self->enemy->absmin, 0.5, self->enemy->size, v);
 	VectorSubtract (v, point, v);
 	VectorNormalize (v);

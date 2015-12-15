@@ -130,11 +130,11 @@ void ai_stand (edict_t *self, float dist)
 		return;
 	}
 	
-	if (level.time > self->monsterinfo.pausetime)
+	/*if (level.time > self->monsterinfo.pausetime)
 	{
 		self->monsterinfo.walk (self);
 		return;
-	}
+	}*/
 
 	if (!(self->spawnflags & 1) && (self->monsterinfo.idle) && (level.time > self->monsterinfo.idle_time))
 	{
@@ -187,6 +187,62 @@ void ai_walk (edict_t *self, float dist)
 	ai_run(self, dist);
 }
 
+edict_t *FindMonsterTarget(edict_t *self)
+{
+	edict_t	*ent = NULL;
+	edict_t	*best = NULL;
+
+	if (!level.ready)
+		return best;
+
+	while ((ent = findradius(ent, self->s.origin, 8192)) != NULL)
+	{
+		if (ent->client)
+			continue;
+		if (ent == self)
+			continue;
+		if (ent->monster_team == self->monster_team)
+			continue;
+		if (!ent->svflags & SVF_MONSTER)
+			continue;
+		if (ent->health < 1)
+			continue;
+		if (!visible(self, ent))
+			continue;
+		if (!best)
+		{
+			best = ent;
+			continue;
+		}
+		if (CheckEnemyDistance(self, ent) > CheckEnemyDistance(self, best))
+			continue;
+		best = ent;
+	}
+	return best;
+}
+
+void IncrementGiveUpValues(edict_t *self)
+{
+	if (self->enemy && !visible(self, self->enemy))
+		self->give_up_time++;
+	else
+		self->give_up_time = 0;
+	self->undamaged_time++;
+}
+
+void CheckForGiveUp(edict_t *self)
+{
+	// decino: We can't find/attack our enemy anymore, so give up
+	if (self->give_up_time > 150 || self->undamaged_time > 150)
+	{
+		if (self->enemy)
+			self->oldenemy = self->enemy;
+		self->enemy = NULL;
+		self->give_up_time = 0;
+		self->undamaged_time = 0;
+		//gi.dprintf("%s gave up.\n", self->monster_name);
+	}
+}
 
 /*
 =============
@@ -200,6 +256,30 @@ void ai_charge (edict_t *self, float dist)
 {
 	vec3_t	v;
 
+	IncrementGiveUpValues(self);
+
+	if (self == self->enemy)
+	{
+		self->monsterinfo.stand(self);
+		return;
+	}
+	CheckForGiveUp(self);
+
+	// decino: Medics should ignore this, or they'll start healing enemies!
+	if (!(self->monsterinfo.aiflags & AI_MEDIC))
+	{
+		if (!self->enemy || !level.ready || self->enemy->health <= 0)
+		{
+			self->enemy = FindMonsterTarget(self);
+
+			if (!self->enemy || self->enemy == self)
+			{
+				self->enemy = self;
+				self->monsterinfo.stand(self);
+			}
+			return;
+		}
+	}
 	VectorSubtract (self->enemy->s.origin, self->s.origin, v);
 	self->ideal_yaw = vectoyaw(v);
 	M_ChangeYaw (self);
@@ -402,37 +482,6 @@ int CheckEnemyDistance(edict_t *self, edict_t *enemy)
 
 	VectorSubtract(self->s.origin, enemy->s.origin, v);
 	return VectorLength(v);
-}
-
-edict_t *FindMonsterTarget(edict_t *self)
-{
-	edict_t	*ent = NULL;
-	edict_t	*best = NULL;
-
-	while ((ent = findradius(ent, self->s.origin, 8192)) != NULL)
-	{
-		if (ent->client)
-			continue;
-		if (ent == self)
-			continue;
-		if (ent->monster_team == self->monster_team)
-			continue;
-		if (!ent->svflags & SVF_MONSTER)
-			continue;
-		if (ent->health < 1)
-			continue;
-		if (!visible(self, ent))
-			continue;
-		if (!best)
-		{
-			best = ent;
-			continue;
-		}
-		if (CheckEnemyDistance(self, ent) > CheckEnemyDistance(self, best))
-			continue;
-		best = ent;
-	}
-	return best;
 }
 
 /*
@@ -942,8 +991,8 @@ qboolean ai_checkattack (edict_t *self, float dist)
 				// will just revert to walking with no target and
 				// the monsters will wonder around aimlessly trying
 				// to hunt the world entity
-				self->monsterinfo.pausetime = level.time + 100000000;
-				self->monsterinfo.stand (self);
+				//self->monsterinfo.pausetime = level.time + 100000000;
+				//self->monsterinfo.stand (self);
 			}
 			return true;
 		}
@@ -998,7 +1047,6 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	return self->monsterinfo.checkattack (self);
 }
 
-
 /*
 =============
 ai_run
@@ -1019,14 +1067,12 @@ void ai_run (edict_t *self, float dist)
 	float		left, center, right;
 	vec3_t		left_target, right_target;
 
-	if (self->enemy && !visible(self, self->enemy))
-		self->give_up_time++;
-	else
-		self->give_up_time = 0;
-	self->undamaged_time++;
+	if (!self->enemy || self == self->enemy)
+		FindTarget(self);
+	IncrementGiveUpValues(self);
 
 	// decino: Forget enemies when pausing
-	if (!level.ready || (self->enemy && self->enemy->health <= 0 && !(self->monsterinfo.aiflags & AI_MEDIC)))
+	if (!level.ready || !self->enemy || (self->enemy && self->enemy->health <= 0 && !(self->monsterinfo.aiflags & AI_MEDIC)))
 	{
 		self->enemy = NULL;
 		self->monsterinfo.stand(self);
@@ -1036,15 +1082,7 @@ void ai_run (edict_t *self, float dist)
 	// decino: We're searching frantically, so make a sound
 	if (self->undamaged_time > 25)
 		ai_search(self);
-
-	// decino: We can't find our enemy anymore, so give up
-	if (self->give_up_time > 50 || self->undamaged_time > 75)
-	{
-		self->oldenemy = self->enemy;
-		self->enemy = NULL;
-		self->give_up_time = 0;
-		self->undamaged_time = 0;
-	}
+	CheckForGiveUp(self);
 
 	// if we're going to a combat point, just proceed
 	if (self->monsterinfo.aiflags & AI_COMBAT_POINT)

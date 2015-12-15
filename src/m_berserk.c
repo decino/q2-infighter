@@ -35,6 +35,9 @@ static int sound_idle;
 static int sound_punch;
 static int sound_sight;
 static int sound_search;
+static int sound_growl;
+
+void berserk_run2_cycle(edict_t *self);
 
 void berserk_sight (edict_t *self, edict_t *other)
 {
@@ -146,7 +149,6 @@ void()	berserk_runb12	=[	$r_att12 ,	berserk_runb7	] {ai_run(19);};
 // running with arm in air : end loop
 */
 
-
 mframe_t berserk_frames_run1 [] =
 {
 	ai_run, 21, NULL,
@@ -154,18 +156,24 @@ mframe_t berserk_frames_run1 [] =
 	ai_run, 21, NULL,
 	ai_run, 25, NULL,
 	ai_run, 18, NULL,
-	ai_run, 19, NULL
+	ai_run, 19, berserk_run2_cycle
 };
 mmove_t berserk_move_run1 = {FRAME_run1, FRAME_run6, berserk_frames_run1, NULL};
 
-void berserk_run (edict_t *self)
+void berserk_swing (edict_t *self)
 {
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-		self->monsterinfo.currentmove = &berserk_move_stand;
-	else
-		self->monsterinfo.currentmove = &berserk_move_run1;
+	gi.sound (self, CHAN_WEAPON, sound_punch, 1, ATTN_NORM, 0);
 }
 
+void berserk_attack_club (edict_t *self)
+{
+	vec3_t	aim;
+	vec3_t	kvel;
+
+	VectorSet (aim, MELEE_DISTANCE, self->mins[0], -4);
+
+	fire_hit(self, aim, (5 + (rand() % 6)), 400);
+}
 
 void berserk_attack_spike (edict_t *self)
 {
@@ -173,10 +181,58 @@ void berserk_attack_spike (edict_t *self)
 	fire_hit (self, aim, (15 + (rand() % 6)), 400);		//	Faster attack -- upwards and backwards
 }
 
-
-void berserk_swing (edict_t *self)
+mframe_t berserk_frames_run2 [] =
 {
-	gi.sound (self, CHAN_WEAPON, sound_punch, 1, ATTN_NORM, 0);
+	/*ai_run, 21, berserk_growl,
+	ai_run, 11, NULL,
+	ai_run, 21, NULL,
+	ai_run, 25, NULL,
+	ai_run, 18, NULL,
+	ai_run, 19, NULL,
+
+	ai_charge, 21, NULL, // Cycle starts here
+	ai_charge, 11, NULL,
+	ai_charge, 21, NULL,
+	ai_charge, 25, NULL,
+	ai_charge, 18, NULL,
+	ai_charge, 19, berserk_swing,*/
+
+	ai_charge, 21, berserk_swing,
+	ai_charge, 11, NULL,
+	ai_charge, 21, NULL,
+	ai_charge, 25, NULL,
+	ai_charge, 18, berserk_attack_spike, // decino: Club is too weak
+	ai_charge, 19, berserk_run2_cycle
+};
+mmove_t berserk_move_run2 = {FRAME_r_att13, FRAME_r_att18, berserk_frames_run2, NULL};
+
+void berserk_run2_cycle(edict_t *self)
+{
+	if (skill->value < 3 || !(self->enemy) || (self->enemy && self->enemy == self) || !visible(self, self->enemy) || CheckDistance(self, self->enemy) > (MELEE_DISTANCE * 4))
+	{
+		self->monsterinfo.currentmove = &berserk_move_run1;
+		return;
+	}
+	if (self->enemy && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 4))
+		self->monsterinfo.currentmove = &berserk_move_run2;
+}
+
+void berserk_growl (edict_t *self)
+{
+	gi.sound (self, CHAN_WEAPON, sound_growl, 1, ATTN_NORM, 0);
+}
+
+void berserk_run (edict_t *self)
+{
+	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
+		self->monsterinfo.currentmove = &berserk_move_stand;
+	else
+	{
+		if (skill->value >= 3 && self->enemy && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 2))
+			self->monsterinfo.currentmove = &berserk_move_run2;
+		else
+			self->monsterinfo.currentmove = &berserk_move_run1;
+	}
 }
 
 mframe_t berserk_frames_attack_spike [] =
@@ -191,15 +247,6 @@ mframe_t berserk_frames_attack_spike [] =
 		ai_charge, 0, NULL
 };
 mmove_t berserk_move_attack_spike = {FRAME_att_c1, FRAME_att_c8, berserk_frames_attack_spike, berserk_run};
-
-
-void berserk_attack_club (edict_t *self)
-{
-	vec3_t	aim;
-
-	VectorSet (aim, MELEE_DISTANCE, self->mins[0], -4);
-	fire_hit (self, aim, (5 + (rand() % 6)), 400);		// Slower attack
-}
 
 mframe_t berserk_frames_attack_club [] =
 {	
@@ -434,6 +481,7 @@ void SP_monster_berserk (edict_t *self)
 	sound_punch = gi.soundindex ("berserk/attack.wav");
 	sound_search = gi.soundindex ("berserk/bersrch1.wav");
 	sound_sight = gi.soundindex ("berserk/sight.wav");
+	sound_growl = gi.soundindex ("berserk/idle.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

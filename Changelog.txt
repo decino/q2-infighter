@@ -1,0 +1,17 @@
+=========================
+  1.1
+=========================
+- Monsters can now target new enemies during their attacking cycle
+- Monsters will now drop off ledges if they haven't attacked in a while to pursuit enemies
+- Added melee attack for Tank (NM only)
+- Added extra continuous attack for Brain (NM only)
+- Added running smash attack for Berserker (NM only)
+- Added running grenade shooting for Gunner (NM only)
+- Fixed a bug where monsters wouldn't stop firing even when paused
+- Fixed a bug where monsters gave up when they shouldn't have
+- Fixed a bug where enemies changed their yaw towards itself/worldspawn
+
+=========================
+  1.0
+=========================
+- Initial release
