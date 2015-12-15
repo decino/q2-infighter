@@ -134,7 +134,8 @@ void M_FlyCheck (edict_t *self)
 
 void AttackFinished (edict_t *self, float time)
 {
-	self->monsterinfo.attack_finished = level.time + time;
+	if (skill->value < 3)
+		self->monsterinfo.attack_finished = level.time + time;
 }
 
 

@@ -201,7 +201,7 @@ mframe_t berserk_frames_run2 [] =
 	ai_charge, 11, NULL,
 	ai_charge, 21, NULL,
 	ai_charge, 25, NULL,
-	ai_charge, 18, berserk_attack_spike, // decino: Club is too weak
+	ai_charge, 18, berserk_attack_club, // decino: Club is too weak, but spike's upwards launch is too much
 	ai_charge, 19, berserk_run2_cycle
 };
 mmove_t berserk_move_run2 = {FRAME_r_att13, FRAME_r_att18, berserk_frames_run2, NULL};

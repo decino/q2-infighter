@@ -1,6 +1,7 @@
 =========================
   1.1
 =========================
+- Improved give up algorithm, won't give up as easily unless they really can't see their enemies
 - Monsters can now target new enemies during their attacking cycle
 - Monsters will now drop off ledges if they haven't attacked in a while to pursuit enemies
 - Added melee attack for Tank (NM only)
@@ -10,6 +11,7 @@
 - Fixed a bug where monsters wouldn't stop firing even when paused
 - Fixed a bug where monsters gave up when they shouldn't have
 - Fixed a bug where enemies changed their yaw towards itself/worldspawn
+- Fixed a bug where enemies ran in place after all enemies died
 
 =========================
   1.0

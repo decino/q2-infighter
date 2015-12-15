@@ -233,14 +233,19 @@ void IncrementGiveUpValues(edict_t *self)
 void CheckForGiveUp(edict_t *self)
 {
 	// decino: We can't find/attack our enemy anymore, so give up
-	if (self->give_up_time > 150 || self->undamaged_time > 150)
+	if (self->undamaged_time >= 150)
 	{
 		if (self->enemy)
 			self->oldenemy = self->enemy;
-		self->enemy = NULL;
-		self->give_up_time = 0;
 		self->undamaged_time = 0;
-		//gi.dprintf("%s gave up.\n", self->monster_name);
+
+		if (self->give_up_time >= 150 && !FindMonsterTarget(self))
+		{
+			self->monsterinfo.nextframe = 0;
+			self->give_up_time = 0;
+			self->enemy = NULL;
+			return;
+		}
 	}
 }
 
@@ -442,7 +447,9 @@ void FoundTarget (edict_t *self)
 
 	self->show_hostile = level.time + 1;		// wake up other monsters*/
 
-	self->threshold = level.time + 10; 
+	// decino: Don't reset threshold just yet
+	if (self->threshold < level.time)
+		self->threshold = level.time + 10; 
 	self->give_up_time = 0;
 	self->undamaged_time = 0;
 
@@ -1068,9 +1075,17 @@ void ai_run (edict_t *self, float dist)
 	float		left, center, right;
 	vec3_t		left_target, right_target;
 
-	if (!self->enemy || self == self->enemy)
-		FindTarget(self);
 	IncrementGiveUpValues(self);
+
+	// decino: Give up if everyone's dead
+	if (!self->enemy || self == self->enemy)
+	{
+		if (!FindMonsterTarget(self))
+		{
+			self->undamaged_time = 150;
+			self->give_up_time = 150;
+		}
+	}
 
 	// decino: Forget enemies when pausing
 	if (!level.ready || !self->enemy || (self->enemy && self->enemy->health <= 0 && !(self->monsterinfo.aiflags & AI_MEDIC)))

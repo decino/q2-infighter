@@ -97,9 +97,19 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 
 	if (attacker->svflags & SVF_MONSTER && attacker->monsterinfo.run && attacker->health > 0)
 	{
-		attacker->threshold = 0;
-		attacker->undamaged_time = 0;
-		attacker->give_up_time = 0;
+		// decino: Stop attacking if there's no enemies left
+		if (!FindMonsterTarget(attacker))
+		{
+			attacker->monsterinfo.nextframe = 0;
+			attacker->undamaged_time = 150;
+			attacker->give_up_time = 150;
+		}
+		else
+		{
+			attacker->undamaged_time = 0;
+			attacker->give_up_time = 0;
+			attacker->threshold = 0;
+		}
 	}
 
 	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
