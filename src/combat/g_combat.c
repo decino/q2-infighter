@@ -101,8 +101,8 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 		if (!FindMonsterTarget(attacker))
 		{
 			attacker->monsterinfo.nextframe = 0;
-			attacker->undamaged_time = 150;
-			attacker->give_up_time = 150;
+			//attacker->undamaged_time = 150;
+			//attacker->give_up_time = 150;
 		}
 		else
 		{
@@ -314,6 +314,7 @@ void M_ReactToDamage (edict_t *targ, edict_t *attacker)
 
 	// decino: We're actively fighting, so reset the undamaged time
 	attacker->undamaged_time = 0;
+	targ->give_up_time = 0;
 
 	if (attacker == targ || attacker == targ->enemy)
 		return;

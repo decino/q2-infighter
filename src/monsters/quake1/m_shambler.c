@@ -129,7 +129,7 @@ void shambler_sparks(edict_t *self)
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_WELDING_SPARKS);
 	gi.WriteByte(15);
-	gi.WritePosition(self->s.origin);
+	gi.WritePosition(end);
 	gi.WriteDir(vec3_origin);
 	gi.WriteByte(15);
 	gi.multicast(end, MULTICAST_PVS);

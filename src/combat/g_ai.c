@@ -233,7 +233,7 @@ void IncrementGiveUpValues(edict_t *self)
 void CheckForGiveUp(edict_t *self)
 {
 	// decino: We can't find/attack our enemy anymore, so give up
-	if (self->undamaged_time >= 150)
+	if (self->undamaged_time >= 150 || self->give_up_time >= 150)
 	{
 		if (self->enemy)
 			self->oldenemy = self->enemy;
@@ -244,6 +244,7 @@ void CheckForGiveUp(edict_t *self)
 			self->monsterinfo.nextframe = 0;
 			self->give_up_time = 0;
 			self->enemy = NULL;
+			gi.dprintf("%s gave up.\n", self->monster_name);
 			return;
 		}
 	}

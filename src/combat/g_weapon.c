@@ -835,10 +835,10 @@ void bfg_think (edict_t *self)
 	if (level.frozen)
 		return;
 
-	if (deathmatch->value)
-		dmg = 5;
-	else
-		dmg = 10;
+	//if (deathmatch->value)
+	//	dmg = 5;
+	//else
+	dmg = 10;
 
 	ent = NULL;
 	while ((ent = findradius(ent, self->s.origin, 256)) != NULL)
@@ -852,7 +852,10 @@ void bfg_think (edict_t *self)
 		if (!ent->takedamage)
 			continue;
 
-		if (!(ent->svflags & SVF_MONSTER) && (!ent->client) && (strcmp(ent->classname, "misc_explobox") != 0))
+		//if (!(ent->svflags & SVF_MONSTER) && (!ent->client) && (strcmp(ent->classname, "misc_explobox") != 0))
+		//	continue;
+
+		if (ent->monster_team == self->owner->monster_team)
 			continue;
 
 		VectorMA (ent->absmin, 0.5, ent->size, point);
