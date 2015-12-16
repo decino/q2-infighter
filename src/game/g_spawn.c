@@ -140,6 +140,8 @@ void SP_monster_makron (edict_t *self);
 void SP_monster_boss3_stand (edict_t *self);
 
 // decino: Quake 1 monsters
+void SP_monster_q1_army(edict_t *self);
+void SP_monster_q1_enforcer(edict_t *self);
 void SP_monster_q1_wizard(edict_t *self);
 void SP_monster_q1_shambler(edict_t *self);
 
@@ -264,16 +266,20 @@ spawn_t	spawns[] =
 	{"monster_boss2", SP_monster_boss2},
 	{"monster_boss3_stand", SP_monster_boss3_stand},
 	{"monster_jorg", SP_monster_jorg},
-	{"monster_makron", SP_monster_makron}, // decino: For medic resurrections
-
-	{"monster_q1_wizard", SP_monster_q1_wizard},
-	{"monster_q1_shambler", SP_monster_q1_shambler},
 
 	{"monster_commander_body", SP_monster_commander_body},
 
 	{"turret_breach", SP_turret_breach},
 	{"turret_base", SP_turret_base},
 	{"turret_driver", SP_turret_driver},
+
+	// decino: Spawns below are required for functional medic resurrections
+	{"monster_makron", SP_monster_makron}, 
+
+	{"monster_q1_army", SP_monster_q1_army},
+	{"monster_q1_enforcer", SP_monster_q1_enforcer},
+	{"monster_q1_wizard", SP_monster_q1_wizard},
+	{"monster_q1_shambler", SP_monster_q1_shambler},
 
 	{NULL, NULL}
 };

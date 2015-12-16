@@ -86,6 +86,8 @@ void CastLightning(edict_t *self)
 	trace_t		tr;
 	vec3_t		start, dir, end;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	if (self->s.frame == 72)
 		gi.sound (self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 
@@ -96,22 +98,25 @@ void CastLightning(edict_t *self)
 	VectorCopy(self->s.origin, start);
 	VectorCopy(self->enemy->s.origin, end);
 	start[2] += 40;
-	end[2] += self->enemy->absmax[2];
+	end[2] += 16;
 
-	VectorSubtract(self->enemy->s.origin, start, dir);
-	tr = gi.trace(start, NULL, NULL, self->enemy->s.origin, self, (MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_WATER));
+	VectorSubtract(end, start, dir);
+	VectorNormalize (dir);
+	VectorMA(start, 600, dir, end);
+
+	tr = gi.trace(start, NULL, NULL, end, self, (MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_WATER));
 
 	if (!tr.ent)
 		return;
-	T_Damage(tr.ent, self, self, dir, tr.endpos, tr.plane.normal, 10, 0, 0, 0);
+	T_Damage(tr.ent, self, self, dir, tr.endpos, tr.plane.normal, 10, 1, 0, 0);
 
-	gi.WriteByte (svc_temp_entity);
-	gi.WriteByte (TE_LIGHTNING);
-	gi.WriteShort (tr.ent - g_edicts);  
-	gi.WriteShort (self - g_edicts);    
-	gi.WritePosition (tr.endpos);
-	gi.WritePosition (start);
-	gi.multicast (start, MULTICAST_PVS);
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LIGHTNING);
+	gi.WriteShort(tr.ent - g_edicts);  
+	gi.WriteShort(self - g_edicts);    
+	gi.WritePosition(end);
+	gi.WritePosition(start);
+	gi.multicast(start, MULTICAST_PVS);
 }
 
 void shambler_prepare(edict_t *self)
@@ -345,6 +350,7 @@ void shambler_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 	if (self->health <= self->gib_health)
 	{
 		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -353,19 +359,18 @@ void shambler_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
-
 	if (self->deadflag == DEAD_DEAD)
 		return;
-	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
-
 	self->monsterinfo.currentmove = &shambler_move_death;
 }
 
 void SP_monster_q1_shambler(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/shambler/tris.md2");
+	self->s.modelindex = gi.modelindex("models/quake1/shambler/tris.md2");
 	VectorSet (self->mins, -32, -32, -24);
 	VectorSet (self->maxs, 32, 32, 64);
 	self->health = 600;
@@ -373,15 +378,15 @@ void SP_monster_q1_shambler(edict_t *self)
 
 	if (self->solid == SOLID_NOT)
 		return;
-	sound_attack = gi.soundindex("shambler/sboom.wav");
-	sound_lightning = gi.soundindex("shambler/sattck1.wav");
-	sound_death = gi.soundindex("shambler/sdeath.wav");
-	sound_pain = gi.soundindex("shambler/shurt2.wav");
-	sound_idle = gi.soundindex("shambler/sidle.wav");
-	sound_sight = gi.soundindex("shambler/ssight.wav");
-	sound_melee1 = gi.soundindex("shambler/melee1.wav");
-	sound_melee2 = gi.soundindex("shambler/melee2.wav");
-	sound_smack = gi.soundindex("shambler/smack.wav");
+	sound_attack = gi.soundindex("quake1/shambler/sboom.wav");
+	sound_lightning = gi.soundindex("quake1/shambler/sattck1.wav");
+	sound_death = gi.soundindex("quake1/shambler/sdeath.wav");
+	sound_pain = gi.soundindex("quake1/shambler/shurt2.wav");
+	sound_idle = gi.soundindex("quake1/shambler/sidle.wav");
+	sound_sight = gi.soundindex("quake1/shambler/ssight.wav");
+	sound_melee1 = gi.soundindex("quake1/shambler/melee1.wav");
+	sound_melee2 = gi.soundindex("quake1/shambler/melee2.wav");
+	sound_smack = gi.soundindex("quake1/shambler/smack.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

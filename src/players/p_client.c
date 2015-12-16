@@ -1625,12 +1625,14 @@ void SelectMonster(edict_t *self, int selected_monster)
 		case 22: self->classname = "monster_makron";			SP_monster_makron(self);			break; // 3000
 
 		// Fun monsters
-		case 23: self->classname = "misc_insane";				SP_misc_insane(self);				break;
-		case 24: self->classname = "misc_explobox";				SP_misc_explobox(self);				break;
+		case 23: self->classname = "misc_explobox";				SP_misc_explobox(self);				break; // 10
+		case 24: self->classname = "misc_insane";				SP_misc_insane(self);				break; // 100
 
 		// Quake 1 monsters
-		case 25: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break;
-		case 26: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break;
+		case 25: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
+		case 26: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
+		case 27: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
+		case 28: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
 
 		default: self->classname = "misc_insane";				SP_misc_insane(self);				break;
 	}

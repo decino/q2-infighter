@@ -202,7 +202,7 @@ void WizardSpit(edict_t *self)
 
 void wizard_prespit(edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }
 
 // Attack
@@ -300,6 +300,7 @@ void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	if (self->health <= self->gib_health)
 	{
 		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -308,13 +309,12 @@ void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
-
 	if (self->deadflag == DEAD_DEAD)
 		return;
-	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
-
 	self->monsterinfo.currentmove = &wizard_move_death;
 }
 
@@ -336,7 +336,7 @@ void wizard_search(edict_t *self)
 
 void SP_monster_q1_wizard(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/wizard/tris.md2");
+	self->s.modelindex = gi.modelindex("models/quake1/wizard/tris.md2");
 	VectorSet (self->mins, -16, -16, -24);
 	VectorSet (self->maxs, 16, 16, 40);
 	self->health = 80;
@@ -344,14 +344,14 @@ void SP_monster_q1_wizard(edict_t *self)
 
 	if (self->solid == SOLID_NOT)
 		return;
-	sound_proj_hit = gi.soundindex("wizard/hit.wav");
-	sound_attack = gi.soundindex("wizard/wattack.wav");
-	sound_death = gi.soundindex("wizard/wdeath.wav");
-	sound_idle1 = gi.soundindex("wizard/widle1.wav");
-	sound_idle2 = gi.soundindex("wizard/widle2.wav");
-	sound_pain = gi.soundindex("wizard/wpain.wav");
-	sound_sight = gi.soundindex("wizard/wsight.wav");
-	sound_thud = gi.soundindex ("demon/dland2.wav");
+	sound_proj_hit = gi.soundindex("quake1/wizard/hit.wav");
+	sound_attack = gi.soundindex("quake1/wizard/wattack.wav");
+	sound_death = gi.soundindex("quake1/wizard/wdeath.wav");
+	sound_idle1 = gi.soundindex("quake1/wizard/widle1.wav");
+	sound_idle2 = gi.soundindex("quake1/wizard/widle2.wav");
+	sound_pain = gi.soundindex("quake1/wizard/wpain.wav");
+	sound_sight = gi.soundindex("quake1/wizard/wsight.wav");
+	sound_thud = gi.soundindex ("quake1/demon/dland2.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

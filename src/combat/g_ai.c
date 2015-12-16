@@ -244,7 +244,7 @@ void CheckForGiveUp(edict_t *self)
 			self->monsterinfo.nextframe = 0;
 			self->give_up_time = 0;
 			self->enemy = NULL;
-			gi.dprintf("%s gave up.\n", self->monster_name);
+			//gi.dprintf("%s gave up.\n", self->monster_name);
 			return;
 		}
 	}
