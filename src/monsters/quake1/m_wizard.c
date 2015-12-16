@@ -151,6 +151,11 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	VectorNormalize (dir);
 
 	spit = G_Spawn();

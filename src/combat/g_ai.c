@@ -286,7 +286,6 @@ void ai_charge (edict_t *self, float dist)
 			return;
 		}
 	}
-
 	VectorSubtract (self->enemy->s.origin, self->s.origin, v);
 	self->ideal_yaw = vectoyaw(v);
 	M_ChangeYaw (self);
@@ -745,7 +744,7 @@ qboolean M_CheckAttack (edict_t *self)
 	float	chance;
 	trace_t	tr;
 
-	if (self->enemy->health > 0)
+	/*if (self->enemy->health > 0)
 	{
 	// see if any entities are in the way of the shot
 		VectorCopy (self->s.origin, spot1);
@@ -758,7 +757,7 @@ qboolean M_CheckAttack (edict_t *self)
 		// do we have a clear shot?
 		//if (tr.ent != self->enemy)
 		//	return false;
-	}
+	}*/
 	
 	// melee attack
 	if (enemy_range == RANGE_MELEE)
@@ -808,13 +807,15 @@ qboolean M_CheckAttack (edict_t *self)
 		chance *= 0.5;
 	else if (skill->value >= 2)
 		chance *= 2;
-	else if (skill->value >= 3)
-		chance = 100; // Nightmare skill makes 'em BRUTAL
+	if (skill->value >= 3)
+		chance = 0.9; // Nightmare skill makes 'em BRUTAL
 
-	if (random () < chance)
+	if (random() < chance)
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
-		self->monsterinfo.attack_finished = level.time + 2*random();
+
+		if (skill->value < 3)
+			self->monsterinfo.attack_finished = level.time + 2*random();
 		return true;
 	}
 
@@ -940,7 +941,6 @@ qboolean ai_checkattack (edict_t *self, float dist)
 			}
 		}
 	}*/
-
 	enemy_vis = false;
 
 // see if the enemy is dead
@@ -1017,6 +1017,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 
 // check knowledge of enemy
 	enemy_vis = visible(self, self->enemy);
+
 	if (enemy_vis)
 	{
 		self->monsterinfo.search_time = level.time + 1;
@@ -1052,8 +1053,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	// if enemy is not currently visible, we will never attack
 	if (!enemy_vis)
 		return false;
-
-	return self->monsterinfo.checkattack (self);
+	return self->monsterinfo.checkattack(self);
 }
 
 /*
@@ -1102,7 +1102,7 @@ void ai_run (edict_t *self, float dist)
 	CheckForGiveUp(self);
 
 	// if we're going to a combat point, just proceed
-	if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
+	/*if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
 	{
 		M_MoveToGoal (self, dist);
 		return;
@@ -1122,7 +1122,7 @@ void ai_run (edict_t *self, float dist)
 
 		if (!FindTarget (self))
 			return;
-	}
+	}*/
 
 	if (ai_checkattack (self, dist))
 		return;
@@ -1211,15 +1211,14 @@ void ai_run (edict_t *self, float dist)
 			new = true;
 		}
 	}*/
-
 	VectorSubtract (self->s.origin, self->monsterinfo.last_sighting, v);
 	d1 = VectorLength(v);
+
 	if (d1 <= dist)
 	{
 		self->monsterinfo.aiflags |= AI_PURSUE_NEXT;
 		dist = d1;
 	}
-
 	VectorCopy (self->monsterinfo.last_sighting, self->goalentity->s.origin);
 
 	if (new)

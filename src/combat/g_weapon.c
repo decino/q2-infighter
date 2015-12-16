@@ -71,6 +71,11 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 
 	//see if enemy is in range
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
@@ -152,6 +157,11 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	tr = gi.trace (self->s.origin, NULL, NULL, start, self, MASK_SHOT);
 
 	if (!(tr.fraction < 1.0))
@@ -359,6 +369,11 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
@@ -503,6 +518,11 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -538,6 +558,11 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -639,6 +664,11 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	rocket = G_Spawn();
 	VectorCopy (start, rocket->s.origin);
 	VectorCopy (dir, rocket->movedir);
@@ -684,6 +714,11 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
@@ -911,6 +946,11 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	bfg = G_Spawn();
 	VectorCopy (start, bfg->s.origin);
 	VectorCopy (dir, bfg->movedir);

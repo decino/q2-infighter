@@ -106,6 +106,11 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
@@ -138,6 +143,7 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 		VectorMA(bolt->s.origin, -10, dir, bolt->s.origin);
 		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
+	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }	
 
 void FireEnforcerBolt(edict_t *self)
@@ -153,7 +159,6 @@ void FireEnforcerBolt(edict_t *self)
 	VectorSubtract(end, start, dir);
 
 	fire_enfbolt(self, start, dir, 15, 600);
-	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }
 
 // Attack (second half)
@@ -286,6 +291,9 @@ void enforcer_pain(edict_t *self)
 {
 	float r;
 
+	// decino: No pain animations in Nightmare mode
+	if (skill->value == 3)
+		return;
 	if (level.time < self->pain_debounce_time)
 		return;
 	r = random();

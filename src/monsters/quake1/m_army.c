@@ -180,6 +180,9 @@ void army_pain(edict_t *self)
 {
 	float r;
 	
+	// decino: No pain animations in Nightmare mode
+	if (skill->value == 3)
+		return;
 	if (level.time < self->pain_debounce_time)
 		return;
 	r = random();

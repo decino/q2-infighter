@@ -88,6 +88,11 @@ void CastLightning(edict_t *self)
 
 	if (!self->enemy || self->enemy == self)
 		return;
+	if (!infront(self, self->enemy))
+	{
+		self->monsterinfo.run(self);
+		return;
+	}
 	if (self->s.frame == 72)
 		gi.sound (self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 
