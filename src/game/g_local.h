@@ -84,11 +84,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BODY_QUEUE_SIZE			8
 
 // decino: Infighter constants
-#define MAX_SELECTED_MONSTERS	24
+#define MAX_SELECTED_MONSTERS	25
 #define MAX_MONSTER_TEAMS		4
 #define MAX_DIFFICULTIES		4
 
-#define INF_VERSION				"1.0"
+#define INF_VERSION				"1.1"
 
 typedef enum
 {

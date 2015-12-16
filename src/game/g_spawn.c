@@ -139,6 +139,10 @@ void SP_monster_jorg (edict_t *self);
 void SP_monster_makron (edict_t *self);
 void SP_monster_boss3_stand (edict_t *self);
 
+// decino: Quake 1 monsters
+void SP_monster_q1_wizard(edict_t *self);
+void SP_monster_q1_shambler(edict_t *self);
+
 void SP_monster_commander_body (edict_t *self);
 
 void SP_turret_breach (edict_t *self);
@@ -261,6 +265,9 @@ spawn_t	spawns[] =
 	{"monster_boss3_stand", SP_monster_boss3_stand},
 	{"monster_jorg", SP_monster_jorg},
 	{"monster_makron", SP_monster_makron}, // decino: For medic resurrections
+
+	{"monster_q1_wizard", SP_monster_q1_wizard},
+	{"monster_q1_shambler", SP_monster_q1_shambler},
 
 	{"monster_commander_body", SP_monster_commander_body},
 

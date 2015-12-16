@@ -227,7 +227,7 @@ void gunner_run (edict_t *self)
 		self->monsterinfo.currentmove = &gunner_move_stand;
 	else
 	{
-		if (skill->value >= 3)
+		if (skill->value >= 3 && CheckDistance(self, self->enemy) < 256)
 			self->monsterinfo.currentmove = &gunner_move_runandshoot;
 		else
 			self->monsterinfo.currentmove = &gunner_move_run;

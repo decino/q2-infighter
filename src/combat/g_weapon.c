@@ -69,6 +69,9 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	float		range;
 	vec3_t		dir;
 
+	if (!self->enemy || self->enemy == self)
+		return;
+
 	//see if enemy is in range
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
 	range = VectorLength(dir);
@@ -147,7 +150,10 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 	qboolean	water = false;
 	int			content_mask = MASK_SHOT | MASK_WATER;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	tr = gi.trace (self->s.origin, NULL, NULL, start, self, MASK_SHOT);
+
 	if (!(tr.fraction < 1.0))
 	{
 		vectoangles (aimdir, dir);
@@ -351,6 +357,8 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	edict_t	*bolt;
 	trace_t	tr;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
@@ -493,6 +501,8 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -526,6 +536,8 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -625,6 +637,8 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 {
 	edict_t	*rocket;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	rocket = G_Spawn();
 	VectorCopy (start, rocket->s.origin);
 	VectorCopy (dir, rocket->movedir);
@@ -668,6 +682,8 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	int			mask;
 	qboolean	water;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
@@ -890,6 +906,8 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 {
 	edict_t	*bfg;
 
+	if (!self->enemy || self->enemy == self)
+		return;
 	bfg = G_Spawn();
 	VectorCopy (start, bfg->s.origin);
 	VectorCopy (dir, bfg->movedir);
