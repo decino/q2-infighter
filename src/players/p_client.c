@@ -1629,11 +1629,13 @@ void SelectMonster(edict_t *self, int selected_monster)
 		case 24: self->classname = "misc_insane";				SP_misc_insane(self);				break; // 100
 
 		// Quake 1 monsters
-		case 25: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
-		case 26: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
-		case 27: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
-		case 28: self->classname = "monster_q1_ogre";			SP_monster_q1_ogre(self);			break; // 200
-		case 29: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
+		case 25: self->classname = "monster_q1_fish";			SP_monster_q1_fish(self);			break; // 25
+		case 26: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
+		case 27: self->classname = "monster_q1_zombie";			SP_monster_q1_zombie(self);			break; // 60
+		case 28: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
+		case 29: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
+		case 30: self->classname = "monster_q1_ogre";			SP_monster_q1_ogre(self);			break; // 200
+		case 31: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
 
 		default: self->classname = "misc_insane";				SP_misc_insane(self);				break;
 	}
@@ -1717,22 +1719,34 @@ void fire_death(edict_t *ent, vec3_t start, vec3_t forward)
 {
 	vec3_t		from;
 	vec3_t		end;
-	trace_t tr;
+	trace_t		tr;
 
 	VectorMA(start, 8192, forward, end);
 	VectorCopy(start, from);
 
 	tr = gi.trace(from, NULL, NULL, end, ent, MASK_SHOT);
-	
-	if ((tr.ent != ent) && (tr.ent->takedamage))
+
+	if ((tr.ent != ent) && (tr.ent->takedamage || tr.ent->zombie_state == 2))
 	{
-		if (tr.ent->deadflag == DEAD_DEAD)
-			T_Damage (tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, 10000, 0, 0, MOD_RAILGUN); // decino: Gib corpses
-		else
+		int damage = 10000;
+
+		if (tr.ent->deadflag != DEAD_DEAD)
 		{
-			tr.ent->health = 0;
-			T_Damage (tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, 1, 0, 0, MOD_RAILGUN);
+			// decino: Tiny hack for zombies
+			if (strcmp(tr.ent->classname, "monster_q1_zombie") == 0)
+			{
+				if (tr.ent->zombie_state == 2)
+					tr.ent->takedamage = DAMAGE_YES;
+				else
+					damage = 25; // Enough damage to knock 'em down
+			}
+			else
+			{
+				tr.ent->health = 0;
+				damage = 1;
+			}
 		}
+		T_Damage(tr.ent, ent, ent, forward, tr.endpos, tr.plane.normal, damage, 0, 0, 0);
 	}
 	VectorCopy (tr.endpos, from);
 

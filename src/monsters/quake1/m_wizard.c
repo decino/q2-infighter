@@ -28,7 +28,6 @@ static int sound_idle1;
 static int sound_idle2;
 static int sound_pain;
 static int sound_sight;
-static int sound_thud;
 
 // Stand
 mframe_t wizard_frames_stand [] =
@@ -251,19 +250,6 @@ void wizard_pain(edict_t *self)
 	self->monsterinfo.currentmove = &wizard_move_pain;
 }
 
-void wizard_thud(edict_t *self)
-{
-	if (self->velocity[2] == 0)
-	{
-		self->nextthink = 0;
-		gi.sound (self, CHAN_WEAPON, sound_thud, 1, ATTN_NORM, 0);
-		gi.linkentity(self);
-		return;
-	}
-	self->think = wizard_thud;
-	self->nextthink = level.time + 0.1;
-}
-
 void wizard_fling(edict_t *self)
 {
 	self->velocity[0] = -200 + 400 * random();
@@ -279,8 +265,8 @@ void wizard_fling(edict_t *self)
 
 void wizard_dead(edict_t *self)
 {
-	self->think = wizard_thud;
-	self->nextthink = level.time + 0.1;
+	self->nextthink = 0;
+	gi.linkentity(self);
 }
 
 // Death
@@ -356,7 +342,6 @@ void SP_monster_q1_wizard(edict_t *self)
 	sound_idle2 = gi.soundindex("quake1/wizard/widle2.wav");
 	sound_pain = gi.soundindex("quake1/wizard/wpain.wav");
 	sound_sight = gi.soundindex("quake1/wizard/wsight.wav");
-	sound_thud = gi.soundindex ("quake1/demon/dland2.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

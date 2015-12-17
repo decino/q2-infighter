@@ -84,7 +84,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BODY_QUEUE_SIZE			8
 
 // decino: Infighter constants
-#define MAX_SELECTED_MONSTERS	29
+#define MAX_SELECTED_MONSTERS	31
 #define MAX_MONSTER_TEAMS		4
 #define MAX_DIFFICULTIES		4
 
@@ -1138,6 +1138,7 @@ struct edict_s
 	int			undamaged_time;	// decino: Time elapsed while not taking damage
 	int			threshold;		// decino: While threshold is positive the monster won't retaliate against attacks
 	int			monster_team;
+	int			zombie_state;	// decino: 0: normal, 1: pain, 2: down
 
 	char		*monster_name;
 };

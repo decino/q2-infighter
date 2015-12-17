@@ -155,7 +155,7 @@ void FireOgreGrenade(edict_t *self)
 	vec3_t	start;
 	vec3_t	forward, right;
 	vec3_t	aim;
-	vec3_t offset = {0, 0, 0};
+	vec3_t offset = {0, 0, 16};
 
 	AngleVectors(self->s.angles, forward, right, NULL);
 	G_ProjectSource(self->s.origin, offset, forward, right, start);

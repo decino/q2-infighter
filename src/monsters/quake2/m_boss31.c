@@ -670,7 +670,7 @@ qboolean Jorg_CheckAttack (edict_t *self)
 		return false;
 	}
 	if (skill->value >= 3)
-		chance = 100; // Brutalise on Nightmare difficulty
+		chance = 0.9; // Brutalise on Nightmare difficulty
 
 	if (random () < chance)
 	{

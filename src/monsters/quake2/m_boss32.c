@@ -783,7 +783,7 @@ qboolean Makron_CheckAttack (edict_t *self)
 		return false;
 	}
 	if (skill->value >= 3)
-		chance = 100; // Brutalise
+		chance = 0.9; // Brutalise
 
 	if (random () < chance)
 	{

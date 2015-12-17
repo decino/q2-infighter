@@ -223,6 +223,9 @@ edict_t *FindMonsterTarget(edict_t *self)
 
 void IncrementGiveUpValues(edict_t *self)
 {
+	// decino: Zombies shouldn't give up when knocked down
+	if (self->zombie_state == 2)
+		return;
 	if (self->enemy && !visible(self, self->enemy))
 		self->give_up_time++;
 	else
