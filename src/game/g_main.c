@@ -359,7 +359,7 @@ void G_RunFrame (void)
 	if (!level.frozen)
 	{
 		level.framenum++;
-		level.time = level.framenum*FRAMETIME;
+		level.time = level.framenum * FRAMETIME;
 	}
 
 	// choose a client for monsters to target this frame

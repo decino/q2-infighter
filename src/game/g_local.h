@@ -347,6 +347,7 @@ typedef struct
 	int			body_que;			// dead bodies
 
 	int			power_cubes;		// ugly necessity for coop
+
 	qboolean	frozen;
 	qboolean	ready;
 	qboolean	show_teams;

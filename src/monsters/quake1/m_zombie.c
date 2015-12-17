@@ -30,6 +30,9 @@ static int sound_fall;
 static int sound_miss;
 static int sound_hit;
 
+void zombie_down(edict_t *self);
+void zombie_get_up_attempt(edict_t *self);
+
 // Stand
 mframe_t zombie_frames_stand [] =
 {
@@ -305,23 +308,51 @@ void zombie_get_up(edict_t *self)
 	VectorSet(self->maxs, 16, 16, 40);
 	self->takedamage = DAMAGE_YES;
 	self->health = 60;
-	self->monsterinfo.currentmove = &zombie_move_get_up;
-
-	// TODO: Check if monster's on top?
 	zombie_sight(self);
+
+	if (!M_walkmove(self, 0, 0))
+	{
+		zombie_get_up_attempt(self);
+		return;
+	}
+	self->monsterinfo.currentmove = &zombie_move_get_up;
 }
 
 void zombie_start_fall(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
-	VectorSet(self->maxs, 16, 16, -16);
+}
+
+// Down
+mframe_t zombie_frames_get_up_attempt [] =
+{
+	ai_move, 0,		zombie_get_up_attempt
+};
+mmove_t zombie_move_get_up_attempt = {173, 173, zombie_frames_get_up_attempt, NULL};
+
+void zombie_get_up_attempt(edict_t *self)
+{
+	static int down = 0;
+	zombie_down(self);
+
+	// Try getting up in 5 seconds
+	if (down >= 50)
+	{
+		down = 0;
+		zombie_get_up(self);
+		return;
+	}
+	self->s.frame = 172;
+	self->monsterinfo.currentmove = &zombie_move_get_up_attempt;
+
+	down++;
 }
 
 void zombie_down(edict_t *self)
 {
 	self->takedamage = DAMAGE_NO;
-	self->nextthink = self->nextthink + 5.0;
 	self->health = 60;
+	VectorSet(self->maxs, 16, 16, 0);
 }
 
 // Pain (1)
@@ -451,7 +482,7 @@ mframe_t zombie_frames_fall_start [] =
 	ai_move, 0,		zombie_hit_floor,
 	ai_move, 0,		zombie_down
 };
-mmove_t zombie_move_fall_start = {162, 172, zombie_frames_fall_start, zombie_get_up};
+mmove_t zombie_move_fall_start = {162, 172, zombie_frames_fall_start, zombie_get_up_attempt};
 
 // Pain
 void zombie_pain(edict_t *self, edict_t *other, float kick, int damage)

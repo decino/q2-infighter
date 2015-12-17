@@ -361,12 +361,8 @@ void Cmd_Notarget_f (edict_t *ent)
 {
 	char	*msg;
 
-	if (level.frozen)
-		level.frozen = false;
-	else
-		level.frozen = true;
-
-	gi.dprintf("frozen: %d\n", level.frozen); 
+	/*level.slowdown = 2;
+	gi.dprintf("slowdown set to 2 (0.5x speed)");
 
 	if (deathmatch->value && !sv_cheats->value)
 	{
@@ -380,7 +376,7 @@ void Cmd_Notarget_f (edict_t *ent)
 	else
 		msg = "notarget ON\n";
 
-	gi.cprintf (ent, PRINT_HIGH, msg);
+	gi.cprintf (ent, PRINT_HIGH, msg);*/
 }
 
 
