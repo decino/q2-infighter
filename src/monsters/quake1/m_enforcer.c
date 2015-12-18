@@ -104,13 +104,12 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	edict_t	*bolt;
 	trace_t	tr;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
@@ -148,15 +147,19 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 
 void FireEnforcerBolt(edict_t *self)
 {
+	vec3_t	forward, right;
 	vec3_t	start;
-	vec3_t	end;
 	vec3_t	dir;
+	vec3_t	vec;
+	vec3_t	offset = {30, 8.5, 16};
 
-	VectorCopy(self->enemy->s.origin, end);
-	VectorCopy(self->s.origin, start);
-	start[2] += 16;
-	end[2] += self->enemy->viewheight;
-	VectorSubtract(end, start, dir);
+	AngleVectors (self->s.angles, forward, right, NULL);
+	G_ProjectSource(self->s.origin, offset, forward, right, start);
+	VectorCopy(self->enemy->s.origin, vec);
+	vec[2] += self->enemy->viewheight;
+
+	VectorSubtract(vec, start, dir);
+	VectorNormalize(dir);
 
 	fire_enfbolt(self, start, dir, 15, 600);
 }

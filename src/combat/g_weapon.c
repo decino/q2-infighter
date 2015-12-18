@@ -69,13 +69,12 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 	float		range;
 	vec3_t		dir;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 
 	//see if enemy is in range
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
@@ -155,13 +154,12 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 	qboolean	water = false;
 	int			content_mask = MASK_SHOT | MASK_WATER;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	tr = gi.trace (self->s.origin, NULL, NULL, start, self, MASK_SHOT);
 
 	if (!(tr.fraction < 1.0))
@@ -367,13 +365,12 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	edict_t	*bolt;
 	trace_t	tr;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	VectorNormalize (dir);
 
 	bolt = G_Spawn();
@@ -516,13 +513,12 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -556,13 +552,12 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -662,18 +657,20 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 {
 	edict_t	*rocket;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorNormalize(dir); // decino: For some reason rockets were never normalised causing CRAZY rockets sometimes
+
 	rocket = G_Spawn();
-	VectorCopy (start, rocket->s.origin);
-	VectorCopy (dir, rocket->movedir);
-	vectoangles (dir, rocket->s.angles);
-	VectorScale (dir, speed, rocket->velocity);
+	VectorCopy(start, rocket->s.origin);
+	VectorCopy(dir, rocket->movedir);
+	vectoangles(dir, rocket->s.angles);
+	VectorScale(dir, speed, rocket->velocity);
+
 	rocket->movetype = MOVETYPE_FLYMISSILE;
 	rocket->clipmask = MASK_SHOT;
 	rocket->solid = SOLID_BBOX;
@@ -712,13 +709,12 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	int			mask;
 	qboolean	water;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], aimdir);
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
@@ -944,13 +940,12 @@ void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, f
 {
 	edict_t	*bfg;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	bfg = G_Spawn();
 	VectorCopy (start, bfg->s.origin);
 	VectorCopy (dir, bfg->movedir);

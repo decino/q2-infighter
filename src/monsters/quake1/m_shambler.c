@@ -83,30 +83,29 @@ void shambler_run(edict_t *self)
 
 void CastLightning(edict_t *self)
 {
-	trace_t		tr;
-	vec3_t		start, dir, end;
+	vec3_t			start, dir, end;
+	trace_t			tr;
 
+
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
 		return;
-	}
 	if (self->s.frame == 72)
 		gi.sound (self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 
 	// decino: Shambler has an extra lightning frame on Nightmare mode
 	if (self->s.frame == 75 && skill->value < 3)
 		return;
-
 	VectorCopy(self->s.origin, start);
 	VectorCopy(self->enemy->s.origin, end);
+
 	start[2] += 40;
 	end[2] += 16;
 
 	VectorSubtract(end, start, dir);
-	VectorNormalize (dir);
+	VectorNormalize(dir);
 	VectorMA(start, 600, dir, end);
 
 	tr = gi.trace(start, NULL, NULL, end, self, (MASK_SHOT|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_WATER));

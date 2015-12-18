@@ -1,17 +1,25 @@
 =========================
   1.1
 =========================
+* ADDITIONS
+- Quake 1's unholy hellspawn enters the arena!
+- Melee attack for Tank (NM only)
+- Extra continuous attack for Brain (NM only)
+- Running smash attack for Berserker (NM only)
+- Running grenade shooting for Gunner (NM only)
+
+* TWEAKS
 - Improved give up algorithm, won't give up as easily unless they really can't see their enemies
 - Monsters can now target new enemies during their attacking cycle
 - Monsters will now drop off ledges if they haven't attacked in a while to pursuit enemies
-- Added melee attack for Tank (NM only)
-- Added extra continuous attack for Brain (NM only)
-- Added running smash attack for Berserker (NM only)
-- Added running grenade shooting for Gunner (NM only)
-- Fixed a bug where monsters wouldn't stop firing even when paused
-- Fixed a bug where monsters gave up when they shouldn't have
-- Fixed a bug where enemies changed their yaw towards itself/worldspawn
-- Fixed a bug where enemies ran in place after all enemies died
+- Monsters suffer from their own splash damage now
+- Monster's attack will miss when not facing the enemy (no more projectiles appearing from the monster's back)
+
+* BUGFIXES
+- Monsters wouldn't stop firing even when paused
+- Monsters gave up when they shouldn't have
+- Enemies changed their yaw towards itself/worldspawn
+- Enemies ran in place after all enemies died
 
 =========================
   1.0

@@ -134,13 +134,12 @@ void fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int
 	vec3_t	dir;
 	vec3_t	forward, right, up;
 
+	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
+	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-	{
-		self->monsterinfo.run(self);
-		return;
-	}
+		VectorCopy(SightEndtToDir(self)[0], dir);
 	vectoangles(aimdir, dir);
 	AngleVectors(dir, forward, right, up);
 

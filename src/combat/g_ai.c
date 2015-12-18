@@ -1021,7 +1021,7 @@ qboolean ai_checkattack (edict_t *self, float dist)
 // check knowledge of enemy
 	enemy_vis = visible(self, self->enemy);
 
-	if (enemy_vis)
+	if (enemy_vis && infront(self, self->enemy)) // decino: Make sure the enemy's in front as well
 	{
 		self->monsterinfo.search_time = level.time + 1;
 		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);

@@ -423,10 +423,52 @@ void M_MoveFrame (edict_t *self)
 		move->frame[index].thinkfunc (self);
 }
 
+vec3_t *SightToVector(edict_t *self)
+{
+	vec3_t	forward, end, dir, right, start, offset;
+	trace_t	tr;
+
+	AngleVectors(self->s.angles, forward, right, NULL);
+	VectorSet(offset, 0, 0, 0);
+	G_ProjectSource(self->s.origin, offset, forward, right, start);
+	VectorMA(start, 256, forward, end);
+
+	// decino: Update pitch
+	if (self->enemy)
+		end[2] = self->enemy->s.origin[2];
+	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+
+	return tr.endpos;
+}
+
+vec3_t *SightEndtToDir(edict_t *self)
+{
+	vec3_t	*p_end = SightToVector(self);
+	vec3_t	dir;
+
+	if (infront(self, self->enemy))
+		return dir;
+	VectorSubtract(p_end[0], self->s.origin, dir);
+
+	return dir;
+}
+
+void DrawSight(edict_t *self)
+{
+	vec3_t	*end = SightToVector(self);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_BFG_LASER);
+	gi.WritePosition(self->s.origin);
+	gi.WritePosition(end[0]);
+	gi.multicast(self->s.origin, MULTICAST_PHS);
+}
+
 
 void monster_think (edict_t *self)
 {
 	M_MoveFrame (self);
+	//DrawSight(self);
 
 	if (self->linkcount != self->monsterinfo.linkcount)
 	{
