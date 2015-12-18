@@ -770,6 +770,8 @@ void InitClientPersistant (gclient_t *client);
 void InitClientResp (gclient_t *client);
 void InitBodyQue (void);
 void ClientBeginServerFrame (edict_t *ent);
+void MonsterPreviewThink(edict_t *self);
+void CreateMonsterPreview(edict_t *self);
 
 //
 // g_player.c
@@ -1134,6 +1136,7 @@ struct edict_s
 	monsterinfo_t	monsterinfo;
 
 	// decino: Infighter mod data
+	edict_t		*dummy;			// decino: Is the player holding a dummy?
 	edict_t		*monster_preview;
 	edict_t		*monster_id;	// decino: Monster we identified with our mouse
 

@@ -432,12 +432,17 @@ vec3_t *SightToVector(edict_t *self)
 	VectorSet(offset, 0, 0, 0);
 	G_ProjectSource(self->s.origin, offset, forward, right, start);
 	VectorMA(start, 256, forward, end);
-	VectorNormalize(forward);
 
-	// decino: Update pitch
+	// decino: Update pitch (THIS BREAKS STUFF!!!)
 	if (self->enemy)
 		end[2] = self->enemy->s.origin[2];
-	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+
+	/*gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_DEBUGTRAIL);
+	gi.WritePosition(start);
+	gi.WritePosition(tr.endpos);
+	gi.multicast(start, MULTICAST_PHS);*/
 
 	return tr.endpos;
 }
@@ -446,13 +451,11 @@ vec3_t *SightEndtToDir(edict_t *self, vec3_t orig_dir)
 {
 	vec3_t	p_end;
 	vec3_t	dir;
-	vec3_t	v;
 
 	VectorCopy(SightToVector(self)[0], p_end);
 	VectorCopy(orig_dir, dir);
-	VectorSubtract(self->enemy->s.origin, self->s.origin, v);
 
-	if (infront(self, self->enemy) || VectorLength(v) < 128)
+	if (infront(self, self->enemy))
 		return dir;
 	VectorSubtract(p_end, self->s.origin, dir);
 	VectorNormalize(dir);

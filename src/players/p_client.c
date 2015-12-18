@@ -1572,30 +1572,6 @@ qboolean IsValidSpawn(edict_t *ent)
 	return true;
 }
 
-void MonsterPreviewThink(edict_t *self)
-{
-	trace_t tr;
-	vec3_t forward, right, offset;
-	vec3_t start, end;
-
-	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
-	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
-	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
-	VectorMA(start, 256, forward, end);
-
-	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
-
-	VectorCopy(tr.endpos, self->s.origin);
-	VectorCopy(tr.endpos, self->s.old_origin);
-	vectoangles(forward, self->s.angles);
-
-	// decino: Only rotate horizontally
-	self->s.angles[0] = 0;
-	self->s.angles[2] = 0;
-
-	gi.linkentity(self);
-}
-
 void SelectMonster(edict_t *self, int selected_monster)
 {
 	switch (selected_monster)
@@ -1655,41 +1631,69 @@ int GetTeamColour(int team)
 	}
 }
 
+void MonsterPreviewThink(edict_t *self)
+{
+	trace_t tr;
+	vec3_t	forward, right, offset;
+	vec3_t	start, end;
+	int		i;
+
+	SelectMonster(self, self->owner->selected_monster);
+
+	for (i = 0; i < 3; i++)
+	{
+		self->mins[i] -= 1;
+		self->maxs[i] += 1;
+	}
+	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
+	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+	VectorMA(start, 256, forward, end);
+
+	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+
+	VectorCopy(tr.endpos, self->s.origin);
+	VectorCopy(tr.endpos, self->s.old_origin);
+	vectoangles(forward, self->s.angles);
+
+	// decino: Only rotate horizontally
+	self->s.angles[0] = 0;
+	self->s.angles[2] = 0;
+
+	self->monster_team = self->owner->monster_team;
+	self->s.frame = 0;
+	self->s.sound = NULL;
+	self->s.effects = EF_SPHERETRANS;
+
+	if (!IsValidSpawn(self))
+	{
+		self->s.effects |= EF_HALF_DAMAGE;
+		return;
+	}
+	DrawPreviewLaserBBox(self, GetTeamColour(self->monster_team), 2);
+
+	self->think = MonsterPreviewThink;
+	self->nextthink = level.time + 0.1;
+	gi.linkentity(self);
+}
+
 void CreateMonsterPreview(edict_t *self)
 {
 	int i;
 
-	// decino: Remove previous preview before rendering a new one
-	if (self->monster_preview)
-		G_FreeEdict(self->monster_preview);
-	if (self->selected_monster == 0)
+	if (self->dummy || self->selected_monster == 0)
 		return;
-
 	self->monster_preview = G_Spawn();
 	SelectMonster(self->monster_preview, self->selected_monster);
 
-	for (i = 0; i < 3; i++)
-	{
-		self->monster_preview->mins[i] -= 1;
-		self->monster_preview->maxs[i] += 1;
-	}
 	self->monster_preview->monster_team = self->monster_team;
 	self->monster_preview->owner = self;
 	self->monster_preview->movetype = MOVETYPE_NOCLIP;
 	self->monster_preview->solid = SOLID_NOT;
-	self->monster_preview->s.frame = 0;
-	self->monster_preview->s.sound = NULL;
-	self->monster_preview->s.effects = EF_SPHERETRANS;
+	DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
+
 	self->monster_preview->think = MonsterPreviewThink;
 	self->monster_preview->nextthink = level.time + 0.1;
-	self->monster_preview->think(self->monster_preview);
-
-	if (!IsValidSpawn(self->monster_preview))
-	{
-		self->monster_preview->s.effects |= EF_HALF_DAMAGE;
-		return;
-	}
-	DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
 }
 
 void SpawnMonster(edict_t *ent)
@@ -1765,6 +1769,8 @@ void FireDeathBeam(edict_t *ent)
 	vec3_t		forward, right;
 	vec3_t		offset;
 
+	if (ent->dummy)
+		return;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 0, 0,  ent->viewheight - 8);
 	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
@@ -1981,58 +1987,12 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	// fire weapon from final position if needed
 	if (client->latched_buttons & BUTTON_ATTACK)
 	{
-		/*if (client->resp.spectator) {
-
-			client->latched_buttons = 0;
-
-			if (client->chase_target) {
-				client->chase_target = NULL;
-				client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
-			} else
-				GetChaseTarget(ent);
-
-		} else if (!client->weapon_thunk) {
-			client->weapon_thunk = true;
-			Think_Weapon (ent);
-		}*/
 		client->latched_buttons = 0;
 
 		if (IsValidSpawn(ent) && ent->selected_monster != 0 && !level.frozen)
 			SpawnMonster(ent->monster_preview);
 		if (ent->selected_monster == 0)
 			FireDeathBeam(ent);
-	}
-
-	/*if (client->resp.spectator) {
-		if (ucmd->upmove >= 10) {
-			if (!(client->ps.pmove.pm_flags & PMF_JUMP_HELD)) {
-				client->ps.pmove.pm_flags |= PMF_JUMP_HELD;
-				if (client->chase_target)
-					ChaseNext(ent);
-				else
-					GetChaseTarget(ent);
-			}
-		} else
-			client->ps.pmove.pm_flags &= ~PMF_JUMP_HELD;
-	}*/
-
-	// update chase cam if being followed
-	/*for (i = 1; i <= maxclients->value; i++) {
-		other = g_edicts + i;
-		if (other->inuse && other->client->chase_target == ent)
-			UpdateChaseCam(other);
-	}*/
-
-	// decino: Renders a translucent version of the selected monsters
-	if (!level.frozen)
-		CreateMonsterPreview(ent);
-
-	if (client->menudirty && client->menutime <= level.time)
-	{
-		PMenu_Do_Update(ent);
-		gi.unicast(ent, true);
-		client->menutime = level.time;
-		client->menudirty = false;
 	}
 	UpdatePlayerHUD(ent);
 }

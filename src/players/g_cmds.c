@@ -1015,8 +1015,32 @@ void Cmd_MonsterFreeze_f(edict_t *ent)
 	RefreshMonsterTeams();
 }
 
+qboolean RemoveDummy(edict_t *ent)
+{
+	if (ent->dummy)
+	{
+		G_FreeEdict(ent->dummy);
+		ent->dummy = NULL;
+		return true;
+	}
+	return false;
+}
+
+qboolean RemoveMonsterPreview(edict_t *ent)
+{
+	if (ent->monster_preview)
+	{
+		G_FreeEdict(ent->monster_preview);
+		ent->monster_preview = NULL;
+		return true;
+	}	
+	return false;
+}
+
 void Cmd_MonsterSelect_f(edict_t *ent, int i)
 {
+	RemoveMonsterPreview(ent);
+	RemoveDummy(ent);
 	ent->selected_monster += i;
 
 	if (ent->selected_monster > MAX_SELECTED_MONSTERS)
@@ -1025,6 +1049,7 @@ void Cmd_MonsterSelect_f(edict_t *ent, int i)
 		ent->selected_monster = MAX_SELECTED_MONSTERS;
 	if (level.frozen)
 		ent->selected_monster = 0;
+	CreateMonsterPreview(ent);
 }
 
 void Cmd_MonsterTeam_f(edict_t *ent)
@@ -1051,6 +1076,8 @@ void Cmd_MonsterClear_f(edict_t *ent)
 	int i = (int)maxclients->value + 1;
 	edict_t *monster = &g_edicts[i];
 
+	RemoveDummy(ent);
+
 	for (; i < MAX_EDICTS; i++, monster++)
 	{
 		if (!monster->inuse)
@@ -1063,6 +1090,8 @@ void Cmd_MonsterClear_f(edict_t *ent)
 
 void Cmd_MonsterPreviewClear_f(edict_t *ent)
 {
+	RemoveMonsterPreview(ent);
+	RemoveDummy(ent);
 	ent->selected_monster = 0;
 }
 
@@ -1073,6 +1102,67 @@ void Cmd_SkillLevel_f(edict_t *ent)
 	if (skill->value > 3)
 		skill->value = 0;
 	gi.bprintf(PRINT_CHAT, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
+}
+
+void DummyThink(edict_t *self)
+{
+	trace_t tr;
+	vec3_t forward, right, offset;
+	vec3_t start, end;
+
+	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
+	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+	VectorMA(start, 256, forward, end);
+
+	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+
+	VectorCopy(tr.endpos, self->s.origin);
+	VectorCopy(tr.endpos, self->s.old_origin);
+	vectoangles(forward, self->s.angles);
+
+	self->s.angles[0] = 0;
+	self->s.angles[2] = 0;
+
+	self->dummy->think = DummyThink;
+	self->dummy->nextthink = level.time + 0.1;
+
+	self->monster_team = self->owner->monster_team;
+	M_SetEffects(self->dummy);
+	gi.linkentity(self);
+}
+
+void CreateDummy(edict_t *self)
+{
+	int i;
+
+	self->dummy = G_Spawn();
+	SelectMonster(self->dummy, 24);
+
+	for (i = 0; i < 3; i++)
+	{
+		self->dummy->mins[i] -= 1;
+		self->dummy->maxs[i] += 1;
+	}
+	self->dummy->dummy = self->dummy;
+	self->dummy->owner = self;
+	self->dummy->movetype = MOVETYPE_NOCLIP;
+	self->dummy->solid = SOLID_BBOX;
+	self->dummy->s.frame = 267;
+	self->dummy->s.sound = NULL;
+	self->dummy->think = DummyThink;
+	self->dummy->nextthink = level.time + 0.1;
+	self->dummy->think(self->dummy);
+}
+
+void Cmd_ToggleDummy_f(edict_t *ent)
+{
+	if (ent->dummy)
+		RemoveDummy(ent);
+	else
+		CreateDummy(ent);
+	RemoveMonsterPreview(ent);
+	ent->selected_monster = 0;
 }
 
 /*
@@ -1182,6 +1272,8 @@ void ClientCommand (edict_t *ent)
 		Cmd_MonsterPreviewClear_f(ent);
 	else if (Q_stricmp(cmd, "inf_skill") == 0)
 		Cmd_SkillLevel_f(ent);
+	else if (Q_stricmp(cmd, "inf_dummy") == 0)
+		Cmd_ToggleDummy_f(ent);
 	else if (Q_stricmp(cmd, "inf_help") == 0)
 		Cmd_Help_f(ent);
 	// decino: Infighter commands ends here
