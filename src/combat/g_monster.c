@@ -441,14 +441,18 @@ vec3_t *SightToVector(edict_t *self)
 	return tr.endpos;
 }
 
-vec3_t *SightEndtToDir(edict_t *self)
+vec3_t *SightEndtToDir(edict_t *self, vec3_t orig_dir)
 {
-	vec3_t	*p_end = SightToVector(self);
+	vec3_t	p_end;
 	vec3_t	dir;
+
+	VectorCopy(SightToVector(self)[0], p_end);
+	VectorCopy(orig_dir, dir);
 
 	if (infront(self, self->enemy))
 		return dir;
-	VectorSubtract(p_end[0], self->s.origin, dir);
+	VectorSubtract(p_end, self->s.origin, dir);
+	VectorNormalize(dir);
 
 	return dir;
 }
@@ -775,7 +779,7 @@ void swimmonster_start_go (edict_t *self)
 {
 	if (!self->yaw_speed)
 		self->yaw_speed = 10;
-	self->viewheight = 10;
+	self->viewheight = 25;
 
 	monster_start_go (self);
 

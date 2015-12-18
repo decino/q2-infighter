@@ -152,8 +152,7 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, dir)[0], dir);
 	VectorNormalize (dir);
 
 	spit = G_Spawn();

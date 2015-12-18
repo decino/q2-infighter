@@ -1021,6 +1021,16 @@ qboolean ai_checkattack (edict_t *self, float dist)
 // check knowledge of enemy
 	enemy_vis = visible(self, self->enemy);
 
+	// decino: Try not to get stuck
+	if (enemy_vis && !infront(self, self->enemy) && CheckDistance(self, self->enemy) < 140)
+	{
+		vec3_t dir;
+
+		VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
+		VectorScale(dir, -2.0, self->velocity);
+		self->velocity[2] = 2;
+	}
+
 	if (enemy_vis && infront(self, self->enemy)) // decino: Make sure the enemy's in front as well
 	{
 		self->monsterinfo.search_time = level.time + 1;

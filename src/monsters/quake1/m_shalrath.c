@@ -98,8 +98,9 @@ void shalrath_pod_home(edict_t *self)
 		VectorCopy(self->enemy->s.origin, end);
 		end[2] += self->enemy->viewheight;
 
-		if (self->enemy->health < 1)
+		if (self->enemy->health < 1 && self->owner->health > 0)
 		{
+			// FIXME: Pods aren't cleared when using inf_clear
 			if (!self->owner->enemy || (self->owner->enemy == self->owner))
 			{
 				G_FreeEdict(self);
@@ -109,7 +110,7 @@ void shalrath_pod_home(edict_t *self)
 		}
 		VectorSubtract(end, self->s.origin, dir);
 		VectorNormalize(dir);
-		VectorScale(dir, 350, self->velocity);
+		VectorScale(dir, (skill->value >= 3) ? 350 : 250, self->velocity);
 	}
 
 	// decino: Draw particles each frame
@@ -134,7 +135,7 @@ void fire_shalrath_pod(edict_t *self, vec3_t start, vec3_t dir, int damage, int 
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, dir)[0], dir);
 	VectorNormalize(dir);
 
 	pod = G_Spawn();

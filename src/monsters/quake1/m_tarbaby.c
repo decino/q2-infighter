@@ -95,7 +95,7 @@ void tarbaby_sight(edict_t *self)
 
 void tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	if (other->takedamage)
+	if (other->takedamage && other->monster_team != self->monster_team)
 	{
 		if (VectorLength(self->velocity) > 400)
 		{

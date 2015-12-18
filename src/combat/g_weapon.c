@@ -74,7 +74,7 @@ qboolean fire_hit (edict_t *self, vec3_t aim, int damage, int kick)
 		return;
 	// decino: Don't make impossible shots
 	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+		VectorCopy(SightEndtToDir(self, aim)[0], dir);
 
 	//see if enemy is in range
 	VectorSubtract (self->enemy->s.origin, self->s.origin, dir);
@@ -158,8 +158,7 @@ static void fire_lead (edict_t *self, vec3_t start, vec3_t aimdir, int damage, i
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, aimdir)[0], dir);
 	tr = gi.trace (self->s.origin, NULL, NULL, start, self, MASK_SHOT);
 
 	if (!(tr.fraction < 1.0))
@@ -369,9 +368,8 @@ void fire_blaster (edict_t *self, vec3_t start, vec3_t dir, int damage, int spee
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
-	VectorNormalize (dir);
+	VectorCopy(SightEndtToDir(self, dir)[0], dir);
+	VectorNormalize(dir);
 
 	bolt = G_Spawn();
 	bolt->svflags = SVF_DEADMONSTER;
@@ -517,8 +515,7 @@ void fire_grenade (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int s
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, aimdir)[0], dir);
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -556,8 +553,7 @@ void fire_grenade2 (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int 
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, aimdir)[0], dir);
 	vectoangles (aimdir, dir);
 	AngleVectors (dir, forward, right, up);
 
@@ -661,8 +657,7 @@ void fire_rocket (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, dir)[0], dir);
 	VectorNormalize(dir); // decino: For some reason rockets were never normalised causing CRAZY rockets sometimes
 
 	rocket = G_Spawn();
@@ -713,8 +708,7 @@ void fire_rail (edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], aimdir);
+	VectorCopy(SightEndtToDir(self, aimdir)[0], aimdir);
 	VectorMA (start, 8192, aimdir, end);
 	VectorCopy (start, from);
 	ignore = self;
@@ -939,13 +933,11 @@ void bfg_think (edict_t *self)
 void fire_bfg (edict_t *self, vec3_t start, vec3_t dir, int damage, int speed, float damage_radius)
 {
 	edict_t	*bfg;
-
 	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;
 	// decino: Don't make impossible shots
-	if (!infront(self, self->enemy))
-		VectorCopy(SightEndtToDir(self)[0], dir);
+	VectorCopy(SightEndtToDir(self, dir)[0], dir);
 	bfg = G_Spawn();
 	VectorCopy (start, bfg->s.origin);
 	VectorCopy (dir, bfg->movedir);
