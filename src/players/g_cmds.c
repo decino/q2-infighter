@@ -972,6 +972,8 @@ void Cmd_MonsterFight_f(edict_t *ent)
 	{
 		gi.bprintf(PRINT_CHAT, "\nFIGHT!\n\n");
 		gi.sound (ent, CHAN_VOICE, gi.soundindex("world/x_light.wav"), 1, ATTN_NONE, 0);
+		RemoveDummy(ent);
+		RemoveMonsterPreview(ent);
 		ent->selected_monster = 0;
 	}
 	else

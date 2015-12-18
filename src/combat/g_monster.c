@@ -460,6 +460,9 @@ vec3_t *SightEndtToDir(edict_t *self, vec3_t orig_dir)
 	VectorSubtract(p_end, self->s.origin, dir);
 	VectorNormalize(dir);
 
+	// decino: Can't aim at this monster, so stop attacking
+	self->monsterinfo.run(self);
+
 	return dir;
 }
 
