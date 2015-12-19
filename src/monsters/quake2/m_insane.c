@@ -699,7 +699,7 @@ void SP_misc_insane (edict_t *self)
 	{
 		VectorSet (self->mins, -16, 0, 0);
 		VectorSet (self->maxs, 16, 8, 32);
-		self->flags |= FL_NO_KNOCKBACK;
+		//self->flags |= FL_NO_KNOCKBACK;
 		flymonster_start (self);
 	}
 	else

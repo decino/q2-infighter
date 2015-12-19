@@ -917,33 +917,6 @@ qboolean ai_checkattack (edict_t *self, float dist)
 	// decino: Insanes have no attacks... yet
 	if (strcmp(self->classname, "misc_insane") == 0)
 		return false;
-
-// this causes monsters to run blindly to the combat point w/o firing
-	/*if (self->goalentity)
-	{
-		if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
-			return false;
-
-		if (self->monsterinfo.aiflags & AI_SOUND_TARGET)
-		{
-			if ((level.time - self->enemy->teleport_time) > 5.0)
-			{
-				if (self->goalentity == self->enemy)
-					if (self->movetarget)
-						self->goalentity = self->movetarget;
-					else
-						self->goalentity = NULL;
-				self->monsterinfo.aiflags &= ~AI_SOUND_TARGET;
-				if (self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND)
-					self->monsterinfo.aiflags &= ~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
-			}
-			else
-			{
-				self->show_hostile = level.time + 1;
-				return false;
-			}
-		}
-	}*/
 	enemy_vis = false;
 
 // see if the enemy is dead
@@ -1023,27 +996,12 @@ qboolean ai_checkattack (edict_t *self, float dist)
 
 	// decino: Try not to get stuck
 	if (enemy_vis && !infront(self, self->enemy) && CheckDistance(self, self->enemy) < 140)
-	{
-		vec3_t dir;
-
-		VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
-		VectorScale(dir, -2.0, self->velocity);
-		self->velocity[2] = 2;
-	}
-
+		M_walkmove(self, self->s.angles[YAW], -4);
 	if (enemy_vis && infront(self, self->enemy)) // decino: Make sure the enemy's in front as well
 	{
 		self->monsterinfo.search_time = level.time + 1;
 		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);
 	}
-
-// look for other coop players here
-//	if (coop && self->monsterinfo.search_time < level.time)
-//	{
-//		if (FindTarget (self))
-//			return true;
-//	}
-
 	enemy_infront = infront(self, self->enemy);
 	enemy_range = range(self, self->enemy);
 	VectorSubtract (self->enemy->s.origin, self->s.origin, temp);

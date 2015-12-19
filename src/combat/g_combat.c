@@ -537,10 +537,13 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	{
 		if ((targ->svflags & SVF_MONSTER) || (client))
 			SpawnDamage (TE_BLOOD, point, normal, take);
+		else if (strcmp(targ->classname, "misc_insane_dummy") == 0) // decino: This is a dummy, so don't actually kill it
+		{
+			SpawnDamage (TE_BLOOD, point, normal, take);
+			return;
+		}
 		else
 			SpawnDamage (te_sparks, point, normal, take);
-
-
 		targ->health = targ->health - take;
 			
 		if (targ->health <= 0)

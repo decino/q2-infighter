@@ -972,7 +972,6 @@ void Cmd_MonsterFight_f(edict_t *ent)
 	{
 		gi.bprintf(PRINT_CHAT, "\nFIGHT!\n\n");
 		gi.sound (ent, CHAN_VOICE, gi.soundindex("world/x_light.wav"), 1, ATTN_NONE, 0);
-		RemoveDummy(ent);
 		RemoveMonsterPreview(ent);
 		ent->selected_monster = 0;
 	}
@@ -1006,14 +1005,14 @@ void Cmd_MonsterFreeze_f(edict_t *ent)
 
 	if (level.frozen)
 	{
-		gi.bprintf(PRINT_CHAT, "Freeze mode: ON\n");
+		gi.bprintf(PRINT_HIGH, "Freeze mode: ON\n");
 		ent->selected_monster = 0;
 
 		if (ent->monster_preview)
 			G_FreeEdict(ent->monster_preview);
 	}
 	else
-		gi.bprintf(PRINT_CHAT, "Freeze mode: OFF\n");
+		gi.bprintf(PRINT_HIGH, "Freeze mode: OFF\n");
 	RefreshMonsterTeams();
 }
 
@@ -1103,7 +1102,7 @@ void Cmd_SkillLevel_f(edict_t *ent)
 
 	if (skill->value > 3)
 		skill->value = 0;
-	gi.bprintf(PRINT_CHAT, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
+	gi.bprintf(PRINT_HIGH, "Difficulty set to %s.\n", skill_string[(int)skill->value]);
 }
 
 void DummyThink(edict_t *self)
@@ -1139,6 +1138,7 @@ void CreateDummy(edict_t *self)
 	int i;
 
 	self->dummy = G_Spawn();
+	self->dummy->spawnflags |= 8;
 	SelectMonster(self->dummy, 24);
 
 	for (i = 0; i < 3; i++)
@@ -1151,10 +1151,16 @@ void CreateDummy(edict_t *self)
 	self->dummy->movetype = MOVETYPE_NOCLIP;
 	self->dummy->solid = SOLID_BBOX;
 	self->dummy->s.frame = 267;
-	self->dummy->s.sound = NULL;
 	self->dummy->think = DummyThink;
 	self->dummy->nextthink = level.time + 0.1;
 	self->dummy->think(self->dummy);
+	self->dummy->takedamage = DAMAGE_YES;
+	self->dummy->classname = "misc_insane_dummy";
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WIDOWSPLASH);
+	gi.WritePosition(self->dummy->s.origin);
+	gi.multicast(self->dummy->s.origin, MULTICAST_PHS);
 }
 
 void Cmd_ToggleDummy_f(edict_t *ent)

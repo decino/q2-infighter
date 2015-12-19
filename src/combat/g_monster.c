@@ -462,7 +462,7 @@ vec3_t *SightEndtToDir(edict_t *self, vec3_t orig_dir)
 
 	// decino: Can't aim at this monster, so stop attacking and make some room
 	self->monsterinfo.run(self);
-	M_walkmove(self, self->s.angles[YAW], -10);
+	M_walkmove(self, self->s.angles[YAW], -4);
 
 	return dir;
 }
