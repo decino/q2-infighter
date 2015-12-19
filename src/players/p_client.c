@@ -1666,10 +1666,7 @@ void MonsterPreviewThink(edict_t *self)
 	self->s.effects = EF_SPHERETRANS;
 
 	if (!IsValidSpawn(self))
-	{
 		self->s.effects |= EF_HALF_DAMAGE;
-		return;
-	}
 	DrawPreviewLaserBBox(self, GetTeamColour(self->monster_team), 2);
 
 	self->think = MonsterPreviewThink;
@@ -1690,7 +1687,7 @@ void CreateMonsterPreview(edict_t *self)
 	self->monster_preview->owner = self;
 	self->monster_preview->movetype = MOVETYPE_NOCLIP;
 	self->monster_preview->solid = SOLID_NOT;
-	DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
+	//DrawPreviewLaserBBox(self->monster_preview, GetTeamColour(self->monster_preview->monster_team), 2);
 
 	self->monster_preview->think = MonsterPreviewThink;
 	self->monster_preview->nextthink = level.time + 0.1;
@@ -1994,6 +1991,8 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (ent->selected_monster == 0)
 			FireDeathBeam(ent);
 	}
+	if (ent->monster_preview)
+		DrawPreviewLaserBBox(ent->monster_preview, GetTeamColour(ent->monster_team), 2);
 	UpdatePlayerHUD(ent);
 }
 

@@ -460,8 +460,9 @@ vec3_t *SightEndtToDir(edict_t *self, vec3_t orig_dir)
 	VectorSubtract(p_end, self->s.origin, dir);
 	VectorNormalize(dir);
 
-	// decino: Can't aim at this monster, so stop attacking
+	// decino: Can't aim at this monster, so stop attacking and make some room
 	self->monsterinfo.run(self);
+	M_walkmove(self, self->s.angles[YAW], -10);
 
 	return dir;
 }
@@ -482,6 +483,10 @@ void monster_think (edict_t *self)
 {
 	M_MoveFrame (self);
 	//DrawSight(self);
+
+	// decino: For dummies
+	if (self->enemy && self->enemy->monster_team == self->monster_team)
+		self->enemy = NULL;
 
 	if (self->linkcount != self->monsterinfo.linkcount)
 	{

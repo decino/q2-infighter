@@ -100,7 +100,6 @@ void shalrath_pod_home(edict_t *self)
 
 		if (self->enemy->health < 1 && self->owner->health > 0)
 		{
-			// FIXME: Pods aren't cleared when using inf_clear
 			if (!self->owner->enemy || (self->owner->enemy == self->owner))
 			{
 				G_FreeEdict(self);
@@ -108,9 +107,12 @@ void shalrath_pod_home(edict_t *self)
 			}
 			self->enemy = self->owner->enemy;
 		}
-		VectorSubtract(end, self->s.origin, dir);
-		VectorNormalize(dir);
-		VectorScale(dir, (skill->value >= 3) ? 350 : 250, self->velocity);
+		if (self->owner->enemy)
+		{
+			VectorSubtract(end, self->s.origin, dir);
+			VectorNormalize(dir);
+			VectorScale(dir, (skill->value >= 3) ? 350 : 250, self->velocity);
+		}
 	}
 
 	// decino: Draw particles each frame
