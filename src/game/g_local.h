@@ -1148,6 +1148,8 @@ struct edict_s
 	int			zombie_state;	// decino: 0: normal, 1: pain, 2: down
 
 	char		*monster_name;
+
+	qboolean	freeze_dummy;	// decino: Player froze the dummy in place
 };
 
 

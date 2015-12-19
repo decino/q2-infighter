@@ -990,10 +990,6 @@ void RefreshMonsterTeams()
 	// decino: don't forget the corpses
 	for (; i < MAX_EDICTS; i++, monster++)
 	{
-		//if (!monster->inuse)
-		//	continue;
-		//if (monster->health > 0 || strcmp(monster->classname, "misc_explobox") == 1)
-		//	continue;
 		if (monster->svflags & SVF_MONSTER)
 			M_SetEffects(monster);
 	}
@@ -1018,7 +1014,7 @@ void Cmd_MonsterFreeze_f(edict_t *ent)
 
 qboolean RemoveDummy(edict_t *ent)
 {
-	if (ent->dummy)
+	if (ent->dummy && !ent->dummy->freeze_dummy)
 	{
 		G_FreeEdict(ent->dummy);
 		ent->dummy = NULL;
@@ -1111,20 +1107,22 @@ void DummyThink(edict_t *self)
 	vec3_t forward, right, offset;
 	vec3_t start, end;
 
-	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
-	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
-	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
-	VectorMA(start, 256, forward, end);
+	if (!level.frozen && !self->freeze_dummy)
+	{
+		AngleVectors(self->owner->client->v_angle, forward, right, NULL);
+		VectorSet(offset, 8, 8, self->owner->viewheight - 8);
+		P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+		VectorMA(start, 256, forward, end);
 
-	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+		tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
 
-	VectorCopy(tr.endpos, self->s.origin);
-	VectorCopy(tr.endpos, self->s.old_origin);
-	vectoangles(forward, self->s.angles);
+		VectorCopy(tr.endpos, self->s.origin);
+		VectorCopy(tr.endpos, self->s.old_origin);
+		vectoangles(forward, self->s.angles);
 
-	self->s.angles[0] = 0;
-	self->s.angles[2] = 0;
-
+		self->s.angles[0] = 0;
+		self->s.angles[2] = 0;
+	}
 	self->dummy->think = DummyThink;
 	self->dummy->nextthink = level.time + 0.1;
 
@@ -1139,6 +1137,7 @@ void CreateDummy(edict_t *self)
 
 	self->dummy = G_Spawn();
 	self->dummy->spawnflags |= 8;
+	self->dummy->freeze_dummy = false;
 	SelectMonster(self->dummy, 24);
 
 	for (i = 0; i < 3; i++)
@@ -1166,7 +1165,12 @@ void CreateDummy(edict_t *self)
 void Cmd_ToggleDummy_f(edict_t *ent)
 {
 	if (ent->dummy)
+	{
+		if (ent->dummy->freeze_dummy)
+			gi.cprintf(ent, PRINT_HIGH, "Your frozen dummy was removed.\n", NULL);
+		ent->dummy->freeze_dummy = false;
 		RemoveDummy(ent);
+	}
 	else
 		CreateDummy(ent);
 	RemoveMonsterPreview(ent);

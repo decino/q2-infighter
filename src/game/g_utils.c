@@ -602,7 +602,7 @@ void DrawPreviewLaser(edict_t *ent, vec3_t v1, vec3_t v2, int laser_color, int l
 	VectorCopy(v2, laser->pos2);
 	VectorCopy(v1, laser->pos1);
 	gi.linkentity(laser);
-	laser->nextthink = level.time + FRAMETIME;
+	laser->nextthink = level.time + 0;
 
 	VectorCopy(laser->pos2, laser->s.origin);
 	VectorCopy(laser->pos1, laser->s.old_origin);

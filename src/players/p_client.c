@@ -1671,6 +1671,7 @@ void MonsterPreviewThink(edict_t *self)
 	if (!IsValidSpawn(self))
 		self->s.effects |= EF_HALF_DAMAGE;
 
+	DrawPreviewLaserBBox(self, GetTeamColour(self->monster_team), 2);
 	self->think = MonsterPreviewThink;
 	self->nextthink = level.time + 0.1;
 	gi.linkentity(self);
@@ -1680,7 +1681,7 @@ void CreateMonsterPreview(edict_t *self)
 {
 	int i;
 
-	if (self->dummy || self->selected_monster == 0)
+	if (self->selected_monster == 0)
 		return;
 	self->monster_preview = G_Spawn();
 	SelectMonster(self->monster_preview, self->selected_monster);
@@ -1768,7 +1769,7 @@ void FireDeathBeam(edict_t *ent)
 	vec3_t		forward, right;
 	vec3_t		offset;
 
-	if (ent->dummy)
+	if (ent->dummy && !ent->dummy->freeze_dummy)
 		return;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 0, 0,  ent->viewheight - 8);
@@ -1992,9 +1993,22 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			SpawnMonster(ent->monster_preview);
 		if (ent->selected_monster == 0)
 			FireDeathBeam(ent);
+		if (ent->dummy && !ent->dummy->freeze_dummy)
+		{
+			ent->dummy->freeze_dummy = true;
+
+			if (ent->dummy->freeze_dummy)
+			{
+				gi.WriteByte(svc_temp_entity);
+				gi.WriteByte(TE_TELEPORT_EFFECT);
+				gi.WritePosition(ent->dummy->s.origin);
+				gi.multicast(ent->dummy->s.origin, MULTICAST_PVS);
+				gi.cprintf(ent, PRINT_HIGH, "Dummy was frozen in place.\n", NULL);
+			}
+		}
 	}
-	if (ent->monster_preview && (int)(level.time * 10) % 1 == 0)
-		DrawPreviewLaserBBox(ent->monster_preview, GetTeamColour(ent->monster_team), 2);
+	//if (ent->monster_preview && (int)(level.time * 10) % 1 == 0)
+	//	DrawPreviewLaserBBox(ent->monster_preview, GetTeamColour(ent->monster_team), 2);
 	UpdatePlayerHUD(ent);
 }
 
