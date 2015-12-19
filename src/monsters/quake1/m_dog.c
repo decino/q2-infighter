@@ -27,6 +27,8 @@ static int sound_pain;
 static int sound_sight;
 static int sound_search;
 
+void dog_leap(edict_t *self);
+
 // Stand
 mframe_t dog_frames_stand [] =
 {
@@ -65,7 +67,7 @@ mframe_t dog_frames_run [] =
 
 	ai_run, 20, NULL,
 	ai_run, 64, NULL,
-	ai_run, 32, NULL
+	ai_run, 32, dog_leap
 };
 mmove_t dog_move_run = {48, 59, dog_frames_run, NULL};
 
@@ -132,7 +134,10 @@ mmove_t dog_move_leap = {60, 68, dog_frames_leap, dog_run};
 
 void dog_leap(edict_t *self)
 {
-	self->monsterinfo.currentmove = &dog_move_leap;
+	if (self->enemy && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 4))
+		self->monsterinfo.currentmove = &dog_move_leap;
+	else
+		self->monsterinfo.currentmove = &dog_move_run;
 }
 
 void DogBite(edict_t *self)
@@ -238,8 +243,8 @@ void dog_pain(edict_t *self)
 
 void dog_dead(edict_t *self)
 {
-	VectorSet(self->mins, -16, -16, -24);
-	VectorSet(self->maxs, 16, 16, -8);
+	VectorSet(self->mins, -32, -32, -24);
+	VectorSet(self->maxs, 32, 32, -8);
 	self->movetype = MOVETYPE_TOSS;
 	self->svflags |= SVF_DEADMONSTER;
 	self->nextthink = 0;
@@ -334,7 +339,7 @@ void SP_monster_q1_dog(edict_t *self)
 	self->monsterinfo.stand = dog_stand;
 	self->monsterinfo.walk = dog_run;
 	self->monsterinfo.run = dog_run;
-	self->monsterinfo.attack = dog_leap;
+	//self->monsterinfo.attack = dog_leap;
 	self->monsterinfo.melee = dog_melee;
 	self->monsterinfo.sight = dog_sight;
 	self->monsterinfo.search = dog_search;

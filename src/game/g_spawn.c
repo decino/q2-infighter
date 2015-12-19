@@ -144,6 +144,7 @@ void SP_monster_q1_dog(edict_t *self);
 void SP_monster_q1_fish(edict_t *self);
 void SP_monster_q1_army(edict_t *self);
 void SP_monster_q1_zombie(edict_t *self);
+void SP_monster_q1_knight(edict_t *self);
 void SP_monster_q1_enforcer(edict_t *self);
 void SP_monster_q1_tarbaby(edict_t *self);
 void SP_monster_q1_wizard(edict_t *self);
@@ -286,6 +287,7 @@ spawn_t	spawns[] =
 	{"monster_q1_fish", SP_monster_q1_fish},
 	{"monster_q1_army", SP_monster_q1_army},
 	{"monster_q1_zombie", SP_monster_q1_zombie},
+	{"monster_q1_knight", SP_monster_q1_knight},
 	{"monster_q1_enforcer", SP_monster_q1_enforcer},
 	{"monster_q1_tarbaby", SP_monster_q1_tarbaby},
 	{"monster_q1_wizard", SP_monster_q1_wizard},

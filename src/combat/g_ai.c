@@ -411,7 +411,7 @@ qboolean infront (edict_t *self, edict_t *other)
 	vec3_t	vec;
 	float	dot;
 	vec3_t	forward;
-	
+
 	AngleVectors (self->s.angles, forward, NULL, NULL);
 	VectorSubtract (other->s.origin, self->s.origin, vec);
 	VectorNormalize (vec);
@@ -1075,29 +1075,6 @@ void ai_run (edict_t *self, float dist)
 		ai_search(self);
 	CheckForGiveUp(self);
 
-	// if we're going to a combat point, just proceed
-	/*if (self->monsterinfo.aiflags & AI_COMBAT_POINT)
-	{
-		M_MoveToGoal (self, dist);
-		return;
-	}
-
-	if (self->monsterinfo.aiflags & AI_SOUND_TARGET)
-	{
-		VectorSubtract (self->s.origin, self->enemy->s.origin, v);
-		if (VectorLength(v) < 64)
-		{
-			self->monsterinfo.aiflags |= (AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
-			self->monsterinfo.stand (self);
-			return;
-		}
-
-		M_MoveToGoal (self, dist);
-
-		if (!FindTarget (self))
-			return;
-	}*/
-
 	if (ai_checkattack (self, dist))
 		return;
 
@@ -1106,24 +1083,6 @@ void ai_run (edict_t *self, float dist)
 		ai_run_slide (self, dist);
 		return;
 	}
-
-	/*if (enemy_vis)
-	{
-//		if (self.aiflags & AI_LOST_SIGHT)
-//			dprint("regained sight\n");
-		M_MoveToGoal (self, dist);
-		self->monsterinfo.aiflags &= ~AI_LOST_SIGHT;
-		VectorCopy (self->enemy->s.origin, self->monsterinfo.last_sighting);
-		self->monsterinfo.trail_time = level.time;
-		return;
-	}
-
-	// coop will change to another enemy if visible
-	if (coop->value)
-	{	// FIXME: insane guys get mad with this, which causes crashes!
-		if (FindTarget (self))
-			return;
-	}*/
 
 	if ((self->monsterinfo.search_time) && (level.time > (self->monsterinfo.search_time + 20)))
 	{
@@ -1139,52 +1098,6 @@ void ai_run (edict_t *self, float dist)
 
 	new = false;
 
-	/*if (!(self->monsterinfo.aiflags & AI_LOST_SIGHT))
-	{
-		// just lost sight of the player, decide where to go first
-//		dprint("lost sight of player, last seen at "); dprint(vtos(self.last_sighting)); dprint("\n");
-		self->monsterinfo.aiflags |= (AI_LOST_SIGHT | AI_PURSUIT_LAST_SEEN);
-		self->monsterinfo.aiflags &= ~(AI_PURSUE_NEXT | AI_PURSUE_TEMP);
-		new = true;
-	}
-
-	if (self->monsterinfo.aiflags & AI_PURSUE_NEXT)
-	{
-		self->monsterinfo.aiflags &= ~AI_PURSUE_NEXT;
-//		dprint("reached current goal: "); dprint(vtos(self.origin)); dprint(" "); dprint(vtos(self.last_sighting)); dprint(" "); dprint(ftos(vlen(self.origin - self.last_sighting))); dprint("\n");
-
-		// give ourself more time since we got this far
-		self->monsterinfo.search_time = level.time + 5;
-
-		if (self->monsterinfo.aiflags & AI_PURSUE_TEMP)
-		{
-//			dprint("was temp goal; retrying original\n");
-			self->monsterinfo.aiflags &= ~AI_PURSUE_TEMP;
-			marker = NULL;
-			VectorCopy (self->monsterinfo.saved_goal, self->monsterinfo.last_sighting);
-			new = true;
-		}
-		else if (self->monsterinfo.aiflags & AI_PURSUIT_LAST_SEEN)
-		{
-			self->monsterinfo.aiflags &= ~AI_PURSUIT_LAST_SEEN;
-			marker = PlayerTrail_PickFirst (self);
-		}
-		else
-		{
-			marker = PlayerTrail_PickNext (self);
-		}
-
-		if (marker)
-		{
-			VectorCopy (marker->s.origin, self->monsterinfo.last_sighting);
-			self->monsterinfo.trail_time = marker->timestamp;
-			self->s.angles[YAW] = self->ideal_yaw = marker->s.angles[YAW];
-//			dprint("heading is "); dprint(ftos(self.ideal_yaw)); dprint("\n");
-
-//			debug_drawline(self.origin, self.last_sighting, 52);
-			new = true;
-		}
-	}*/
 	VectorSubtract (self->s.origin, self->monsterinfo.last_sighting, v);
 	d1 = VectorLength(v);
 
@@ -1257,9 +1170,7 @@ void ai_run (edict_t *self, float dist)
 		}
 //		else gi.dprintf("course was fine\n");
 	}
-
 	M_MoveToGoal (self, dist);
-
 	G_FreeEdict(tempgoal);
 
 	if (self)
