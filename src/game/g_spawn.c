@@ -140,6 +140,7 @@ void SP_monster_makron (edict_t *self);
 void SP_monster_boss3_stand (edict_t *self);
 
 // decino: Quake 1 monsters
+void SP_monster_q1_dog(edict_t *self);
 void SP_monster_q1_fish(edict_t *self);
 void SP_monster_q1_army(edict_t *self);
 void SP_monster_q1_zombie(edict_t *self);
@@ -281,6 +282,7 @@ spawn_t	spawns[] =
 	// decino: Spawns below are required for functional medic resurrections
 	{"monster_makron", SP_monster_makron}, 
 
+	{"monster_q1_dog", SP_monster_q1_dog},
 	{"monster_q1_fish", SP_monster_q1_fish},
 	{"monster_q1_army", SP_monster_q1_army},
 	{"monster_q1_zombie", SP_monster_q1_zombie},

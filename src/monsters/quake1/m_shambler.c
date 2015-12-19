@@ -86,7 +86,6 @@ void CastLightning(edict_t *self)
 	vec3_t			start, dir, end;
 	trace_t			tr;
 
-
 	// decino: No enemies left, so stop shooting
 	if (!self->enemy || self->enemy == self)
 		return;

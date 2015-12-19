@@ -113,14 +113,11 @@ void tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	{
 		if (self->groundentity)
 		{
-			self->touch = NULL;
 			self->monsterinfo.currentmove = &tarbaby_move_run;
 			self->movetype = MOVETYPE_STEP;
-			gi.dprintf("unstuck\n", NULL);
 		}
 		return;
 	}
-	self->touch = NULL;
 }
 
 void TarBabyJump(edict_t *self)

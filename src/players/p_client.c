@@ -1567,6 +1567,8 @@ qboolean IsValidSpawn(edict_t *ent)
 
 	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SHOT);
 
+	if (gi.pointcontents(ent->s.origin) & CONTENTS_SOLID)
+		return false;
 	if (tr.fraction < 1)
 		return false;
 	return true;
@@ -1605,15 +1607,16 @@ void SelectMonster(edict_t *self, int selected_monster)
 		case 24: self->classname = "misc_insane";				SP_misc_insane(self);				break; // 100
 
 		// Quake 1 monsters
-		case 25: self->classname = "monster_q1_fish";			SP_monster_q1_fish(self);			break; // 25
-		case 26: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
-		case 27: self->classname = "monster_q1_zombie";			SP_monster_q1_zombie(self);			break; // 60
-		case 28: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
-		case 29: self->classname = "monster_q1_tarbaby";		SP_monster_q1_tarbaby(self);		break; // 80
-		case 30: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
-		case 31: self->classname = "monster_q1_ogre";			SP_monster_q1_ogre(self);			break; // 200
-		case 32: self->classname = "monster_q1_shalrath";		SP_monster_q1_shalrath(self);		break; // 400
-		case 33: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
+		case 25: self->classname = "monster_q1_dog";			SP_monster_q1_dog(self);			break; // 25
+		case 26: self->classname = "monster_q1_fish";			SP_monster_q1_fish(self);			break; // 25
+		case 27: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
+		case 28: self->classname = "monster_q1_zombie";			SP_monster_q1_zombie(self);			break; // 60
+		case 29: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
+		case 30: self->classname = "monster_q1_tarbaby";		SP_monster_q1_tarbaby(self);		break; // 80
+		case 31: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
+		case 32: self->classname = "monster_q1_ogre";			SP_monster_q1_ogre(self);			break; // 200
+		case 33: self->classname = "monster_q1_shalrath";		SP_monster_q1_shalrath(self);		break; // 400
+		case 34: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
 
 		default: self->classname = "misc_insane";				SP_misc_insane(self);				break;
 	}
@@ -1667,7 +1670,6 @@ void MonsterPreviewThink(edict_t *self)
 
 	if (!IsValidSpawn(self))
 		self->s.effects |= EF_HALF_DAMAGE;
-	DrawPreviewLaserBBox(self, GetTeamColour(self->monster_team), 2);
 
 	self->think = MonsterPreviewThink;
 	self->nextthink = level.time + 0.1;
@@ -1991,7 +1993,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (ent->selected_monster == 0)
 			FireDeathBeam(ent);
 	}
-	if (ent->monster_preview)
+	if (ent->monster_preview && (int)(level.time * 10) % 1 == 0)
 		DrawPreviewLaserBBox(ent->monster_preview, GetTeamColour(ent->monster_team), 2);
 	UpdatePlayerHUD(ent);
 }

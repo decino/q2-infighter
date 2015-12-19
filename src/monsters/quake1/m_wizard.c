@@ -135,7 +135,7 @@ void spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 		gi.WriteByte(15);
 		gi.WritePosition(self->s.origin);
 		gi.WriteDir((!plane) ? vec3_origin : plane->normal);
-		gi.WriteByte(220);
+		gi.WriteByte(209);
 		gi.multicast(self->s.origin, MULTICAST_PVS);
 
 		gi.sound (self, CHAN_WEAPON, sound_proj_hit, 1, ATTN_NORM, 0);
@@ -165,11 +165,11 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	spit->movetype = MOVETYPE_FLYMISSILE;
 	spit->clipmask = MASK_SHOT;
 	spit->solid = SOLID_BBOX;
-	spit->s.effects |= EF_BLASTER;
+	spit->s.effects |= (EF_BLASTER|EF_TRACKER);
 	VectorClear(spit->mins);
 	VectorClear(spit->maxs);
 
-	spit->s.modelindex = gi.modelindex ("models/objects/laser/tris.md2");
+	spit->s.modelindex = gi.modelindex ("models/proj/spit/tris.md2");
 	spit->owner = self;
 	spit->touch = spit_touch;
 	spit->nextthink = level.time + 2;

@@ -269,6 +269,7 @@ void ai_charge (edict_t *self, float dist)
 
 	if (!self->enemy || self == self->enemy)
 	{
+		self->enemy = self;
 		self->monsterinfo.stand(self);
 		return;
 	}

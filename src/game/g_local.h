@@ -84,7 +84,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BODY_QUEUE_SIZE			8
 
 // decino: Infighter constants
-#define MAX_SELECTED_MONSTERS	33
+#define MAX_SELECTED_MONSTERS	34
 #define MAX_MONSTER_TEAMS		4
 #define MAX_DIFFICULTIES		4
 

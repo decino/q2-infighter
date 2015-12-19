@@ -487,6 +487,12 @@ void monster_think (edict_t *self)
 	// decino: For dummies
 	if (self->enemy && self->enemy->monster_team == self->monster_team)
 		self->enemy = NULL;
+	// decino: Remove monster if it somehow gets outside the map
+	if (gi.pointcontents(self->s.origin) & CONTENTS_SOLID)
+	{
+		G_FreeEdict(self);
+		return;
+	}
 
 	if (self->linkcount != self->monsterinfo.linkcount)
 	{
