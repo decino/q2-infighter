@@ -195,7 +195,10 @@ void tarbaby_explode(edict_t *self)
 // Death
 void tarbaby_die(edict_t *self)
 {
+	if (self->deadflag == DEAD_DEAD)
+		return;
 	self->s.frame = 60;
+	self->deadflag = DEAD_DEAD;
 	self->think = tarbaby_explode;
 	self->nextthink = level.time + 0.1;
 }

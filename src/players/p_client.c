@@ -1670,7 +1670,6 @@ void MonsterPreviewThink(edict_t *self)
 
 	if (!IsValidSpawn(self))
 		self->s.effects |= EF_HALF_DAMAGE;
-
 	DrawPreviewLaserBBox(self, GetTeamColour(self->monster_team), 2);
 	self->think = MonsterPreviewThink;
 	self->nextthink = level.time + 0.1;
@@ -1989,7 +1988,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	{
 		client->latched_buttons = 0;
 
-		if (IsValidSpawn(ent) && ent->selected_monster != 0 && !level.frozen)
+		if (IsValidSpawn(ent) && ent->selected_monster != 0)
 			SpawnMonster(ent->monster_preview);
 		if (ent->selected_monster == 0)
 			FireDeathBeam(ent);
@@ -2003,12 +2002,11 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 				gi.WriteByte(TE_TELEPORT_EFFECT);
 				gi.WritePosition(ent->dummy->s.origin);
 				gi.multicast(ent->dummy->s.origin, MULTICAST_PVS);
+
 				gi.cprintf(ent, PRINT_HIGH, "Dummy was frozen in place.\n", NULL);
 			}
 		}
 	}
-	//if (ent->monster_preview && (int)(level.time * 10) % 1 == 0)
-	//	DrawPreviewLaserBBox(ent->monster_preview, GetTeamColour(ent->monster_team), 2);
 	UpdatePlayerHUD(ent);
 }
 

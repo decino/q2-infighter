@@ -95,20 +95,20 @@ void shalrath_pod_home(edict_t *self)
 	// decino: Only home every 0.2 frames
 	if (think)
 	{
-		VectorCopy(self->enemy->s.origin, end);
-		end[2] += self->enemy->viewheight;
-
-		if (self->enemy->health < 1 && self->owner->health > 0)
+		if (self->enemy && self->enemy->health < 1 && self->owner->health > 0)
 		{
-			if (!self->owner->enemy || (self->owner->enemy == self->owner))
+			// decino: Not a big fan of this, just wait until it hits something
+			/*if (!self->owner->enemy || (self->owner->enemy == self->owner))
 			{
 				G_FreeEdict(self);
 				return;
-			}
-			self->enemy = self->owner->enemy;
+			}*/				
 		}
 		if (self->owner->enemy)
 		{
+			self->enemy = self->owner->enemy;
+			VectorCopy(self->enemy->s.origin, end);
+			end[2] += self->enemy->viewheight;
 			VectorSubtract(end, self->s.origin, dir);
 			VectorNormalize(dir);
 			VectorScale(dir, (skill->value >= 3) ? 350 : 250, self->velocity);

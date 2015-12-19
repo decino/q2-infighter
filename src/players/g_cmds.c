@@ -1114,40 +1114,37 @@ void DummyThink(edict_t *self)
 		P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
 		VectorMA(start, 256, forward, end);
 
-		tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
+		tr = gi.trace(start, self->mins, self->maxs, end, self->owner, CONTENTS_SOLID);
 
 		VectorCopy(tr.endpos, self->s.origin);
 		VectorCopy(tr.endpos, self->s.old_origin);
 		vectoangles(forward, self->s.angles);
+		self->monster_team = self->owner->monster_team;
 
 		self->s.angles[0] = 0;
+		self->s.angles[1] += 180; // decino: So we can pretend he's nailed to walls ;)
 		self->s.angles[2] = 0;
 	}
+	else
+		return;
 	self->dummy->think = DummyThink;
 	self->dummy->nextthink = level.time + 0.1;
 
-	self->monster_team = self->owner->monster_team;
 	M_SetEffects(self->dummy);
 	gi.linkentity(self);
 }
 
 void CreateDummy(edict_t *self)
 {
-	int i;
-
 	self->dummy = G_Spawn();
 	self->dummy->spawnflags |= 8;
 	self->dummy->freeze_dummy = false;
 	SelectMonster(self->dummy, 24);
 
-	for (i = 0; i < 3; i++)
-	{
-		self->dummy->mins[i] -= 1;
-		self->dummy->maxs[i] += 1;
-	}
 	self->dummy->dummy = self->dummy;
 	self->dummy->owner = self;
 	self->dummy->movetype = MOVETYPE_NOCLIP;
+	self->dummy->flags |= FL_NO_KNOCKBACK;
 	self->dummy->solid = SOLID_BBOX;
 	self->dummy->s.frame = 267;
 	self->dummy->think = DummyThink;

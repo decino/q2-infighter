@@ -209,6 +209,8 @@ edict_t *FindMonsterTarget(edict_t *self)
 			continue;
 		if (!visible(self, ent))
 			continue;
+		if (ent->zombie_state == 2)
+			continue;
 		if (!best)
 		{
 			best = ent;
@@ -267,7 +269,7 @@ void ai_charge (edict_t *self, float dist)
 
 	IncrementGiveUpValues(self);
 
-	if (!self->enemy || self == self->enemy)
+	if (!self->enemy || self == self->enemy || self->enemy->zombie_state == 2)
 	{
 		self->enemy = self;
 		self->monsterinfo.stand(self);
@@ -1051,7 +1053,7 @@ void ai_run (edict_t *self, float dist)
 	IncrementGiveUpValues(self);
 
 	// decino: Give up if everyone's dead
-	if (!self->enemy || self == self->enemy)
+	if (!self->enemy || self == self->enemy || self->enemy->zombie_state == 2)
 	{
 		if (!FindMonsterTarget(self))
 		{
