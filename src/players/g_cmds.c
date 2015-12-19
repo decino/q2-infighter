@@ -990,7 +990,7 @@ void RefreshMonsterTeams()
 	// decino: don't forget the corpses
 	for (; i < MAX_EDICTS; i++, monster++)
 	{
-		if (monster->svflags & SVF_MONSTER)
+		if (monster->svflags & SVF_MONSTER || monster->freeze_dummy)
 			M_SetEffects(monster);
 	}
 }
