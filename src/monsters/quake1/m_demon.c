@@ -323,7 +323,7 @@ void SP_monster_q1_demon(edict_t *self)
 
 	if (self->solid == SOLID_NOT)
 		return;
-	sound_death = gi.soundindex("quake1/demon/ddeath1.wav");
+	sound_death = gi.soundindex("quake1/demon/ddeath.wav");
 	sound_hit = gi.soundindex("quake1/demon/dhit2.wav");
 	sound_jump = gi.soundindex("quake1/demon/djump.wav");
 	sound_land = gi.soundindex("quake1/demon/dland2.wav");

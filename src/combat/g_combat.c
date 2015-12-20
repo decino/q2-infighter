@@ -94,6 +94,7 @@ void Killed (edict_t *targ, edict_t *inflictor, edict_t *attacker, int damage, v
 	if (targ->health < -999)
 		targ->health = -999;
 	targ->enemy = attacker;
+	targ->s.effects &= ~(EF_HALF_DAMAGE);
 
 	if (attacker->svflags & SVF_MONSTER && attacker->monsterinfo.run && attacker->health > 0)
 	{

@@ -76,6 +76,8 @@ edict_t *medic_FindDeadMonster (edict_t *self)
 		//	continue;
 		if (!visible(self, ent))
 			continue;
+		if (ent == self->oldenemy)
+			continue;
 		if (!best)
 		{
 			best = ent;
@@ -592,7 +594,6 @@ static vec3_t	medic_cable_offsets[] =
 	32.7, -19.7, 10.4
 };
 
-// TODO: Check that we're not resurrecting the corpse we're standing on, we'll get stuck
 qboolean medic_can_heal(edict_t *self)
 {
 	vec3_t	offset, start, end, f, r;
@@ -609,12 +610,17 @@ qboolean medic_can_heal(edict_t *self)
 	VectorSubtract (start, self->enemy->s.origin, dir);
 	distance = VectorLength(dir);
 
-	return (distance > 64 && distance <= 256);
+	return (distance <= 256);
 }
 
 qboolean CorpseBlocked(edict_t *self)
 {
-
+	if (!IsValidLocation(self, self->s.origin, self->mins, self->maxs))
+	{
+		//gi.dprintf("Corpse is blocked.\n", NULL);
+		return true;
+	}
+	return false;
 }
 
 void medic_cable_attack (edict_t *self)
@@ -626,7 +632,6 @@ void medic_cable_attack (edict_t *self)
 
 	if (!self->enemy->inuse)
 		return;
-
 	AngleVectors (self->s.angles, f, r, NULL);
 	VectorCopy (medic_cable_offsets[self->s.frame - FRAME_attack42], offset);
 	G_ProjectSource (self->s.origin, offset, f, r, start);
@@ -636,32 +641,27 @@ void medic_cable_attack (edict_t *self)
 	distance = VectorLength(dir);
 
 	if (distance > 256)
-	{
-		self->monsterinfo.currentmove = &medic_move_run;
 		return;
-	}
 
 	// check for min/max pitch
 	vectoangles (dir, angles);
 	if (angles[0] < -180)
 		angles[0] += 360;
-	//if (fabs(angles[0]) > 45)
-	//	return;
 
 	tr = gi.trace (start, NULL, NULL, self->enemy->s.origin, self, MASK_SHOT);
-
-	//if (tr.ent != self->enemy)
-	//	return;
-	//if (tr.fraction != 1.0 && tr.ent != self->enemy) // decino: Just ignore obstacles
-	//	return;
 
 	if (self->s.frame == FRAME_attack43)
 	{
 		gi.sound (self->enemy, CHAN_AUTO, sound_hook_hit, 1, ATTN_NORM, 0);
 		self->enemy->monsterinfo.aiflags |= AI_RESURRECTING;
 	}
-	else if (self->s.frame == FRAME_attack50 && !CorpseBlocked(self->enemy))
+	else if (self->s.frame == FRAME_attack50)
 	{
+		if (CorpseBlocked(self->enemy))
+		{
+			self->oldenemy = self->enemy;
+			return;
+		}
 		self->enemy->spawnflags = 0;
 		self->enemy->monsterinfo.aiflags = 0;
 		self->enemy->target = NULL;
@@ -669,28 +669,27 @@ void medic_cable_attack (edict_t *self)
 		self->enemy->combattarget = NULL;
 		self->enemy->deathtarget = NULL;
 		self->enemy->owner = self;
-		ED_CallSpawn (self->enemy);
+
+		ED_CallSpawn(self->enemy);
 		self->enemy->owner = NULL;
+
 		if (self->enemy->think)
 		{
 			self->enemy->nextthink = level.time;
-			self->enemy->think (self->enemy);
+			self->enemy->think(self->enemy);
 		}
 		self->enemy->monsterinfo.aiflags |= AI_RESURRECTING;
-		/*if (self->oldenemy && self->oldenemy->client)
-		{
-			self->enemy->enemy = self->oldenemy;
-			FoundTarget (self->enemy);
-		}*/
 	}
 	else
 	{
 		if (self->s.frame == FRAME_attack44)
+		{
 			gi.sound (self, CHAN_WEAPON, sound_hook_heal, 1, ATTN_NORM, 0);
+		}
 	}
 
 	// adjust start for beam origin being in middle of a segment
-	VectorMA (start, 8, f, start);
+	VectorMA(start, 8, f, start);
 
 	// adjust end z for end spot since the monster is currently dead
 	VectorCopy (self->enemy->s.origin, end);
@@ -751,19 +750,30 @@ mmove_t medic_move_attackCable = {FRAME_attack33, FRAME_attack60, medic_frames_a
 void medic_attack(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_MEDIC)
+	{
+		// decino: Don't get too close
+		if (CheckDistance(self, self->enemy) > 160)
 			self->monsterinfo.currentmove = &medic_move_attackCable;
+		else
+			M_walkmove(self, self->s.angles[1] += 5, -20);
+	}
 	else
 		self->monsterinfo.currentmove = &medic_move_attackBlaster;
 }
 
 qboolean medic_checkattack (edict_t *self)
 {
-	if (self->monsterinfo.aiflags & AI_MEDIC && medic_can_heal(self))
+	if (self->monsterinfo.aiflags & AI_MEDIC)
 	{
-		medic_attack(self);
-		return true;
+		if (self->enemy && CheckDistance(self, self->enemy) < 256)
+		{
+			medic_attack(self);
+			return true;
+		}
+		return false;
 	}
-
+	else
+		medic_attack(self);
 	return M_CheckAttack (self);
 }
 
@@ -813,7 +823,7 @@ void SP_monster_medic (edict_t *self)
 	self->monsterinfo.walk = medic_walk;
 	self->monsterinfo.run = medic_run;
 	self->monsterinfo.dodge = medic_dodge;
-	self->monsterinfo.attack = medic_attack;
+	self->monsterinfo.attack = medic_checkattack; // Change
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = medic_sight;
 	self->monsterinfo.idle = medic_idle;

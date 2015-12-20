@@ -677,3 +677,8 @@ int infvsnprintf(char *out, size_t size, const char *in, va_list args)
 
 	return length;
 }
+
+qboolean IsValidLocation (edict_t *ignore, vec3_t point, vec3_t mins, vec3_t maxs) 
+{
+	return (gi.trace(point, mins, maxs, point, ignore, (CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_WINDOW)).fraction == 1.0);
+}
