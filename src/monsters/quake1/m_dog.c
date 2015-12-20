@@ -134,10 +134,8 @@ mmove_t dog_move_leap = {60, 68, dog_frames_leap, dog_run};
 
 void dog_leap(edict_t *self)
 {
-	if (self->enemy && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 4))
-		self->monsterinfo.currentmove = &dog_move_leap;
-	else
-		self->monsterinfo.currentmove = &dog_move_run;
+	//if (self->enemy && CheckDistance(self, self->enemy) < (MELEE_DISTANCE * 4))
+	self->monsterinfo.currentmove = &dog_move_leap;
 }
 
 void DogBite(edict_t *self)

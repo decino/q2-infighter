@@ -43,7 +43,8 @@ void BossExplode (edict_t *self);
 
 void TreadSound (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, tread_sound, 1, ATTN_NORM, 0);
+	if (self->monsterinfo.search_time < level.time)
+		gi.sound (self, CHAN_VOICE, tread_sound, 1, ATTN_NORM, 0);
 }
 
 void supertank_search (edict_t *self)

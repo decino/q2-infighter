@@ -609,7 +609,12 @@ qboolean medic_can_heal(edict_t *self)
 	VectorSubtract (start, self->enemy->s.origin, dir);
 	distance = VectorLength(dir);
 
-	return (distance <= 256);
+	return (distance > 64 && distance <= 256);
+}
+
+qboolean CorpseBlocked(edict_t *self)
+{
+
 }
 
 void medic_cable_attack (edict_t *self)
@@ -655,7 +660,7 @@ void medic_cable_attack (edict_t *self)
 		gi.sound (self->enemy, CHAN_AUTO, sound_hook_hit, 1, ATTN_NORM, 0);
 		self->enemy->monsterinfo.aiflags |= AI_RESURRECTING;
 	}
-	else if (self->s.frame == FRAME_attack50)
+	else if (self->s.frame == FRAME_attack50 && !CorpseBlocked(self->enemy))
 	{
 		self->enemy->spawnflags = 0;
 		self->enemy->monsterinfo.aiflags = 0;

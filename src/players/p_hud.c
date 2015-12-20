@@ -335,7 +335,7 @@ void HelpComputer (edict_t *ent)
 	gi.unicast (ent, true);
 }
 
-#define MAX_HELP_STRINGS	9
+#define MAX_HELP_STRINGS	10
 #define TABLE_BORDER		"+---------------+------------------------------+"
 
 char *help_strings[MAX_HELP_STRINGS] =
@@ -349,6 +349,7 @@ char *help_strings[MAX_HELP_STRINGS] =
 	"| inf_showteams | Toggle monster team graphics |",
 	"| inf_clear     | Remove all monsters          |",
 	"| inf_ray       | Select your death ray        |",
+	"| inf_dummy     | Spawn an attackable Dummy    |",
 };
 
 /*

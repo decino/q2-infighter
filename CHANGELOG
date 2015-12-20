@@ -7,6 +7,7 @@
 - Extra continuous attack for Brain (NM only)
 - Running smash attack for Berserker (NM only)
 - Running grenade shooting for Gunner (NM only)
+- Ability to spawn an attackable Dummy with infinite health
 
 * TWEAKS
 - Improved give up algorithm, won't give up as easily unless they really can't see their enemies
