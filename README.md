@@ -1,9 +1,8 @@
 # Infighter
 A Quake II mod where you control groups of monsters fighting each other.
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=_GZ-CZ8RGls
-" target="_blank"><img src="http://img.youtube.com/vi/_GZ-CZ8RGls/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="480" height="360" border="2" /></a>
+<a href="https://www.youtube.com/watch?v=CFgGzDrj7OM
+" target="_blank"><img src="https://dl.dropbox.com/s/9hss1xu0fvbjzjv/thumbnail.png?dl=0" width="720" height="405" border="2" /></a>
 
 -----
 ##### Download
@@ -71,6 +70,7 @@ A few days ago I noticed some YouTube videos of Doom and Quake where monsters fo
 
 Feel free to make YouTube videos of this mod. In fact, I encourage it! I feel there's some great potential for creative videos.
 
+-----
 ##### Credits
 id Software 
 https://github.com/id-Software/Quake-2
