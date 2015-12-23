@@ -114,6 +114,8 @@ void DemonJumpTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 			T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, damage, 0, 0, 0);
 		}
 	}
+	else
+		gi.sound(self, CHAN_WEAPON, sound_land, 1, ATTN_NORM, 0);
 	self->touch = NULL;
 
 	if (!M_CheckBottom(self))

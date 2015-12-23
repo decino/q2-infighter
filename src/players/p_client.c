@@ -1732,8 +1732,8 @@ void fire_death(edict_t *ent, vec3_t start, vec3_t forward)
 	VectorMA(start, 8192, forward, end);
 	VectorCopy(start, from);
 
-	tr = gi.trace(from, NULL, NULL, end, ent, MASK_SHOT);
-
+	tr = gi.trace(from, NULL, NULL, end, ent, (MASK_SHOT | CONTENTS_SLIME |CONTENTS_LAVA));
+ 
 	if ((tr.ent != ent) && (tr.ent->takedamage || tr.ent->zombie_state == 2))
 	{
 		int damage = 10000;
@@ -1825,8 +1825,10 @@ void UpdateMonsterID(edict_t *ent)
 		infsnprintf(message, MAX_QPATH * 2, "[%s] %s: %d HP (%s)", team_string[monster->monster_team], monster->monster_name, monster->health, skill_string[(int)skill->value]);
 	}
 	else
+	{
 		ent->client->ps.stats[STAT_ID] = 0;
-
+		return;
+	}
 	gi.configstring(index, message);
 	gi.WriteChar(13);
 	gi.WriteShort(index);
