@@ -1,4 +1,4 @@
-# Infighter
+# Infighter v1.1
 A Quake II mod where you control groups of monsters fighting each other.
 
 <a href="https://www.youtube.com/watch?v=CFgGzDrj7OM
@@ -61,6 +61,23 @@ The mod uses the following custom commands:
 ###### inf_dummy
 > Spawns an attackable Dummy for monsters. Can be frozen in place by pressing the shoot button.
 
+-----
+##### Setting up Quake 1 Monsters
+Without these steps the Quake 1 monsters will appear invisible in Infighter v1.1.
+If you own the first Quake you can convert its monsters to Quake II by following these steps:
+
+01. Download PakScape (http://www.fileplanet.com/50620/download/PakScape);
+02. Navigate to your Quake directory;
+03. Open 'Id1' which contains two .pak files;
+04. Open PAK0 with PakScape;
+05. Copy both 'progs' and 'sound' folders ;
+06. Navigate to your Quake II directory;
+07. Open 'infighter' and paste both copied folders into 'Q1';
+08. Do the same with PAK1;
+09. Run 'ConvertQuake1.bat';
+10. Done! You can delete the 'Q1' folder to save space.
+
+If you don't own Quake 1, it's available on Steam (http://store.steampowered.com/app/2310/) for $9,99 (or lower if you're lucky).
 
 -----
 ##### Miscellaneous Info
