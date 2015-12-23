@@ -73,9 +73,8 @@ Feel free to make YouTube videos of this mod. In fact, I encourage it! I feel th
 -----
 ##### Credits
 id Software 
-https://github.com/id-Software/Quake-2
-https://github.com/id-Software/Quake-Tools/tree/master/qcc/v101qc
+> https://github.com/id-Software/Quake-2
 
 Icculus
-http://icculus.org/qshed/qwalk/
+> http://icculus.org/qshed/qwalk/
 
