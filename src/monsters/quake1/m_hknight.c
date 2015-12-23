@@ -114,7 +114,7 @@ void hknight_run(edict_t *self)
 
 void hknight_reset_magic(edict_t *self)
 {
-	self->radius_dmg = 2;
+	self->radius_dmg = -2;
 
 	if (self->enemy && CheckDistance(self, self->enemy) < 320 && (random() < 0.75))
 		self->monsterinfo.attack_finished = level.time + 1.0;
@@ -196,13 +196,14 @@ void fire_magic(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 void FireMagic(edict_t *self)
 {
 	vec3_t		dir;
+	vec3_t		test;
 
 	VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
-	dir[1] += (self->radius_dmg * 60);
+	dir[1] += self->radius_dmg * 60;
 	VectorNormalize(dir);
 
 	fire_magic(self, self->s.origin, dir, 9, 300);
-	self->radius_dmg--;
+	self->radius_dmg++;
 }
 
 // Attack

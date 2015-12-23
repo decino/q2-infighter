@@ -422,6 +422,43 @@ qboolean infront (edict_t *self, edict_t *other)
 	return false;
 }
 
+qboolean below(edict_t *self, edict_t *other)
+{
+	vec3_t vec;
+	float dot;
+	vec3_t down;
+
+	if (!self || !other)
+		return false;
+	VectorSubtract(other->s.origin, self->s.origin, vec);
+	VectorNormalize(vec);
+	VectorSet(down, 0, 0, -1);
+	dot = DotProduct(vec, down);
+
+	if (dot > 0.95) /* 18 degree arc below */
+		return true;
+	return false;
+}
+
+qboolean inback(edict_t *self, edict_t *other)
+{
+	vec3_t vec;
+	float dot;
+	vec3_t forward;
+
+	if (!self || !other)
+	{
+		return false;
+	}
+	AngleVectors(self->s.angles, forward, NULL, NULL);
+	VectorSubtract(other->s.origin, self->s.origin, vec);
+	VectorNormalize(vec);
+	dot = DotProduct(vec, forward);
+
+	if (dot < -0.3)
+		return true;
+	return false;
+}
 
 //============================================================================
 

@@ -388,6 +388,29 @@ void vectoangles (vec3_t value1, vec3_t angles)
 	angles[ROLL] = 0;
 }
 
+float vectoyaw2(vec3_t vec)
+{
+	float yaw;
+
+	if (vec[PITCH] == 0)
+	{
+		if (vec[YAW] == 0)
+			yaw = 0;
+		else if (vec[YAW] > 0)
+			yaw = 90;
+		else
+			yaw = 270;
+	}
+	else
+	{
+		yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
+
+		if (yaw < 0)
+			yaw += 360;
+	}
+	return yaw;
+}
+
 char *G_CopyString (char *in)
 {
 	char	*out;
