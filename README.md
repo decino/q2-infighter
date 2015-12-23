@@ -7,7 +7,7 @@ alt="IMAGE ALT TEXT HERE" width="480" height="360" border="2" /></a>
 
 -----
 ##### Download
-Latest version (1.0) was released on 23/12/2015.
+Latest version (1.1) was released on 23/12/2015.
 > Windows:http://decino.nl/files/infighter/infighter_v1.1.zip
 
 Older versions:
