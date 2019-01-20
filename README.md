@@ -1,8 +1,8 @@
 # Infighter v1.1
 A Quake II mod where you control groups of monsters fighting each other.
 
-<a href="https://www.youtube.com/watch?v=2Ro_SqyEqK4
-" target="_blank"><img src="http://decino.nl/images/misc/q2_particles.png" width="720" height="405" border="2" /></a>
+<a href="https://www.youtube.com/watch?v=CFgGzDrj7OM
+" target="_blank"><img src="https://dl.dropbox.com/s/9hss1xu0fvbjzjv/thumbnail.png?dl=0" width="720" height="405" border="2" /></a>
 
 -----
 ##### Download
